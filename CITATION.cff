@@ -9,6 +9,7 @@ authors:
 version: "1.0.0"
 date-released: "2026-05-01"
 license: MIT
+doi: "10.5281/zenodo.19954678"
 repository-code: "https://github.com/jmcentire/drone-swarm-coordination"
 keywords:
   - drone swarm

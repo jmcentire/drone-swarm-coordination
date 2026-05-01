@@ -9,6 +9,10 @@ The four layers — assignment, recovery, priority allocation, and
 localization — are independently provable, empirically validated across
 N=10 to N=10,000, and compose without interference.
 
+**Citable archives**:
+- Paper: [10.5281/zenodo.19954717](https://doi.org/10.5281/zenodo.19954717)
+- Software (this repository): [10.5281/zenodo.19954678](https://doi.org/10.5281/zenodo.19954678)
+
 See `paper.pdf` (compiled from `paper.tex`) for the full writeup, or
 `WRITEUP.md` and `PROOFS.md` for the source.
 

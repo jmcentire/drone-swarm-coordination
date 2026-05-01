@@ -20,6 +20,14 @@ Companion files:
 - `swarm.mp4` — rendered four-phase demo
 - Source: `simulator.py`, `bench_*.py`, `make_figures.py`
 
+**Code and data availability.** All source, simulator, benchmark
+scripts, figures, and the rendered four-phase demo are archived at
+Zenodo under DOI [10.5281/zenodo.19954678](https://doi.org/10.5281/zenodo.19954678)
+and mirrored at the GitHub repository
+[github.com/jmcentire/drone-swarm-coordination](https://github.com/jmcentire/drone-swarm-coordination).
+The Zenodo deposition is the citable, version-pinned snapshot; the GitHub
+repository tracks ongoing changes.
+
 ## Abstract
 
 Prior work has addressed dynamic assignment via centralized incremental
