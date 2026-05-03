@@ -533,21 +533,24 @@ def run_sweep_b():
     print("=" * 74)
     print("SWEEP B — Mid-flight reconfiguration: Option 1 vs Option 2")
     print("=" * 74)
-    print(f"\n  N={NUM_DRONES} drones, M=sphere, M'=cube_shell, {N_SEEDS} seeds")
-    print(f"  Reconfig at fraction f of original transit; jitter is the per-drone")
-    print(f"  snapshot-tick spread for Option 2 (≥1 means consensus impossible).\n")
+    print(f"\n  N={NUM_DRONES} drones, M=sphere, M'=cube_shell, N_SEEDS_B={N_SEEDS_B}")
+    print(f"  Option 2's clock_skew_ticks parameter: each drone's local snapshot is")
+    print(f"  taken k_d ticks late, k_d ~ Uniform(0, clock_skew_ticks). 1 tick = {TICK_DT*1000:.0f}ms.")
+    print(f"  When clock_skew_ticks > 0, drones see different mid-transit positions and")
+    print(f"  may compute different M' assignments.\n")
 
     M = make_sphere(NUM_DRONES)
     Mp = make_cube_shell(NUM_DRONES)
 
     fractions = [0.1, 0.3, 0.5, 0.7, 0.9]
-    jitters = [0.0, 1.0]  # Option-2 snapshot jitter in ticks (same broadcast = 0)
+    # Clock-skew in ticks: 0 = perfect sync, 1 = 1 tick (40ms), 5 = 5 ticks (200ms).
+    skews = [0.0, 1.0, 5.0]
 
-    print(f"  {'option':>10} {'f':>5} {'jitter':>8} "
-          f"{'consensus %':>14} {'path overhead %':>20}  (N_SEEDS_B={N_SEEDS_B})")
+    print(f"  {'option':>10} {'f':>5} {'skew(ticks)':>11} "
+          f"{'consensus %':>14} {'path overhead %':>20}")
     for f in fractions:
         for option in (1, 2):
-            for jitter in (jitters if option == 2 else [0.0]):
+            for skew in (skews if option == 2 else [0.0]):
                 consensus = []
                 overhead = []
                 for seed in range(N_SEEDS_B):
@@ -581,15 +584,18 @@ def run_sweep_b():
                         actual = (np.linalg.norm(mid_pos - starts, axis=1)
                                   + np.linalg.norm(Mp[leaves_Mp] - mid_pos, axis=1))
                     else:
-                        # Each drone latches a snapshot ± jitter ticks
-                        # Simulate: each drone's snapshot_pos = starts + (f + δ_i)*(targets_M - starts)
-                        # If jitter > 0, each drone sees slightly different inputs → may disagree.
+                        # Option 2: each drone d latches a snapshot k_d ticks late,
+                        # k_d ~ Uniform(0, skew). At time of snapshot, drone d sees
+                        # mid-transit positions: starts + (f + k_d * tick_dt / T)*(targets_M - starts),
+                        # where T = total transit time = PHASE_MU. With skew=0 every drone
+                        # latches at the same tick → identical input → consensus. With
+                        # skew>0 each drone sees a slightly different f, and since the
+                        # PCA bisection is sensitive to point ordering, small input
+                        # differences can flip leaf assignments at boundary drones.
                         per_drone_assignments = np.zeros((NUM_DRONES, NUM_DRONES), dtype=int)
                         for d in range(NUM_DRONES):
-                            # Drone d's view: jitter δ_d for everyone (they read broadcast at one tick)
-                            delta = (rng.standard_normal() * jitter * TICK_DT
-                                     / max(1e-6, PHASE_MU))
-                            f_d = f + delta
+                            k_d = rng.uniform(0.0, skew)  # ticks late this drone latches
+                            f_d = f + (k_d * TICK_DT) / max(1e-6, PHASE_MU)
                             view = starts + f_d * (targets_M - starts)
                             per_drone_assignments[d] = assign_all(view, Mp)
                         # Consensus: do all drones agree?
@@ -611,7 +617,7 @@ def run_sweep_b():
                 c_lo, c_hi = bootstrap_ci(consensus)
                 o_lo, o_hi = bootstrap_ci(overhead)
                 opt_label = f"Opt {option}"
-                print(f"  {opt_label:>10} {f:>5.1f} {jitter:>8.1f} "
+                print(f"  {opt_label:>10} {f:>5.1f} {skew:>11.1f} "
                       f"{100*np.mean(consensus):>5.1f} [{100*c_lo:>5.1f},{100*c_hi:>5.1f}]  "
                       f"{np.mean(overhead):>6.1f} [{o_lo:>5.1f},{o_hi:>5.1f}]")
         print()
@@ -861,8 +867,70 @@ def run_sweep_d():
         print()
 
 
+def run_sweep_e():
+    """Lemma 9.5(a) empirical fit: failure probability decays as p^k.
+
+    Lemma 9.5(a) claims that for the slowest-arriving drone broadcasting k
+    EN_ROUTE messages with per-recipient drop probability p, a single
+    recipient fails to receive *any* of those k broadcasts with probability
+    exactly p^k. We measure this directly: for each (p, k) cell, count the
+    fraction of (recipient, seed) pairs where the recipient received zero
+    broadcasts from the slowest drone, and compare to the theoretical p^k.
+
+    k is varied by holding the slowest-drone arrival fixed and changing the
+    broadcast schedule (TAU). With the standard schedule, k is determined
+    by arrival time and the tau_for_remaining_count function; we instead
+    use a fixed broadcast period τ_fixed and force k = ⌈arrival / τ_fixed⌉.
+    """
+    print("=" * 74)
+    print("SWEEP E — Lemma 9.5(a) empirical fit (p^k decay)")
+    print("=" * 74)
+    print(f"\n  N={NUM_DRONES} drones, slowest drone arrives at fixed t=PHASE_MU+3σ={PHASE_MU+3*PHASE_SIGMA:.1f}s")
+    print(f"  k = number of EN_ROUTE broadcasts from slowest drone before its arrival.")
+    print(f"  Measured: P(recipient receives 0 of k broadcasts). Theoretical: p^k.\n")
+
+    n = NUM_DRONES
+    slowest_arrival_s = PHASE_MU + 3*PHASE_SIGMA
+    slowest_arrival_ticks = int(slowest_arrival_s / TICK_DT)
+
+    print(f"  {'p':>5} {'k':>5} {'measured P(0 received)':>25} "
+          f"{'theoretical p^k':>18} {'log measured':>14} {'k·log(p)':>12}")
+
+    ps = [0.3, 0.5, 0.7, 0.9]
+    # k values: choose tau so that k = ⌈arrival/tau⌉ matches a target list
+    target_ks = [1, 2, 5, 10, 20, 50]
+
+    for p in ps:
+        for k_target in target_ks:
+            # tau (in ticks) such that exactly k_target broadcasts fit before arrival.
+            # Each broadcast at t = 0, tau, 2*tau, ..., (k-1)*tau, all < arrival.
+            # So we need k_target * tau_ticks ≤ arrival_ticks < (k_target+1) * tau_ticks
+            # → tau_ticks = arrival_ticks / k_target (rounded down)
+            tau_ticks = max(1, slowest_arrival_ticks // k_target)
+            actual_k = slowest_arrival_ticks // tau_ticks
+            zero_count = 0
+            total = 0
+            for seed in range(N_SEEDS):
+                rng = np.random.default_rng(seed + 11000)
+                # Slowest drone broadcasts at ticks 0, tau, 2*tau, ..., (actual_k-1)*tau
+                # Each broadcast: independent loss to each of (n-1) recipients.
+                received_any = np.zeros(n - 1, dtype=bool)
+                for b in range(actual_k):
+                    delivery = rng.random(n - 1) >= p
+                    received_any |= delivery
+                zero_count += int(np.sum(~received_any))
+                total += (n - 1)
+            measured = zero_count / total if total > 0 else 0.0
+            theoretical = p ** actual_k
+            log_meas = np.log10(max(measured, 1e-12))
+            k_log_p = actual_k * np.log10(p)
+            print(f"  {p:>5.2f} {actual_k:>5d} {measured:>15.6e}        "
+                  f"{theoretical:>15.6e}  {log_meas:>10.3f}  {k_log_p:>10.3f}")
+        print()
+
+
 def main():
-    sweep = os.environ.get("SWEEP", "abcd")
+    sweep = os.environ.get("SWEEP", "abcde")
     if "a" in sweep:
         run_sweep_a()
     if "b" in sweep:
@@ -871,6 +939,8 @@ def main():
         run_sweep_c()
     if "d" in sweep:
         run_sweep_d()
+    if "e" in sweep:
+        run_sweep_e()
 
 
 if __name__ == '__main__':
