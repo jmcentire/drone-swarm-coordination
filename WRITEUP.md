@@ -807,6 +807,96 @@ the per-drone latency grew only 11× (consistent with O(N) per-drone
 plus small constant overhead). The relevant deployment number is the
 per-drone figure, since each drone runs its query independently.
 
+**Quiescence detection in lossy channels.** Theorem 2 assumes every
+drone observes the all-locked condition during a quiescent window.
+Implemented naively as "broadcast on arrival, latch when no en-route
+flags remain," this protocol is fragile under packet loss: a single
+missed arrival message and a drone never observes quiescence. We
+instead invert the protocol so that *absence* is the signal:
+
+- En-route drones broadcast `STATE = EN_ROUTE` with their current ETA
+  estimate at interval τ. Arrived drones broadcast nothing about
+  transit state.
+- τ shrinks as the en-route count drops. While many drones are still
+  in transit, each broadcasts infrequently (the swarm only needs the
+  worst-case ETA, not every individual estimate, and that maximum is
+  reached even with high per-drone loss rates because many redundant
+  reports converge on it). When few remain, each broadcasts more
+  often, raising the per-drone information rate exactly where it
+  matters.
+- The last en-route drone publishes a final ETA, then publishes once
+  on arrival.
+- Consensus on quiescence fires at `T_max = max(observed ETAs) + δ`,
+  where δ is a tolerance margin. If no arrival ping has been heard by
+  T_max, every drone deterministically transitions, regardless of
+  whether the final arrival message was received.
+
+The crucial property is that the trigger is *negative evidence* — the
+absence of any EN_ROUTE broadcast for the deadline window — and
+absence is invariant under packet loss in a way presence is not. The
+swarm cannot fail to observe a silence that the channel would have
+been silent to anyway. Empirically validated in §9.1.5: at per-message
+loss `p = 0.5` the inverted protocol holds 0% missed-deadline vs 25.2%
+for a re-broadcast-augmented presence-based protocol; at `p = 0.7`
+the gap widens to 0% vs 97.0%.
+
+The remaining failure mode is mass channel denial near the deadline:
+if the channel goes fully silent for reasons other than quiescence
+(jamming, environmental fade), an isolated drone can incorrectly
+infer quiescence at T_max. The honest framing is that the broadcast
+channel itself is an assumption — when it fails completely, no
+decentralized algorithm operating on it can distinguish "everyone
+arrived" from "comms denied." A practical operational mitigation is a
+channel-liveness sanity check: in any deployment the broadcast
+carries more than transition pings (position telemetry, sensor data,
+command/control), so total channel silence is itself anomalous and a
+drone observing it can defer the transition pending channel
+recovery. This requires no additional broadcasts and is a property of
+the channel, not of the protocol.
+
+**The broadcast substrate is the assumption.** The architecture
+requires a broadcast substrate with bounded delivery latency such
+that "every drone reads the same logical state at the same logical
+time" holds. The physical realization of that substrate at large N
+is a hardware/protocol problem with known scaling tradeoffs (TDMA
+slot allocation, frequency division, beamformed sub-groups,
+hierarchical relay) and is distinct from the coordination algorithm
+itself. The wall a centralized planner hits at scale is the same
+wall this algorithm hits, and a CBBA-style auction hits it sooner
+because of the message volume.
+
+**Mid-flight reconfiguration.** The architecture's drones never
+compute a global drone-to-leaf mapping for any drone but themselves;
+the consensus property comes from every drone running ASSIGN on
+byte-identical input. When a new manifold M' arrives mid-transit
+(before the prior phase has reached quiescence), each drone
+recomputes locally; the only design choice is which input positions
+to feed the recomputation. Two clean options preserve consensus:
+
+1. *Project to prior end-state.* Use the positions every drone
+   *would* have been at if the prior transit had completed (i.e.,
+   the prior manifold's leaf coordinates). Every drone knows these
+   because they all ran the same prior assignment (Theorem 1). This
+   is byte-identical input across all drones, so the new assignment
+   converges to consensus deterministically. Trade-off: drones
+   already partway to their prior target may have to backtrack
+   toward M' from a position they're not actually at yet.
+2. *Use live broadcast positions.* Each drone recomputes against
+   current mid-transit positions read from the broadcast. Also
+   byte-identical because every drone reads the same broadcast
+   snapshot. Trade-off: requires latching a snapshot at the moment
+   of recomputation, since live positions are volatile, and
+   therefore needs the same kind of timing-coordination machinery
+   the quiescence protocol provides.
+
+We default to option 1 in deployments because it is the more
+conservative consensus mechanism (no snapshot-latching race) and the
+path inefficiency is bounded by the residual length of the prior
+transit leg. Empirically validated in §9.1.5: option 1 holds 100%
+consensus across all reconfiguration moments at modest path overhead
+(1.2-5.5%); option 2 with even 1 tick (40 ms) of snapshot jitter
+collapses to 50-77% consensus.
+
 ### 9.1.1 Adversarial robustness — the witness-alarm primary defense
 
 The architecture's consensus depends on every drone seeing a
@@ -1048,6 +1138,309 @@ operational opsec. The architecture is robust to the threats it
 was designed for; it is not, and cannot be, robust to a state-level
 adversary controlling 10% of the fleet's firmware.
 
+### 9.1.5 Comms-layer empirical validation
+
+The operational claims in §9.1 (quiescence detection, mid-flight
+reconfiguration, channel-denial deferral) and the formal results in
+PROOFS Lemma 9.5 / Theorem 2.5 are validated empirically by
+`bench_comms.py` (N=100 drones, 200 seeds for Sweeps A / C / D,
+30 seeds for the O(N²)-per-drone Sweep B, μ_arrival=20s ± 5s).
+Four sweeps cover the alternatives, plus an adversarial sweep
+(D) for the most damaging known attack on the quiescence mechanism.
+
+**Quiescence detection under packet loss.** We compare two protocols:
+*naive* (broadcast `ARRIVED` on arrival, with periodic re-broadcast
+every 2s for fault tolerance, transition when a drone has heard
+`ARRIVED` from every drone) versus *inverted* (en-route drones
+broadcast `EN_ROUTE + ETA` on a τ schedule shrinking from 5s to
+0.2s as the en-route count drops; transition fires at
+T_max + δ if no `EN_ROUTE` arrived in the deadline window). Per-
+message loss probability `p` is swept on an iid channel and a
+Gilbert-Elliott bursty channel.
+
+```
+                       false_q %         missed-deadline %    spread (s)    msgs/s
+  p   protocol      mean [95% CI]        mean [95% CI]      mean
+ 0.0  naive          0.0 [0.0, 0.0]       0.0 [0.0, 0.0]     0.00            26.2
+ 0.0  inverted       0.3 [0.2, 0.4]       0.0 [0.0, 0.0]     0.92            13.7
+ 0.1  naive          0.0 [0.0, 0.0]       0.0 [0.0, 0.1]     3.77            26.2
+ 0.1  inverted       0.3 [0.2, 0.4]       0.0 [0.0, 0.0]     0.92            13.7
+ 0.3  naive          0.0 [0.0, 0.0]       2.0 [1.7, 2.3]     6.91            26.2
+ 0.3  inverted       0.3 [0.2, 0.4]       0.0 [0.0, 0.0]     0.92            13.7
+ 0.5  naive          0.0 [0.0, 0.0]      25.2 [24.1, 26.4]   7.24            26.2
+ 0.5  inverted       0.3 [0.2, 0.4]       0.0 [0.0, 0.0]     0.92            13.7
+ 0.7  naive          0.0 [0.0, 0.0]      97.0 [96.7, 97.2]   1.48            26.2
+ 0.7  inverted       0.3 [0.3, 0.4]       0.0 [0.0, 0.0]     1.09            13.7
+ 0.9  naive          0.0 [0.0, 0.0]     100.0 [100.0,100.0]  0.00            26.2
+ 0.9  inverted       6.2 [5.3, 7.0]       0.0 [0.0, 0.0]     3.65            13.7
+
+  Bursty channel (Gilbert-Elliott: p_good=0.05, p_bad=0.95):
+       naive          0.0 [0.0, 0.0]       0.1 [0.0, 0.3]    3.17            26.2
+       inverted       0.3 [0.2, 0.3]       0.0 [0.0, 0.0]    0.87            13.6
+```
+
+The protocols sit on opposite corners of the false-quiescence /
+missed-deadline trade-off. Naive achieves zero false-quiescence at
+every loss rate (a drone cannot incorrectly transition without
+having heard *every* arrival message), but fails catastrophically on
+missed-deadline as `p` rises: 2.0% at p=0.3, 25.2% at p=0.5,
+**97.0% at p=0.7, 100% at p=0.9**. The system simply gets stuck —
+drones wait forever for an `ARRIVED` message that never gets
+through. The inverted protocol holds 0% missed-deadline through
+p=0.7 with only 0.3% false-quiescence, and at p=0.9 still has 0%
+missed-deadline with 6.2% false-quiescence (drones whose own ETA
+estimate was undercut by lost broadcasts and who deadline-out before
+the slowest drone arrives). The trade-off favors inverted in any
+operational setting: a drone that never transitions is a swarm-wide
+deadlock requiring human intervention; a drone that transitions a
+few hundred milliseconds early on a small fraction of seeds simply
+moves into the next phase a tick ahead and is reconverged by the
+next assignment.
+
+The bursty channel result is more striking: on Gilbert-Elliott
+(per-message loss alternates between 5% and 95% depending on a
+two-state Markov chain), the inverted protocol's consensus spread
+is **3.6× tighter** (0.87s vs 3.17s). Both protocols achieve near
+0% missed-deadline because the channel spends most time in the good
+state, but the inverted protocol's deadline mechanism gives much
+tighter agreement on *when* the transition fires.
+
+Bandwidth: inverted uses **13.7 msgs/s vs naive's 26.2 msgs/s** —
+about half — because en-route drones broadcast on a schedule that
+naturally tapers as they arrive, while the naive protocol has to
+re-broadcast `ARRIVED` periodically forever to cover the lossy case.
+(The bandwidth comparison is against a fixed-period naive baseline;
+a smarter naive protocol with adaptive backoff would close part of
+this gap. The robustness gap on missed-deadline is independent of
+this choice.)
+
+**Spatially-correlated loss (shadowed clusters).** Real coverage
+gaps are not iid: a sub-region of the operating area shadowed by
+terrain or an antenna-misalignment can leave a cluster of drones
+with degraded comms to the rest of the swarm. We model this with a
+`ShadowedClusterChannel`: K drones in a designated cluster
+experience p_inside=0.9 loss to/from anyone, while drones outside
+the cluster experience p_outside=0.1.
+
+```
+                       false_q %         missed-deadline %    spread (s)    msgs/s
+  K   protocol      mean [95% CI]        mean [95% CI]      mean
+  5   naive          0.0 [0.0, 0.0]      88.6 [88.0, 89.3]   6.12            26.2
+  5   inverted       0.9 [0.7, 1.2]       0.0 [0.0, 0.0]     1.87            14.0
+ 10   naive          0.0 [0.0, 0.0]      98.5 [98.4, 98.7]   1.17            26.2
+ 10   inverted       1.6 [1.2, 2.0]       0.0 [0.0, 0.0]     2.34            14.0
+ 20   naive          0.0 [0.0, 0.0]     100.0 [99.9,100.0]   0.00            26.2
+ 20   inverted       2.1 [1.7, 2.5]       0.0 [0.0, 0.0]     2.78            14.0
+ 50   naive          0.0 [0.0, 0.0]     100.0 [100.0,100.0]  0.00            26.2
+ 50   inverted       4.5 [3.9, 5.3]       0.0 [0.0, 0.0]     3.41            14.0
+```
+
+The naive protocol degrades catastrophically (88.6% missed at K=5;
+100% at K=20+) because shadowed-cluster drones cannot reliably
+deliver `ARRIVED` to the rest of the swarm or receive others'
+`ARRIVED` messages. The inverted protocol holds 0% missed-deadline
+across all K up to 50 (half the swarm shadowed), with false-
+quiescence rising modestly from 0.9% (K=5) to 4.5% (K=50). The
+underlying reason is redundancy: the inverted protocol's `max ETA`
+is captured from *any* en-route drone's broadcast, so the shadowed
+cluster's lost broadcasts are partially covered by un-shadowed
+drones broadcasting larger ETAs of their own. This degrades
+gracefully rather than failing catastrophically — a useful property
+for show-drone deployments where occasional terrain shadows are
+operationally normal.
+
+**Mid-flight reconfiguration consensus.** A new manifold M' arrives
+at fraction `f ∈ [0.1, 0.9]` of the original transit toward M.
+Theorem 2.5 specifies two ways each drone can compute its M'
+assignment with byte-identical input: Option 1 uses
+`prior_end_state(D, M)` (the leaf coordinates every drone derived
+from the prior assignment), Option 2 uses a live broadcast snapshot
+latched at a common logical tick. We measure consensus rate
+(fraction of seeds where all N drones derive an identical
+assignment to M') and path overhead (extra distance vs the ideal
+direct path from start to final M' leaf).
+
+```
+                                   consensus %        path overhead %
+  option   f      jitter (ticks)   mean [95% CI]      mean [95% CI]
+  Opt 1    0.1    n/a              100.0 [100, 100]    1.2 [1.0, 1.3]
+  Opt 2    0.1    0.0              100.0 [100, 100]    0.2 [0.1, 0.3]
+  Opt 2    0.1    1.0               76.7 [63.3, 90.0]  0.2 [0.1, 0.2]
+  Opt 1    0.5    n/a              100.0 [100, 100]    2.0 [1.8, 2.2]
+  Opt 2    0.5    0.0              100.0 [100, 100]    1.4 [1.3, 1.5]
+  Opt 2    0.5    1.0               70.0 [53.3, 86.7]  1.4 [1.3, 1.5]
+  Opt 1    0.9    n/a              100.0 [100, 100]    5.5 [5.3, 5.7]
+  Opt 2    0.9    0.0              100.0 [100, 100]    5.6 [5.4, 5.9]
+  Opt 2    0.9    1.0               50.0 [33.3, 66.7]  5.6 [5.4, 5.8]
+```
+
+Option 1 is unconditionally consensus-safe at every reconfig moment
+because all drones derive `prior_end_state(D, M)` from a prior
+assignment they all already computed locally — no snapshot timing
+is required. Option 2 with a perfectly synchronized snapshot
+(jitter = 0) also achieves 100% consensus and is slightly more
+path-efficient (Option 2 lets drones recompute against where they
+actually are mid-transit). But under even **1 tick of snapshot
+jitter** (40ms), Option 2's consensus rate falls to **50-77%**
+depending on `f`. The honest framing: Option 2 requires the same
+kind of timing-coordination machinery that the quiescence protocol
+itself provides — if that machinery is unavailable mid-transit
+(which is precisely the regime where mid-flight reconfiguration
+matters), Option 2 cannot be used safely. Option 1 has no such
+dependency. The path-efficiency cost of choosing Option 1 is
+1.2-5.5% extra distance traveled, growing modestly with `f`. We
+default to Option 1 for production deployments.
+
+**Channel-denial deferral.** A jam window of width `W` is injected
+centered on the deadline tick (when the slowest drone is expected
+to arrive). With deferral enabled, a drone that observes total
+channel silence (no broadcasts of any kind) for > 1.0s defers the
+transition pending channel recovery. Background traffic (5 Hz
+position telemetry per drone) is the channel-liveness signal during
+normal operation. Sweep C uses an extended 90s horizon so that
+"deferred-and-recovered" (drones that deferred during jam, then
+transitioned correctly after) can be distinguished from
+"deadlocked" (deferred and never recovered).
+
+```
+                          false_q %        transitioned %    deadlocked %
+  jam W   mode            mean [95% CI]    mean [95% CI]     mean [95% CI]
+  0.0s    no-defer         0.3 [0.2, 0.4]  100.0 [100, 100]   0.0 [0.0, 0.0]
+  0.0s    with-defer       0.3 [0.2, 0.4]  100.0 [100, 100]   0.0 [0.0, 0.0]
+  5.0s    with-defer       0.3 [0.2, 0.4]  100.0 [100, 100]   0.0 [0.0, 0.0]
+ 10.0s    with-defer       0.2 [0.2, 0.3]  100.0 [100, 100]   0.0 [0.0, 0.0]
+ 30.0s    with-defer       0.0 [0.0, 0.0]  100.0 [100, 100]   0.0 [0.0, 0.0]
+ 60.0s    no-defer         0.6 [0.4, 0.7]  100.0 [100, 100]   0.0 [0.0, 0.0]
+ 60.0s    with-defer       0.0 [0.0, 0.0]  100.0 [100, 100]   0.0 [0.0, 0.0]
+ 80.0s    no-defer       100.0 [100, 100]  100.0 [100, 100]   0.0 [0.0, 0.0]
+ 80.0s    with-defer       0.0 [0.0, 0.0]  100.0 [100, 100]   0.0 [0.0, 0.0]
+```
+
+The headline finding is at W=80s: an 80-second jam centered on the
+deadline causes the **no-defer** protocol to false-quiescence on
+**100% of drones** (every drone reads silence-as-quiescence and
+transitions before the slowest drone has actually arrived). The
+**with-defer** variant correctly defers through the jam, then
+transitions cleanly when the channel recovers — **0%
+false-quiescence, 100% transitioned**, no deadlock. Across all
+shorter jam widths (W ≤ 30s), deferral has zero false-defer cost
+because the channel never goes fully silent (background telemetry
+keeps the liveness signal alive). The 1.0s silence threshold is
+high enough not to trip on incidental loss but low enough to
+detect sustained denial within one deadline window.
+
+**ETA-spoofing attack and per-drone sanity-bound defense.** The
+inverted protocol's max-ETA mechanism has a single most damaging
+attack: a byzantine drone broadcasting a falsified ETA far in the
+future stalls the entire swarm indefinitely (every honest recipient
+updates `max_eta_observed` to the lie, and the deadline never
+fires). The witness-alarm defense in §9.1.1 catches *position*
+lies — physical inconsistency between observed pose and
+broadcast — but ETA is a self-reported scalar with no physical
+witness. Sweep D measures the attack and a simple mitigation:
+recipients reject any ETA exceeding `t + 2·(μ + 3σ)` (here, 70s)
+as physically implausible. The mitigation is purely local — no
+consensus, no coordination, no extra messages.
+
+```
+                          deadlocked %       transitioned %    false_q (honest) %
+  K byz   mode            mean [95% CI]      mean [95% CI]     mean [95% CI]
+   0      no-defense       0.0 [0.0, 0.0]    100.0 [100, 100]   0.3 [0.3, 0.4]
+   0      sanity-bound     0.0 [0.0, 0.0]    100.0 [100, 100]   0.3 [0.3, 0.4]
+   1      no-defense     100.0 [100, 100]      0.0 [0.0, 0.0]   0.0 [0.0, 0.0]
+   1      sanity-bound     0.0 [0.0, 0.0]    100.0 [100, 100]   0.3 [0.3, 0.4]
+   5      no-defense     100.0 [100, 100]      0.0 [0.0, 0.0]   0.0 [0.0, 0.0]
+   5      sanity-bound     0.0 [0.0, 0.0]    100.0 [100, 100]   0.4 [0.3, 0.4]
+  10      no-defense     100.0 [100, 100]      0.0 [0.0, 0.0]   0.0 [0.0, 0.0]
+  10      sanity-bound     0.0 [0.0, 0.0]    100.0 [100, 100]   0.4 [0.3, 0.5]
+  25      no-defense     100.0 [100, 100]      0.0 [0.0, 0.0]   0.0 [0.0, 0.0]
+  25      sanity-bound     0.0 [0.0, 0.0]    100.0 [100, 100]   0.5 [0.4, 0.6]
+```
+
+A **single byzantine drone (K=1) broadcasting an inflated ETA
+deadlocks the entire swarm without mitigation**: 100% deadlock,
+zero honest drones transition. The sanity-bound mitigation reduces
+deadlock to 0% even at K=25 (25% byzantine), with honest
+false-quiescence held below 1%. The bound's value (70s = 2·(μ + 3σ))
+is loose enough to admit any plausible operational ETA and tight
+enough that adversary can't push the deadline past horizon. For
+deployments where this threat applies, the mitigation should be
+considered mandatory; for show-drone deployments where the entire
+fleet is operator-controlled, it is optional but cheap.
+
+**On statistical interpretation of "0%" entries.** Several rows
+above report mean = 0.0% with bootstrap CI [0.0, 0.0]. With zero
+events observed this is not a confidence interval proving the rate
+is zero; it is a property of bootstrap percentile resampling on
+degenerate samples. We use the rule-of-three upper bound: for
+0 events in N independent seeds, the 95% UB on the per-seed event
+rate is approximately 3/N. With **N = 200 seeds** for Sweeps A, C,
+and D, the honest reading of "0%" is "no events observed in 200
+seeds; per-seed rate ≤ ~1.5% with 95% confidence." Sweep B uses
+N = 30 seeds (UB ≈ 10%), since its O(N²)-per-drone cost makes
+larger sample sizes expensive and its key findings (Option 1's
+100% consensus is a real per-drone byte-equality test, and
+Option 2's jitter cliff at 50–77% is a qualitative cliff) do not
+benefit materially from tighter CIs. Treat "0%" everywhere as "no
+failures observed in this regime," not as proof of impossibility.
+
+**Scope of the comms-layer validation, and where to look if you
+need more.** The four sweeps above stress-test the coordination
+algorithm against the comms imperfections it is most likely to
+encounter in show, research, and search-and-rescue deployments:
+random loss, bursty fades, spatially-correlated shadows, sustained
+channel denial, and a single class of byzantine attack against the
+quiescence mechanism. We deliberately do not address the following,
+and point readers needing those properties to existing literature:
+
+- *Physical-layer scaling at large N* (TDMA slot allocation,
+  beamforming, frequency division, hidden-terminal MAC contention,
+  propagation delay variance). The "broadcast substrate is the
+  assumption" framing in §9.1 stands: at N ≥ 10⁴ the substrate
+  itself is a hardware/protocol problem distinct from the
+  coordination algorithm, with well-developed solutions in the
+  wireless networking literature (see Karn 1990 for hidden-terminal
+  MAC; Akyildiz et al. 2005 for wireless mesh survey; the
+  IEEE 802.11ax / 802.11be specifications for modern MAC scheduling).
+- *Cross-platform byte-identity for Theorem 2.5.* The theorem
+  assumes ASSIGN is deterministic across drones. In practice this
+  requires homogeneous binaries (same numpy/BLAS build, same
+  libm, same IEEE-754 rounding mode). Heterogeneous fleets need
+  either fixed-point arithmetic or a canonicalization pass on the
+  ASSIGN output. See Goldberg 1991 for the fp-determinism
+  fundamentals; Monniaux 2008 for the precise hazards across
+  compilers and architectures.
+- *Full byzantine-fault tolerance for the comms layer.* Sweep D
+  closes the single most operationally damaging attack (ETA
+  inflation by uncoordinated byzantines). Coordinated colluding
+  byzantines, replay attacks with cryptographic nonces, and Sybil
+  attacks are out of scope; they are well-served by Castro & Liskov
+  1999 (PBFT) for asynchronous BFT and Bracha 1987 for reliable
+  broadcast under byzantine senders. Show-drone deployments
+  generally do not face these threats; tactical deployments do, and
+  should layer a BFT consensus protocol on top of the broadcast
+  substrate before applying our coordination algorithm.
+- *Spatially-correlated loss with mobile shadows.* Sweep A's
+  shadowed-cluster channel is static — the cluster membership is
+  fixed for the duration of the run. Real shadows move as the
+  swarm moves through terrain. The graceful degradation observed
+  here suggests the protocol handles slow shadow motion well, but
+  a faster-than-deadline shadow rotation could expose drones whose
+  ETA broadcast was lost in their unshadowed window and whose
+  recovery window is already shadowed. Modeling this requires a
+  propagation-aware channel; see Goldsmith 2005 for the wireless
+  modeling toolkit.
+
+The honest framing: this paper's contribution is the coordination
+architecture, and the comms-layer validation is sufficient to
+establish that the architecture's correctness properties survive
+realistic comms imperfections in the deployment regimes we target.
+A production deployment in a more adversarial regime (active
+jamming, coordinated byzantine, hostile RF) should pair the
+coordination algorithm with the appropriate substrate-layer
+defenses from the literature above; the algorithm makes no claim
+to replace those.
+
 ### 9.2 Limitations
 
 **The optimality gap is empirical, not proved**. Conjecture 4 in
@@ -1210,6 +1603,11 @@ python3 bench_adversarial.py
 
 # Witness-alarm byzantine detection (the primary defense)
 python3 bench_witness.py
+
+# Comms-layer validation: quiescence under loss, shadowed clusters,
+# mid-flight reconfig, channel-denial deferral, ETA-spoofing attack
+python3 bench_comms.py
+NUM_DRONES=100 N_SEEDS=200 N_SEEDS_B=30 REBROADCAST_INTERVAL=2.0 python3 bench_comms.py
 
 # Streaming/mocap-style time-varying manifolds
 CYCLE=30 python3 bench_streaming.py

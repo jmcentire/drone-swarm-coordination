@@ -285,6 +285,87 @@ agree. ∎
 This formalizes the *phase-quiescence* trick that enables multi-manifold
 demos to transition without coordination machinery.
 
+### Lemma 9.5 (ETA-deadline quiescence under packet loss)
+
+Suppose every en-route drone d ∈ D broadcasts `STATE = EN_ROUTE`
+with current ETA estimate ETA_d at intervals τ_d > 0, and arrived
+drones broadcast no transit-state messages. Let ETA_max = max_d ETA_d
+over the en-route set, δ > 0 a tolerance margin, and T_max =
+ETA_max + δ. Assume an independent per-message delivery failure
+probability p < 1 between any sender-receiver pair. Then for every
+drone d' that survives to T_max:
+
+(a) the probability that d' fails to receive *any* report containing
+    ETA_max during the interval [t_0, ETA_max] decays as
+    p^k where k is the number of reports broadcast by the slowest
+    drone in that interval; and
+
+(b) at time T_max, every surviving d' that has not received any
+    EN_ROUTE broadcast in the window (T_max − τ*, T_max], where τ*
+    is the minimum broadcast interval over the en-route set,
+    deterministically transitions to the next phase.
+
+**Proof.** (a) The slowest drone broadcasts ⌈(ETA_max − t_0)/τ⌉
+times in the interval. Independent loss with probability p makes
+total failure probability ≤ p^k, which is exponentially small for
+modest k regardless of any single recipient's per-message loss rate.
+The aggregation over the entire en-route set (each drone broadcasts
+its own ETA estimate, recipients keep the maximum observed) only
+strengthens this, since recipients can also infer ETA_max from any
+drone whose own ETA estimate equals or exceeds it.
+
+(b) The transition trigger is *negative evidence*: absence of
+EN_ROUTE traffic in the deadline window. A perfectly silent window
+on the broadcast channel is observationally identical to "all drones
+arrived and ceased to broadcast" — but this is the desired
+behavior, since the alternative (waiting for an explicit "all
+arrived" message that may have been dropped) is precisely what made
+the naïve protocol fragile. The trigger is invariant under loss
+because the loss outcome and the success outcome are observationally
+equivalent at the recipient. ∎
+
+**Remark (channel-denial residual).** Lemma 9.5's transition trigger
+cannot distinguish "everyone arrived" from "the channel itself went
+silent for non-arrival reasons (jamming, fade)." This is a property
+of the substrate, not the protocol. In any operational deployment
+the broadcast carries non-transition traffic (position telemetry,
+sensor data, command/control); a drone observing total channel
+silence — *no* broadcasts of any kind for the prior N seconds —
+can defer the phase transition pending channel recovery. This adds
+no protocol messages and is a sanity check on the substrate
+itself.
+
+### Theorem 2.5 (Mid-flight reconfiguration consensus)
+
+Let M, M' be two manifolds with M' arriving at the swarm before the
+transit toward M has completed. Let `prior_end_state(D, M)` denote
+the leaf coordinates each drone would occupy under ASSIGN(D, T(M))
+upon completion. If every drone d ∈ D runs ASSIGN(D, T(M')) using
+input positions either (i) prior_end_state(D, M) or
+(ii) a broadcast-snapshot of live positions latched at a common
+logical tick t*, then all drones derive identical assignments to
+M'.
+
+**Proof.** Both inputs are byte-identical across drones. For (i),
+prior_end_state(D, M) is the output of ASSIGN(D, T(M)), which is
+deterministic across drones by Theorem 1; therefore every drone
+computes the same leaf-coordinate input. For (ii), Lemma 9 gives
+broadcast consistency at any read on a quiescent window; for a
+non-quiescent window, common consensus on t* is required (the
+same machinery as Theorem 2 supplies, applied to a snapshot tick
+rather than an all-locked tick). In both cases ASSIGN's
+determinism (Theorem 1) maps the byte-identical input to a
+byte-identical output; the swarm reaches consensus on the M'
+assignment without any global drone-to-leaf mapping ever being
+computed by any single drone. ∎
+
+**Remark (option choice).** Option (i) is preferred in deployment
+because it requires no snapshot-latching coordination — the prior
+end-state is implicit in the prior assignment that every drone has
+already computed locally. Option (ii) is more path-efficient
+(drones recompute against where they actually are, not where they
+would have ended up) but pays the snapshot-coordination cost.
+
 ## 3. Theorems and supporting results
 
 ### Lemma 10 (Sub-manifold composition)
