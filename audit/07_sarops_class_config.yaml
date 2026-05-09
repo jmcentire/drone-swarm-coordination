@@ -1,0 +1,588 @@
+# SAROPS-class comparator configuration
+# Pinned 2026-05-08 from audit/01_sarops_lineage.md §3 (20 OPERATIONAL-UNKNOWNs)
+# Companion rationale: audit/07_sarops_class_config.md
+#
+# This file is the source of truth for every operational choice made by the
+# comparator. If a value here drifts from "SAROPS-class," the bench's results
+# drift with it. Sensitivity sweeps are required for every DOCUMENTED-CHOICE.
+
+metadata:
+  version: 0.1
+  pinned_date: 2026-05-08
+  source_audit: audit/01_sarops_lineage.md
+  companion_rationale: audit/07_sarops_class_config.md
+  artifact_label: "SAROPS-class comparator (Stone-Kratzke-Allen; documented choices)"
+  citation_strength_legend:
+    PRIMARY: "value cited from originating paper (K10, FS01, Allen, Stone)"
+    SECONDARY: "value cited from a follow-up / interpretive paper (BAM13, SRW16, Breivik)"
+    INFERRED: "extrapolated from related parameters in the open record; inference documented"
+    DOCUMENTED-CHOICE: "literature silent on this; explicit defensible choice with sweep"
+  primary_sources:
+    K10: "Kratzke, Stone, Frost (2010). FUSION 2010. DTIC ADA564779."
+    FS01: "Frost, Stone (2001). USCG R&D CG-D-15-01. DTIC ADA397065."
+    BAM13: "Breivik, Allen, Maisondieu, Olagnon (2013). Ocean Dynamics 63. arXiv:1211.0805."
+    SRW16: "Stone, Royset, Washburn (2016). Springer ISORMS 237."
+    A05: "Allen (2005). USCG R&D CG-D-05-05 'Leeway Divergence' (cited via BAM13)."
+    OBJECTPROP: "OpenDrift OBJECTPROP.DAT (Allen → Breivik 2010-11-15); 85 classes; /tmp/OBJECTPROP.DAT"
+    BA08: "Breivik & Allen (2008). J Marine Systems 69. arXiv:1111.1102."
+    BAM11: "Breivik, Allen, Maisondieu, Roth (2011). Applied Ocean Research 33."
+
+# =============================================================================
+# A. PARTICLE FILTER
+# =============================================================================
+particle_filter:
+
+  # OPERATIONAL-UNKNOWN #1 (also covered by §3 item: particle count)
+  particle_count_per_scenario:
+    value: 5000
+    strength: PRIMARY
+    source: "K10 §2 p. 3 — user-selectable {2,500 / 5,000 / 10,000}; 5,000 is mid-range default"
+    rationale: "Mid-range value across the K10-documented set. Sensitivity sweep covers full set."
+    sensitivity_sweep: [2500, 5000, 10000]
+
+  # OPERATIONAL-UNKNOWN #6 — resampling policy
+  resampling:
+    policy: "none"
+    strength: DOCUMENTED-CHOICE
+    source: "K10 silent; FS01 §6.4.1 silent on SIR; SRW16 §4.2 treats SAROPS particles as path samples"
+    rationale: |
+      K10 documents no resampling step. Text reads as pure importance-weighted
+      Bayes update. Faithful default = omit resampling (K10-faithful).
+      Operationally SAROPS likely tolerates degeneracy via re-seeding through
+      new scenarios / case extension. For long-horizon benchmarks (>10 sortie
+      iterations) the no-resample SIS will degenerate; sweep with SIR-at-ESS
+      alternative is required.
+    sensitivity_sweep_alternatives:
+      - policy: "systematic_at_ess_below_half"
+        ess_threshold_fraction: 0.5
+        method: "systematic"
+      - policy: "stratified_at_ess_below_half"
+        ess_threshold_fraction: 0.5
+        method: "stratified"
+
+  # OPERATIONAL-UNKNOWN — proposal distribution
+  proposal_distribution:
+    value: "bootstrap"
+    strength: INFERRED
+    source: "K10 §2.5 — particles propagated under prior dynamics (drift+leeway); no observation-conditioned proposal"
+    rationale: "Bayes update is applied retroactively per sortie via pfail; this is consistent with bootstrap / SIS only."
+
+  # OPERATIONAL-UNKNOWN #1 — drift integration step (sensor-side / PF-side)
+  time_step_minutes:
+    value: 60
+    strength: PRIMARY
+    source: "FS01 §6.4.1 step 7 p. 6-23 (CASP=hourly); K10 silent for SAROPS specifically"
+    rationale: |
+      FS01 documents CASP-era hourly step. K10 paraphrases 'next whole hour
+      in simulated time' but does not pin SAROPS step. One secondary article
+      claims '20 minutes' but is unverified. Faithful default = 60 min.
+      Per audit §3 item 1, sweep at 5, 20, 60 min to expose sensitivity.
+    sensitivity_sweep: [5, 20, 60]
+
+  # Voyage-scenario correlation parameter (K10 §2.1)
+  voyage_correlation_default:
+    value: 0.7
+    strength: PRIMARY
+    source: "K10 §2.1 p. 4 — default 0.7, range -1..1"
+
+# =============================================================================
+# B. DRIFT DYNAMICS
+# =============================================================================
+drift:
+
+  # OPERATIONAL-UNKNOWN #5 — leeway tables
+  leeway_tables:
+    source_label: PRIMARY
+    source: "OpenDrift OBJECTPROP.DAT (Allen → Breivik 2010-11-15); 85 classes; verbatim SAROPS taxonomy"
+    file_path: "/tmp/OBJECTPROP.DAT"
+    audit_reference: "audit/02_leeway_tables.md"
+    column_convention:
+      - "a_d slope (%)"
+      - "b_d offset (cm/s)"
+      - "Syx_d DWL residual SD (cm/s)"
+      - "a_c+ slope (%)"
+      - "b_c+ offset (cm/s)"
+      - "Syx_c+ CWL+ residual SD (cm/s)"
+      - "a_c- slope (%)"
+      - "b_c- offset (cm/s)"
+      - "Syx_c- CWL- residual SD (cm/s)"
+    parameter_draw_policy:
+      method: "perturb_per_particle_once"
+      strength: PRIMARY
+      source: "K10 §2.5 — DWL slope drawn ONCE per particle, NOT redrawn per step; BA08 §2.4 confirms Monte Carlo perturbation"
+      formulation:
+        standard: "L = (a + z*Syx) * W10 + b ; z ~ N(0,1)"
+        rayleigh: "L = a*sqrt(2/pi)*R * W10 + b ; R ~ Rayleigh ; used when slope a is small enough to risk negative draws"
+
+  # OPERATIONAL-UNKNOWN #4 — Standard vs Rayleigh switching threshold
+  rayleigh_switch_threshold_slope_pct:
+    value: 0.5
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §2.5 mentions Rayleigh for 'very small m' but gives no threshold; BA08, BAM11 also silent on threshold"
+    rationale: |
+      K10 says Rayleigh is used 'for object types with very small m' to
+      avoid negative slopes from the Gaussian tail. No numeric threshold
+      published. We pick 0.5% (i.e. when the 3-sigma left tail of (a, Syx)
+      reaches zero or negative). For PIW-1 (a=0.96, Syx=12) the gaussian
+      goes negative often, so Rayleigh-switching is plausibly the right
+      choice for PIW-1 too. Sweep covers stricter and looser thresholds.
+    sensitivity_sweep_pct: [0.1, 0.5, 1.0, 2.0]
+
+  # OPERATIONAL-UNKNOWN #3 — crosswind sign-flip rate
+  crosswind_jibing:
+    distribution: "exponential"
+    strength: PRIMARY
+    source: "K10 §2.5 p. 6 — 'time between sign flips is exponentially distributed'"
+    mean_inter_flip_hours_default: 4.0
+    mean_inter_flip_strength: DOCUMENTED-CHOICE
+    mean_inter_flip_source: "K10 silent on rate; A05 reports per-class jibing frequencies but is paywalled / non-browser-blocked"
+    mean_inter_flip_rationale: |
+      Per audit §3 item 3, absent A05 access pick 1 flip per 6-12 hr for
+      raft-like objects. We default to 4 hr (mid of the 'short tack' regime
+      seen in BA08 §3 figures showing two-lobed search areas converging
+      after multi-hour integrations). For sailboats with bare-mast rudder-
+      amidships, BA08 Fig 7 implies faster flipping (~2-4 hr). Sweep
+      bounds reflect uncertainty.
+    mean_inter_flip_sensitivity_sweep_hours: [2.0, 4.0, 8.0, 12.0]
+    per_class_overrides:
+      # If/when A05 is sourced, populate per-class table here.
+      # Until then, single global value applies.
+      _placeholder: null
+
+  # OPERATIONAL-UNKNOWN #2 — per-step current/wind perturbation σ
+  current_perturbation:
+    model: "AR(1) with exponential temporal correlation"
+    strength: PRIMARY
+    source: "K10 §2.5 p. 5 — rho(dtau)=exp(-alpha*dtau); calibrated so e^(-60*alpha)=1/2"
+    correlation_half_life_minutes: 60
+    correlation_half_life_strength: PRIMARY
+    correlation_half_life_source: "K10 §2.5 p. 5"
+    sigma_u_mps: 0.20
+    sigma_v_mps: 0.20
+    sigma_strength: DOCUMENTED-CHOICE
+    sigma_source: "K10 silent on numeric sigma; BA08 §3.2 reports sigma_u ~ 0.25 m/s for current random walk in Norwegian operational system"
+    sigma_rationale: |
+      Per audit §3 item 2, no public value for SAROPS sigma. BA08 Norwegian
+      LEEWAY uses 0.25 m/s for 12-h-forecast current uncertainty; we adopt
+      0.20 m/s as a slightly conservative SAROPS-class default and sweep
+      0.10..0.30 per the audit guidance. Not wind-speed-dependent in the
+      default; sweep includes a wind-fraction model.
+    sigma_sensitivity_sweep_mps: [0.10, 0.20, 0.30]
+
+  wind_perturbation:
+    model: "AR(1) with exponential temporal correlation (independent of current)"
+    strength: PRIMARY
+    source: "K10 §2.5 — 'same OU-style structure applied independently to wind components'"
+    correlation_half_life_minutes: 60
+    correlation_half_life_strength: PRIMARY
+    sigma_W10_mps: 2.6
+    sigma_strength: SECONDARY
+    sigma_source: "BA08 §3.2 — sigma_W ~ 2.6 m/s for 12-h forecast wind random walk"
+    sigma_sensitivity_sweep_mps: [1.5, 2.6, 4.0]
+
+  # OPERATIONAL-UNKNOWN #20 — EDS analog
+  environmental_data_source:
+    value: "stationary_uniform_default_with_optional_recorded_extract"
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §1.1 mentions EDS feeds gridded (u,v); SAROPS uses NCOM/HYCOM/NDFD; not implementable in benchmark"
+    rationale: |
+      Per audit §3 item 20 and §5 'Could matter for fidelity', EDS quality
+      is the single largest realism axis. For deterministic benchmarking we
+      default to stationary_uniform (one current vector, one wind vector for
+      the whole domain and run). This is the most reproducible setting and
+      isolates algorithmic effects from environmental-data effects. Sweep
+      includes 'single_vortex' (simple structured field) and 'recorded_hycom_extract'
+      (one pinned region/date) to demonstrate sensitivity.
+    sensitivity_sweep_alternatives:
+      - "stationary_uniform"
+      - "single_vortex"
+      - "recorded_hycom_extract"
+    pinned_extract_path: "datasets/hycom_extract_TBD.nc"
+
+  # Spatial interpolation (PRIMARY — no choice)
+  spatial_interpolation:
+    method: "inverse_distance_weighting_3_nearest"
+    strength: PRIMARY
+    source: "K10 §2.5 p. 5"
+  temporal_interpolation:
+    method: "linear_between_bracketing_forecast_frames"
+    strength: PRIMARY
+    source: "K10 §2.5 p. 5"
+
+  # OPERATIONAL-UNKNOWN #19 — aground-particle policy
+  aground_policy:
+    value: "freeze_at_coastline"
+    strength: DOCUMENTED-CHOICE
+    source: "K10 silent for SAROPS; FS01 §6.4.1 documents CASP 'temporarily aground' tag"
+    rationale: |
+      Per audit §3 item 19, three options: discard, freeze, leave-drifting.
+      Discard biases posterior away from coast; leave-drifting is unphysical
+      (particle penetrates land). Freeze (with optional re-floating on
+      tide / wind shift) is the operationally honest choice. Default freeze.
+      For benchmark scenarios in open ocean, this rarely fires.
+    sensitivity_sweep_alternatives: ["discard", "freeze_at_coastline", "leave_drifting"]
+
+# =============================================================================
+# C. SENSOR LIKELIHOOD
+# =============================================================================
+sensor:
+
+  # OPERATIONAL-UNKNOWN #7 — LRC parametric family
+  lateral_range_curve:
+    family: "exponential"
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §2.4 ref [3] (Frost 2004 SAROPS LRC memo) is non-public; FS01 lists definite, exponential, inverse-cube/erf families"
+    formula: "lambda(x) = 1 - exp(-W / (2*|x| + epsilon))"
+    rationale: |
+      Per audit §3 item 7 and §5 'Could matter for fidelity', LRC family is
+      the single most leverage-able implementation choice (10-20% tail-mass
+      change between inverse-cube and exponential). We default to exponential
+      because (a) FS01 §2.3.1 establishes exponential coverage as the
+      Planner's initial-placement detection function, (b) it has a single
+      parameter W matching the Koopman sweep-width definition, and (c) it
+      is the Stone-Koopman canonical form. Inverse-cube and erf are the
+      mandatory sweep alternatives.
+    sensitivity_sweep_alternatives:
+      - family: "exponential"
+        formula: "lambda(x) = 1 - exp(-W/(2*|x|+eps))"
+      - family: "inverse_cube"
+        formula: "lambda(x) = 1 / (1 + (x/r0)^2)"  # r0 calibrated to integrate to W
+      - family: "definite_range"
+        formula: "lambda(x) = 1 if |x| <= W/2 else 0"
+      - family: "koopman_erf"
+        formula: "lambda derived from P(C)=erf(sqrt(pi/2)*C); FS01 eq 2-7"
+
+  # OPERATIONAL-UNKNOWN #8 — sweep-width tables
+  sweep_width:
+    strength: DOCUMENTED-CHOICE
+    source: "Numeric W values are in CGTO Pub 3-50.1 / NSS-Addendum tables (operational, not in open record); F04 memo paywalled"
+    rationale: |
+      Per audit §3 item 8, sweep width depends on (sensor, target, conditions).
+      Open record gives the integral definition W=integral(lambda(x)dx) and
+      qualitative dependence on visibility, sea state, cloud, sun, target
+      type. We pick representative values from the FS01 narrative range and
+      the SARP formula 'object length × cloud cover × visibility × altitude'
+      style. These are PROXIES, not SAROPS values. Sensitivity sweep is
+      mandatory and the comparator must report results conditional on W.
+    proxy_table_nm:
+      # Sweep width in nautical miles, indexed by (sensor_class, target_class, sea_state)
+      # Sea state is Beaufort-derived 1-3 (calm/light/moderate)
+      surface_vessel:
+        person_in_water:    {1: 0.30, 2: 0.20, 3: 0.10}
+        life_raft_4_6:      {1: 2.60, 2: 1.80, 3: 1.20}
+        life_raft_15_25:    {1: 3.80, 2: 2.80, 3: 1.90}
+        small_boat_under_5m:{1: 3.00, 2: 2.20, 3: 1.50}
+        sailboat_8_12m:     {1: 5.50, 2: 4.50, 3: 3.50}
+      fixed_wing_aircraft_500ft:
+        person_in_water:    {1: 0.20, 2: 0.10, 3: 0.05}
+        life_raft_4_6:      {1: 4.50, 2: 3.50, 3: 2.50}
+        life_raft_15_25:    {1: 6.00, 2: 4.50, 3: 3.50}
+        small_boat_under_5m:{1: 5.50, 2: 4.50, 3: 3.50}
+        sailboat_8_12m:     {1: 8.50, 2: 7.00, 3: 5.50}
+      helicopter_300ft:
+        person_in_water:    {1: 0.30, 2: 0.20, 3: 0.10}
+        life_raft_4_6:      {1: 3.50, 2: 2.50, 3: 1.80}
+        life_raft_15_25:    {1: 5.00, 2: 4.00, 3: 3.00}
+        small_boat_under_5m:{1: 4.50, 2: 3.50, 3: 2.50}
+        sailboat_8_12m:     {1: 7.00, 2: 5.50, 3: 4.50}
+      drone_small_eo:  # bench's primary platform proxy
+        person_in_water:    {1: 0.15, 2: 0.10, 3: 0.05}
+        life_raft_4_6:      {1: 1.50, 2: 1.00, 3: 0.60}
+        life_raft_15_25:    {1: 2.20, 2: 1.50, 3: 1.00}
+        small_boat_under_5m:{1: 2.00, 2: 1.40, 3: 0.90}
+        sailboat_8_12m:     {1: 3.00, 2: 2.20, 3: 1.50}
+    sensitivity_sweep_multipliers: [0.5, 0.75, 1.0, 1.5, 2.0]
+
+  # PRIMARY — independence assumption across legs / SRUs
+  cross_leg_independence:
+    value: true
+    strength: PRIMARY
+    source: "K10 eq. 1 — pfail(p,sru) = product over legs of (1 - lambda(d_k))"
+  cross_sru_independence:
+    value: true
+    strength: PRIMARY
+    source: "K10 eq. 2 — pfail(p) = product over SRUs of pfail(p,sru)"
+
+# =============================================================================
+# D. OPTIMAL-EFFORT ALLOCATION
+# =============================================================================
+allocator:
+
+  algorithm:
+    value: "rectangle_constrained_heuristic_K10"
+    strength: PRIMARY
+    source: "K10 §3 — Planner solves rectangle-constrained heuristic; not Stone's pointwise theorem directly"
+    rationale: |
+      Faithful SAROPS-class behavior is the K10 Planner: rectangle
+      parameterization (5 params), accordion-search initial placement,
+      12-move perturbative refinement, big-jump escape. Stone's
+      pointwise/Lagrangian theorem is the THEORY underneath but the
+      operational system runs the heuristic. The comparator implements
+      the heuristic; Stone's pointwise allocator is available as a
+      sensitivity / reference comparator.
+    sensitivity_sweep_alternatives:
+      - "stone_pointwise_lagrangian_bisection"  # SRW16 Theorem 2.1
+      - "charnes_cooper_closed_form"            # exponential-detection special case
+
+  # OPERATIONAL-UNKNOWN #10 — the 12 moves
+  perturbation_moves:
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §3 says '12 move types' but does not enumerate"
+    rationale: |
+      Per audit §3 item 10, the 12 moves are not enumerated in K10. We
+      pick a defensible set spanning translation, dimension change, and
+      orientation. The bench should report results before and after
+      Step 2/3 refinement to expose move-set sensitivity.
+    moves:
+      - {name: translate_north, delta_nm: 0.5}
+      - {name: translate_south, delta_nm: 0.5}
+      - {name: translate_east,  delta_nm: 0.5}
+      - {name: translate_west,  delta_nm: 0.5}
+      - {name: extend_length,   delta_nm: 0.5}
+      - {name: shrink_length,   delta_nm: 0.5}
+      - {name: extend_width,    delta_nm: 0.25}
+      - {name: shrink_width,    delta_nm: 0.25}
+      - {name: rotate_cw,       delta_deg: 15}
+      - {name: rotate_ccw,      delta_deg: 15}
+      - {name: flip_turn_dir,   delta: null}        # sign of w
+      - {name: swap_ell_w,      delta: null}
+    sensitivity_sweep_step_size_multipliers: [0.5, 1.0, 2.0]
+
+  # OPERATIONAL-UNKNOWN #11 — wall-clock budget
+  wallclock_budget_seconds:
+    value: 30
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §3 mentions wall-clock budget without numeric"
+    rationale: |
+      Per audit §3 item 11, pick 5-60 s for benchmarking. We default to
+      30 s as middle of range; sweep includes the bounds.
+    sensitivity_sweep: [5, 15, 30, 60]
+
+  # OPERATIONAL-UNKNOWN #12 — minimum track spacing
+  min_track_spacing_nm:
+    surface: 0.10        # ~200 yd
+    aircraft: 0.50
+    drone: 0.05
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §3.1 mentions gamma without numeric; per audit §3 item 12, USCG ship-handling factors"
+    rationale: |
+      Per audit §3 item 12. Defaults from audit guidance (200 yd surface,
+      0.5 NM air). Drone spacing tighter due to lower altitude / smaller
+      sensor footprint.
+    sensitivity_sweep_multipliers: [0.5, 1.0, 2.0]
+
+  # PRIMARY — effective path factor
+  effective_path_factor:
+    value: 0.85
+    strength: PRIMARY
+    source: "K10 §3.2 p. 7 — L = 0.85 * speed * time_on_station"
+
+  # OPERATIONAL-UNKNOWN #9 — Planner objective during refinement
+  refinement_objective:
+    initial_placement: "exponential_coverage_POS"
+    refinement: "particle_cpa_POS"
+    strength: PRIMARY
+    source: "K10 §3.3 step 1 (initial=exp); steps 2-3 use particle-based POS via eq. 3"
+    rationale: "Faithful SAROPS uses BOTH at different stages. No choice."
+
+  # OPERATIONAL-UNKNOWN #13 — POS subsample
+  pos_subsample:
+    size: 1500
+    sd_threshold_pct: 5.0
+    enlarge_on_violation: true
+    strength: PRIMARY
+    source: "K10 §3.3 'Computing POS' p. 8 — 1500 with replacement, adaptive at SD>5%"
+
+  # Search-cell discretization (used by Stone-pointwise sweep alternative)
+  cell_discretization_nm:
+    value: 0.5
+    strength: DOCUMENTED-CHOICE
+    rationale: "Pick to match LRC width scale; sweep ensures grid-resolution effects are visible."
+    sensitivity_sweep: [0.25, 0.5, 1.0]
+
+  # Multi-sortie time budget propagation
+  multi_sortie_time_propagation:
+    method: "sequential_posterior_conditioning"
+    strength: PRIMARY
+    source: "K10 §3.3 step 1 — 'For each subsequent SRU, condition on the posterior given failure of all prior rectangles'"
+
+# =============================================================================
+# E. REPLAN TRIGGER
+# =============================================================================
+replan:
+
+  # OPERATIONAL-UNKNOWN #14 — replan cadence
+  trigger_mode:
+    value: "fixed_sortie_length"
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §1.1 — operational SAROPS uses per-sortie debrief (human-in-the-loop); audit §3 item 14"
+    rationale: |
+      Faithful operational SAROPS replans on per-sortie debrief. The
+      bench is autonomous so we use fixed sortie length. Default 4 hr
+      aircraft / 12 hr surface (per audit guidance). Drone bench: 1 hr
+      because drone endurance is short. Sweep covers per-sortie-debrief
+      mode (event-driven by sortie completion) and a degeneracy-driven
+      mode (replan on ESS<N/2) which deviates from K10 but is included
+      to expose what the operational human-in-loop replan is implicitly
+      doing.
+    sensitivity_sweep_alternatives:
+      - "fixed_sortie_length"
+      - "per_sortie_debrief_event"
+      - "particle_degeneracy_ess_below_half"
+  fixed_sortie_length_minutes:
+    drone: 60
+    aircraft: 240
+    surface_vessel: 720
+    strength: DOCUMENTED-CHOICE
+    source: "audit §3 item 14 guidance"
+    sensitivity_sweep_multipliers: [0.5, 1.0, 2.0]
+
+  # No automatic threshold in faithful SAROPS
+  auto_threshold_likelihood_ratio:
+    value: null
+    strength: PRIMARY
+    source: "K10 §1.1 — no automatic threshold documented"
+
+# =============================================================================
+# F. SCENARIO ENSEMBLE
+# =============================================================================
+scenario_ensemble:
+
+  # OPERATIONAL-UNKNOWN #15 — scenario types supported
+  supported_types:
+    value: ["LKP", "Area"]
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §2.1 lists {LKP, Area, Voyage, LKP+DR, LOB}; audit §3 item 15"
+    rationale: |
+      Minimum LKP per audit guidance. Area added for spatial uncertainty
+      in LKP (low marginal implementation cost). Voyage and LOB are
+      operationally important but increase implementation surface
+      significantly; deferred. Sweep includes Voyage to confirm
+      hour-glassing fidelity test (audit §4 test 4).
+    sensitivity_sweep_alternatives:
+      - ["LKP"]
+      - ["LKP", "Area"]
+      - ["LKP", "Area", "Voyage"]
+
+  # Number of scenarios maintained — operator-set in SAROPS
+  default_n_scenarios:
+    value: 1
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §2 — operator-assigned; no default in open record"
+    rationale: |
+      Single LKP scenario is the minimum-viable comparator. For object-
+      type-discrimination test (audit §4 test 3), we use 2 scenarios
+      with different object-type distributions.
+    sensitivity_sweep: [1, 2, 5]
+
+  # PRIMARY — weight-update mechanism
+  weight_update_mechanism:
+    value: "implicit_via_particle_normalization"
+    strength: PRIMARY
+    source: "K10 §2 — 'Each scenario is given a weight by the user and the weights add to 1.0'; particle-level update implicitly drifts scenario weight via shared normalization"
+    rationale: |
+      Faithful SAROPS does not perform an explicit Bayesian update on
+      scenario weights. Scenario weight = sum of post-update particle
+      weights inside that scenario, normalized across all scenarios.
+      No choice here.
+
+  # Scenario pruning / introduction
+  pruning_threshold:
+    value: null
+    strength: PRIMARY
+    source: "K10 silent — operator adds/removes scenarios; no automatic threshold"
+    rationale: "Faithful = no automatic pruning. Bench may add ESS-based pruning as a sweep alternative."
+    sensitivity_sweep_alternatives:
+      - {auto_prune_below_weight: null}
+      - {auto_prune_below_weight: 0.01}
+
+  # OPERATIONAL-UNKNOWN #16 — hazard support
+  hazard_support:
+    value: false
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §2.2 documents the mechanism; audit §3 item 16"
+    rationale: |
+      Faithful SAROPS supports hazards. Most reproductions skip them.
+      We default to OFF (test scenarios don't use them) but the
+      mechanism (region × time × intensity {1,3,5,10} multiplicative)
+      is implementable from K10 §2.2 if a sweep needs it.
+    intensity_set: [1, 3, 5, 10]
+    intensity_set_strength: PRIMARY
+    intensity_set_source: "K10 §2.2"
+
+  # OPERATIONAL-UNKNOWN #17 — object-type set
+  object_types:
+    value:
+      - {label: "PIW-1", objectprop_class: "PIW-1"}
+      - {label: "LIFE-RAFT-DB-10", objectprop_class: "LIFE-RAFT-DB-10"}
+      - {label: "SKIFF-1", objectprop_class: "SKIFF-1"}
+      - {label: "SAILBOAT-1", objectprop_class: "SAILBOAT-1"}
+      - {label: "FISHING-VESSEL-1", objectprop_class: "FISHING-VESSEL-1"}
+    strength: DOCUMENTED-CHOICE
+    source: "OBJECTPROP.DAT has 85 classes; audit §3 item 17 — practical reproductions use 3-5"
+    rationale: |
+      Five-class default covers PIW (small slope, low detect), large life
+      raft (high slope, mid detect), small powered skiff (high slope, mid
+      detect), sailboat (highest slope), fishing vessel (mean class,
+      high Syx). This spans the leeway-divergence spectrum for the
+      object-type-discrimination test (audit §4 test 3).
+    sensitivity_sweep_alternatives:
+      - ["PIW-1", "LIFE-RAFT-DB-10"]                              # 2-class
+      - ["PIW-1", "LIFE-RAFT-DB-10", "SKIFF-1", "SAILBOAT-1", "FISHING-VESSEL-1"]
+      # Full 85-class enabled by setting object_types = "all_objectprop"
+  default_object_distribution:
+    value: {PIW-1: 0.4, LIFE-RAFT-DB-10: 0.3, SKIFF-1: 0.1, SAILBOAT-1: 0.1, FISHING-VESSEL-1: 0.1}
+    strength: DOCUMENTED-CHOICE
+    rationale: "Coastal-SAR-typical mix per BA08 Fig 11 (US incidents within 25 nm dominated by skiffs/PIWs/rafts)."
+
+  # OPERATIONAL-UNKNOWN #18 — survival hazard
+  survival_model:
+    value: "none"
+    strength: DOCUMENTED-CHOICE
+    source: "K10 §1.1 mentions EDS water-temp for survival; FS01 §2.5.2 introduces multi-state but K10 gives no hazard form; audit §3 item 18"
+    rationale: |
+      Faithful SAROPS uses water-temp-table survival weighting; form not
+      in K10. For the bench, scenarios are short (< 12 hr horizon) so
+      audit §5 'Could matter for fidelity' note applies: omit survival
+      weighting only for short benchmarks. Default OFF (short benchmarks).
+      Sweep includes exponential-decay alternative with class-specific
+      half-life for long-horizon runs.
+    sensitivity_sweep_alternatives:
+      - "none"
+      - {model: "exponential_decay", half_life_hours: {PIW-1: 4, "LIFE-RAFT-DB-10": 72, SKIFF-1: 48, SAILBOAT-1: 48, "FISHING-VESSEL-1": 72}}
+      - {model: "water_temp_table", source_table: "USCG_NSS_Addendum_TBD"}
+
+# =============================================================================
+# G. SENSITIVITY SWEEP CONTROL
+# =============================================================================
+sweep_orchestration:
+  # When the bench reports "sensitivity-robust" results, it means the
+  # comparator's output is stable across these axes. If it isn't, the
+  # comparator is calibrated to its own choices, not to SAROPS.
+  required_sweep_axes:
+    - "particle_filter.particle_count_per_scenario"
+    - "particle_filter.resampling.policy"
+    - "particle_filter.time_step_minutes"
+    - "drift.crosswind_jibing.mean_inter_flip_hours_default"
+    - "drift.current_perturbation.sigma_u_mps"
+    - "drift.environmental_data_source"
+    - "sensor.lateral_range_curve.family"
+    - "sensor.sweep_width.proxy_table_nm.*  (×0.5..×2 multiplier)"
+    - "allocator.wallclock_budget_seconds"
+    - "replan.trigger_mode"
+  recommended_sweep_axes:
+    - "drift.rayleigh_switch_threshold_slope_pct"
+    - "allocator.perturbation_moves.step_sizes"
+    - "allocator.min_track_spacing_nm"
+    - "scenario_ensemble.supported_types"
+    - "scenario_ensemble.default_n_scenarios"
+    - "scenario_ensemble.survival_model"
+  reporting_rule: |
+    Every published comparator run must report (a) the pinned values
+    used, (b) the sweep axes touched, (c) qualitative + quantitative
+    deltas across each axis, and (d) whether the conclusion is robust
+    to the documented-choice axes. Per audit §5: 'if conclusions are
+    robust to (LRC family in {inverse-cube, exponential}, leeway sigma
+    in [0.5x, 2x], resample in {no, SIR}, step in {15, 60} min), the
+    comparison is meaningful; if not, the comparator is calibrated to
+    its own choices, not to SAROPS.'

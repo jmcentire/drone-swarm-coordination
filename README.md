@@ -92,6 +92,29 @@ runs); see source scripts for the per-experiment seed counts.
 | Witness-alarm detection | ~100% above 5σ threshold under Gaussian noise; 14% FP under heavy-tail at 5σ, 1.3% at 10σ | `bench_witness.py` |
 | Floating-point determinism | robust to perturbations up to 1mm; FP differences are 1e-15m | `bench_determinism.py` |
 
+## v1.2 supplemental: composition with operational mission classes
+
+WRITEUP §9.4 extends the architecture across drift handling, online
+replanning, and Bayesian search-and-rescue. Run benches:
+
+```bash
+# Drift × reset × directive × inter-drone ranging
+N_SEEDS=200 NUM_DRONES=100 HORIZON=600 python3 bench_drift.py
+
+# A*-style adaptive replanning over partially-known cost fields
+N_SEEDS=20 RUN_TIMEOUT_S=15 python3 bench_astar.py
+
+# Bayesian SAR with SAROPS-class PF, B-C consensus T-sweep,
+# drift-aware lawnmower, voting baseline, and channel models
+DETECTION_KCELLS=1 N_SEEDS=20 RUN_TIMEOUT_S=120 python3 bench_search.py
+python3 extract_search_results.py bench_search_results.json > summary.md
+```
+
+See `NOTE_DRIFT.md`, `NOTE_ASTAR.md`, `NOTE_SEARCH.md` for the detailed
+companion notes, and `audit/00_synthesis.md` for the Phase A literature
+audit (SAROPS lineage, Allen Leeway tables, decentralized Bayesian
+filtering literature, prior-art negative search).
+
 ## File layout
 
 ```
@@ -109,10 +132,27 @@ drone_swarm/
 ├── bench_determinism.py     — FP perturbation stress test
 ├── bench_streaming.py       — time-varying manifolds (mocap-style)
 ├── bench_conjecture4.py     — empirical fit-form comparison
+├── bench_comms.py           — v1.1: comms-layer empirical validation (§9.1.5)
+├── bench_drift.py           — v1.2: drift × reset × ranging (§9.4.1)
+├── bench_astar.py           — v1.2: online replanning (§9.4.2)
+├── bench_search.py          — v1.2: Bayesian SAR (§9.4.3)
+├── extract_search_results.py — v1.2: bench_search summary extractor
 ├── make_figures.py          — generates the five paper figures
 ├── paper.tex / paper.pdf    — compiled paper (single document)
 ├── WRITEUP.md               — paper source (markdown)
 ├── PROOFS.md                — formal lemmas, theorems, proofs
+├── NOTE_DRIFT.md            — v1.2 drift-handling supplemental note
+├── NOTE_ASTAR.md            — v1.2 online-replanning supplemental note
+├── NOTE_SEARCH.md           — v1.2 Bayesian SAR supplemental note
+├── audit/                   — v1.2 literature audit (Phase A) + config
+│   ├── 00_synthesis.md      — audit synthesis + literature position
+│   ├── 01_sarops_lineage.md — SAROPS algorithm decomposition
+│   ├── 02_leeway_tables.md  — Allen Leeway table (85 object classes)
+│   ├── 03_decentralized_lineage.md — consensus / channel-filter lineages
+│   ├── 04_negative_search.md — prior-art negative search
+│   ├── 05_b1_envelope_ranges.md — benign-loss envelope variable ranges
+│   ├── 06_b2_mission_taxonomy.md — mission-class scope boundaries
+│   └── 07_sarops_class_config.yaml/.md — pinned OPERATIONAL-UNKNOWN config
 ├── figures/                 — 5 PNG figures
 ├── swarm.mp4                — rendered four-phase demo
 └── README.md                — this file

@@ -1,0 +1,2768 @@
+{
+  "config": {
+    "world_size": 100,
+    "n_drones": 20,
+    "n_seeds": 20,
+    "step_cells": 5,
+    "walk_sigma": 1.0,
+    "sense_r": 2.5,
+    "max_iterations": 60,
+    "baseline_cost": 0.05,
+    "goal_tolerance": 5.0,
+    "run_timeout_s": 15.0,
+    "no_progress_patience": 6,
+    "transit_substeps": 8
+  },
+  "summary": [
+    {
+      "env": "single_threat",
+      "n_seeds": 20,
+      "swarm_status_counts": {
+        "reached": 20
+      },
+      "swarm_reached": 20,
+      "oracle_reached": 20,
+      "swarm_cost_mean": 6.371539047452325,
+      "swarm_cost_ci": [
+        5.212275328872764,
+        7.779788529868954
+      ],
+      "oracle_cost_mean": 4.800341378567935,
+      "oracle_cost_ci": [
+        4.408735386129558,
+        5.25470452794032
+      ],
+      "straight_cost_mean": 7.512950496124456,
+      "straight_cost_ci": [
+        5.761799550524049,
+        9.407172008538204
+      ],
+      "gap_pct_mean": 27.63474814753498,
+      "gap_pct_ci": [
+        16.162762296461672,
+        40.90885005245094
+      ],
+      "savings_vs_straight_pct_mean": 8.033577340814277,
+      "savings_vs_straight_pct_ci": [
+        -0.2090551968052493,
+        17.216384432558705
+      ],
+      "fraction_sensed_mean": 0.12786500000000003,
+      "consensus_byte_identical": 1.0
+    },
+    {
+      "env": "two_threats",
+      "n_seeds": 20,
+      "swarm_status_counts": {
+        "reached": 20
+      },
+      "swarm_reached": 20,
+      "oracle_reached": 20,
+      "swarm_cost_mean": 7.397429599065871,
+      "swarm_cost_ci": [
+        6.289289880187565,
+        8.539394620871787
+      ],
+      "oracle_cost_mean": 5.227529296940908,
+      "oracle_cost_ci": [
+        4.850222598414901,
+        5.587993274965166
+      ],
+      "straight_cost_mean": 12.0782812778377,
+      "straight_cost_ci": [
+        9.027817118880291,
+        15.787866235002081
+      ],
+      "gap_pct_mean": 39.035275750402405,
+      "gap_pct_ci": [
+        26.72779855891456,
+        51.97787866082119
+      ],
+      "savings_vs_straight_pct_mean": 23.924243411718567,
+      "savings_vs_straight_pct_ci": [
+        13.18603691021486,
+        35.12158798241532
+      ],
+      "fraction_sensed_mean": 0.13221,
+      "consensus_byte_identical": 1.0
+    },
+    {
+      "env": "dense_field",
+      "n_seeds": 20,
+      "swarm_status_counts": {
+        "reached": 20
+      },
+      "swarm_reached": 20,
+      "oracle_reached": 20,
+      "swarm_cost_mean": 20.49433211077711,
+      "swarm_cost_ci": [
+        16.66946241912955,
+        24.58050170783818
+      ],
+      "oracle_cost_mean": 8.454616574499074,
+      "oracle_cost_ci": [
+        7.9527154834107625,
+        9.038671897629552
+      ],
+      "straight_cost_mean": 31.868589447234445,
+      "straight_cost_ci": [
+        28.325632875122455,
+        34.99663338417779
+      ],
+      "gap_pct_mean": 140.49426982413425,
+      "gap_pct_ci": [
+        97.47351179312228,
+        187.23771590783497
+      ],
+      "savings_vs_straight_pct_mean": 34.199379123625775,
+      "savings_vs_straight_pct_ci": [
+        23.757194869836006,
+        45.0700490179417
+      ],
+      "fraction_sensed_mean": 0.18305500000000002,
+      "consensus_byte_identical": 1.0
+    }
+  ],
+  "runs": [
+    {
+      "env": "single_threat",
+      "seed": 0,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.261382923703016,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1248,
+        "consensus_ok": true,
+        "wall_time_s": 0.08095312118530273,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.091158369185487,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.016434192657470703,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 3.928937854755978,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008051395416259766,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 1,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.147328875953843,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1287,
+        "consensus_ok": true,
+        "wall_time_s": 0.06000876426696777,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 3.750590706376918,
+        "iterations": 16,
+        "reached_goal": true,
+        "wall_time_s": 0.004744768142700195,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 3.750590706376918,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007898807525634766,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 2,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 9.618003887943843,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1275,
+        "consensus_ok": true,
+        "wall_time_s": 0.09792733192443848,
+        "final_d_to_goal": 3.605551275463989,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.252111330664412,
+        "iterations": 18,
+        "reached_goal": true,
+        "wall_time_s": 0.04971003532409668,
+        "final_d_to_goal": 0.0,
+        "path_len": 18
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 10.15067940262876,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008120536804199219,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 3,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 7.252704837092685,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.1309,
+        "consensus_ok": true,
+        "wall_time_s": 0.1472761631011963,
+        "final_d_to_goal": 3.0,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.581472272799965,
+        "iterations": 18,
+        "reached_goal": true,
+        "wall_time_s": 0.04777693748474121,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 18
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 9.870152988300852,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008299350738525391,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 4,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 16.20555152460682,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1281,
+        "consensus_ok": true,
+        "wall_time_s": 0.07574796676635742,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 7.98219586028608,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.43900394439697266,
+        "final_d_to_goal": 4.242640687119285,
+        "path_len": 22
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 13.690255978786418,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007791519165039062,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 5,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.991827718969848,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1244,
+        "consensus_ok": true,
+        "wall_time_s": 0.07612299919128418,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.416642548011787,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.0370330810546875,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 4.944679958875743,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007829666137695312,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 6,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 7.1120925321865816,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.1304,
+        "consensus_ok": true,
+        "wall_time_s": 0.11456108093261719,
+        "final_d_to_goal": 4.123105625617661,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.656571993656316,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.03904533386230469,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 9.254534653239679,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007810592651367188,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 7,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.849175094890086,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1252,
+        "consensus_ok": true,
+        "wall_time_s": 0.062029123306274414,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.425646146662517,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.033829689025878906,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 4.773033517796972,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007739067077636719,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 8,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 3.8432818312774057,
+        "iterations": 16,
+        "reached_goal": true,
+        "fraction_sensed": 0.1179,
+        "consensus_ok": true,
+        "wall_time_s": 0.0642402172088623,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 3.7544614068112803,
+        "iterations": 16,
+        "reached_goal": true,
+        "wall_time_s": 0.004862070083618164,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 3.7544614068112803,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008089542388916016,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 9,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 6.610653373904252,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.1361,
+        "consensus_ok": true,
+        "wall_time_s": 0.08400511741638184,
+        "final_d_to_goal": 2.0,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.253916240773691,
+        "iterations": 18,
+        "reached_goal": true,
+        "wall_time_s": 0.10817718505859375,
+        "final_d_to_goal": 1.0,
+        "path_len": 18
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 10.707491373661496,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008060932159423828,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 10,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 6.466041188398082,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.124,
+        "consensus_ok": true,
+        "wall_time_s": 0.07953000068664551,
+        "final_d_to_goal": 2.23606797749979,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.969469887376777,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.1148831844329834,
+        "final_d_to_goal": 3.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 6.393671591419659,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007910728454589844,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 11,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 9.285618496902535,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.1388,
+        "consensus_ok": true,
+        "wall_time_s": 0.1923530101776123,
+        "final_d_to_goal": 4.123105625617661,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 6.241000402331562,
+        "iterations": 20,
+        "reached_goal": true,
+        "wall_time_s": 0.07978224754333496,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 20
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 13.152451958984788,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007970333099365234,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 12,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.10720764162094,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1275,
+        "consensus_ok": true,
+        "wall_time_s": 0.07140469551086426,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 3.751013681405256,
+        "iterations": 16,
+        "reached_goal": true,
+        "wall_time_s": 0.00465703010559082,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 3.751013681405256,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008130073547363281,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 13,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.80651814270921,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1258,
+        "consensus_ok": true,
+        "wall_time_s": 0.08244776725769043,
+        "final_d_to_goal": 2.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.733609773586705,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.06203818321228027,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 5.5399946869470105,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007841587066650391,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 14,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 10.30454087031202,
+        "iterations": 19,
+        "reached_goal": true,
+        "fraction_sensed": 0.1379,
+        "consensus_ok": true,
+        "wall_time_s": 0.08833622932434082,
+        "final_d_to_goal": 0.0,
+        "path_len": 19
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.843804310927624,
+        "iterations": 19,
+        "reached_goal": true,
+        "wall_time_s": 0.177778959274292,
+        "final_d_to_goal": 2.23606797749979,
+        "path_len": 19
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 18.625228983936346,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008168220520019531,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 15,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.3407903350842485,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1253,
+        "consensus_ok": true,
+        "wall_time_s": 0.07051587104797363,
+        "final_d_to_goal": 1.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.1818712763318935,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.022658109664916992,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 4.0514260455454645,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008158683776855469,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 16,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 5.388134597344603,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1314,
+        "consensus_ok": true,
+        "wall_time_s": 0.09319901466369629,
+        "final_d_to_goal": 2.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.584498460816993,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.039376258850097656,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 10.344762286741826,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007688999176025391,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 17,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.9966248239848365,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1224,
+        "consensus_ok": true,
+        "wall_time_s": 0.07509279251098633,
+        "final_d_to_goal": 1.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.406522676875599,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.03814291954040527,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 4.7079406284553045,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.000782012939453125,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 18,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.8031683674205565,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1272,
+        "consensus_ok": true,
+        "wall_time_s": 0.07503485679626465,
+        "final_d_to_goal": 1.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.3720418003536,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.029578208923339844,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 5.109473791695138,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008068084716796875,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "single_threat",
+      "seed": 19,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.040133884741093,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.123,
+        "consensus_ok": true,
+        "wall_time_s": 0.06321883201599121,
+        "final_d_to_goal": 1.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 3.7582284261242425,
+        "iterations": 16,
+        "reached_goal": true,
+        "wall_time_s": 0.004669904708862305,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 3.7582284261242425,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007758140563964844,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 0,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 5.086906466838895,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1269,
+        "consensus_ok": true,
+        "wall_time_s": 0.09081792831420898,
+        "final_d_to_goal": 1.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.521263834145911,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.032150983810424805,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 5.411693506047549,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007901191711425781,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 1,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.116255442527194,
+        "iterations": 16,
+        "reached_goal": true,
+        "fraction_sensed": 0.122,
+        "consensus_ok": true,
+        "wall_time_s": 0.05717301368713379,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 3.9051827553677985,
+        "iterations": 16,
+        "reached_goal": true,
+        "wall_time_s": 0.020196914672851562,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 3.9798762122624405,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007791519165039062,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 2,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 6.285080204979493,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1316,
+        "consensus_ok": true,
+        "wall_time_s": 0.08289289474487305,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.602265415197645,
+        "iterations": 16,
+        "reached_goal": true,
+        "wall_time_s": 0.02985692024230957,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 5.7747073538393785,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007719993591308594,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 3,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 6.2083515007688295,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.1372,
+        "consensus_ok": true,
+        "wall_time_s": 0.1531519889831543,
+        "final_d_to_goal": 0.0,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.083923214424994,
+        "iterations": 18,
+        "reached_goal": true,
+        "wall_time_s": 0.04800677299499512,
+        "final_d_to_goal": 0.0,
+        "path_len": 18
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 12.06958887828839,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.00080108642578125,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 4,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.029847628722475,
+        "iterations": 16,
+        "reached_goal": true,
+        "fraction_sensed": 0.1185,
+        "consensus_ok": true,
+        "wall_time_s": 0.06357097625732422,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 3.9319397477074025,
+        "iterations": 16,
+        "reached_goal": true,
+        "wall_time_s": 0.025744915008544922,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 3.9319397477074025,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007810592651367188,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 5,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 10.519656812888773,
+        "iterations": 20,
+        "reached_goal": true,
+        "fraction_sensed": 0.1475,
+        "consensus_ok": true,
+        "wall_time_s": 0.10081291198730469,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 20
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.813805223212579,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.06380081176757812,
+        "final_d_to_goal": 3.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 14.30222918920777,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007908344268798828,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 6,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 8.901027424803283,
+        "iterations": 20,
+        "reached_goal": true,
+        "fraction_sensed": 0.1496,
+        "consensus_ok": true,
+        "wall_time_s": 0.17682600021362305,
+        "final_d_to_goal": 0.0,
+        "path_len": 20
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.949415771120902,
+        "iterations": 19,
+        "reached_goal": true,
+        "wall_time_s": 0.09338617324829102,
+        "final_d_to_goal": 2.0,
+        "path_len": 19
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 33.27983701296327,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007808208465576172,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 7,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 9.899508204867644,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.135,
+        "consensus_ok": true,
+        "wall_time_s": 0.07045912742614746,
+        "final_d_to_goal": 0.0,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 6.299862647472204,
+        "iterations": 19,
+        "reached_goal": true,
+        "wall_time_s": 0.21479082107543945,
+        "final_d_to_goal": 4.0,
+        "path_len": 19
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 11.109757145249098,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008027553558349609,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 8,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 10.505495949627988,
+        "iterations": 19,
+        "reached_goal": true,
+        "fraction_sensed": 0.1384,
+        "consensus_ok": true,
+        "wall_time_s": 0.1447429656982422,
+        "final_d_to_goal": 1.0,
+        "path_len": 19
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 6.9020533733736755,
+        "iterations": 18,
+        "reached_goal": true,
+        "wall_time_s": 0.1425457000732422,
+        "final_d_to_goal": 0.0,
+        "path_len": 18
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 15.843614200355958,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007979869842529297,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 9,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 10.613633815266972,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.1372,
+        "consensus_ok": true,
+        "wall_time_s": 0.13538312911987305,
+        "final_d_to_goal": 5.0,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 6.66818223892807,
+        "iterations": 21,
+        "reached_goal": true,
+        "wall_time_s": 0.22441887855529785,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 21
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 29.96252952221969,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007798671722412109,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 10,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.6613735749872,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1255,
+        "consensus_ok": true,
+        "wall_time_s": 0.06416487693786621,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.475999838752707,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.0560300350189209,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 4.780883495494946,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007781982421875,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 11,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 7.296018590908268,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1257,
+        "consensus_ok": true,
+        "wall_time_s": 0.09542393684387207,
+        "final_d_to_goal": 1.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.342492500754246,
+        "iterations": 19,
+        "reached_goal": true,
+        "wall_time_s": 0.07167601585388184,
+        "final_d_to_goal": 4.242640687119285,
+        "path_len": 19
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 8.434457801048996,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007951259613037109,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 12,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 4.69950514667624,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1269,
+        "consensus_ok": true,
+        "wall_time_s": 0.07283282279968262,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.319360493402923,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.02362823486328125,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 4.503229274882966,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007839202880859375,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 13,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 9.21551226112819,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1236,
+        "consensus_ok": true,
+        "wall_time_s": 0.0814979076385498,
+        "final_d_to_goal": 2.23606797749979,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 6.3400956781310365,
+        "iterations": 21,
+        "reached_goal": true,
+        "wall_time_s": 0.21631693840026855,
+        "final_d_to_goal": 5.0,
+        "path_len": 21
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 8.56696978413183,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007731914520263672,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 14,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 7.446814126453382,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1257,
+        "consensus_ok": true,
+        "wall_time_s": 0.08302903175354004,
+        "final_d_to_goal": 4.47213595499958,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.212532149217443,
+        "iterations": 18,
+        "reached_goal": true,
+        "wall_time_s": 0.09180521965026855,
+        "final_d_to_goal": 1.0,
+        "path_len": 18
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 13.094443050604397,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008041858673095703,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 15,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 7.316232617155294,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1261,
+        "consensus_ok": true,
+        "wall_time_s": 0.08959197998046875,
+        "final_d_to_goal": 5.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.981907942147409,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.06181931495666504,
+        "final_d_to_goal": 2.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 14.644852473451824,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007760524749755859,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 16,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 5.3300471785401475,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.1335,
+        "consensus_ok": true,
+        "wall_time_s": 0.09369397163391113,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.392290340283495,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.030198097229003906,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 6.941157325214522,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0008070468902587891,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 17,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 9.409379608478782,
+        "iterations": 21,
+        "reached_goal": true,
+        "fraction_sensed": 0.1516,
+        "consensus_ok": true,
+        "wall_time_s": 0.15744781494140625,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 21
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.809202028884472,
+        "iterations": 20,
+        "reached_goal": true,
+        "wall_time_s": 0.10017991065979004,
+        "final_d_to_goal": 2.0,
+        "path_len": 20
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 21.577865158096618,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007870197296142578,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 18,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 10.854723943498698,
+        "iterations": 18,
+        "reached_goal": true,
+        "fraction_sensed": 0.138,
+        "consensus_ok": true,
+        "wall_time_s": 0.12354302406311035,
+        "final_d_to_goal": 0.0,
+        "path_len": 18
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 5.431705154638479,
+        "iterations": 18,
+        "reached_goal": true,
+        "wall_time_s": 0.04795074462890625,
+        "final_d_to_goal": 0.0,
+        "path_len": 18
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 16.531581051142727,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007979869842529297,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "two_threats",
+      "seed": 19,
+      "start": [
+        10,
+        50
+      ],
+      "goal": [
+        90,
+        50
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 5.553221482199679,
+        "iterations": 17,
+        "reached_goal": true,
+        "fraction_sensed": 0.1237,
+        "consensus_ok": true,
+        "wall_time_s": 0.09317398071289062,
+        "final_d_to_goal": 3.0,
+        "path_len": 17
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 4.567105591654779,
+        "iterations": 17,
+        "reached_goal": true,
+        "wall_time_s": 0.03849077224731445,
+        "final_d_to_goal": 0.0,
+        "path_len": 17
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 6.824413374544248,
+        "iterations": 15,
+        "reached_goal": true,
+        "wall_time_s": 0.0007822513580322266,
+        "final_d_to_goal": 5.0,
+        "path_len": 16
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 0,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 14.55672799102243,
+        "iterations": 23,
+        "reached_goal": true,
+        "fraction_sensed": 0.1817,
+        "consensus_ok": true,
+        "wall_time_s": 0.12343025207519531,
+        "final_d_to_goal": 4.123105625617661,
+        "path_len": 23
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 7.413542409058973,
+        "iterations": 24,
+        "reached_goal": true,
+        "wall_time_s": 0.24198007583618164,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 24
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 25.510955113657452,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011508464813232422,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 1,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 34.35635210138249,
+        "iterations": 24,
+        "reached_goal": true,
+        "fraction_sensed": 0.1898,
+        "consensus_ok": true,
+        "wall_time_s": 0.17865896224975586,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 24
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 7.571526797560017,
+        "iterations": 26,
+        "reached_goal": true,
+        "wall_time_s": 0.1865401268005371,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 26
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 36.53280486799479,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011420249938964844,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 2,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 12.547598711598171,
+        "iterations": 25,
+        "reached_goal": true,
+        "fraction_sensed": 0.1929,
+        "consensus_ok": true,
+        "wall_time_s": 0.42374110221862793,
+        "final_d_to_goal": 3.0,
+        "path_len": 25
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 8.621805872790379,
+        "iterations": 30,
+        "reached_goal": true,
+        "wall_time_s": 0.13103795051574707,
+        "final_d_to_goal": 2.23606797749979,
+        "path_len": 30
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 34.40163356277895,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011758804321289062,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 3,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 21.997530665749156,
+        "iterations": 23,
+        "reached_goal": true,
+        "fraction_sensed": 0.1786,
+        "consensus_ok": true,
+        "wall_time_s": 0.2504580020904541,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 23
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 8.640763218496309,
+        "iterations": 28,
+        "reached_goal": true,
+        "wall_time_s": 0.1356370449066162,
+        "final_d_to_goal": 4.47213595499958,
+        "path_len": 28
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 38.482125474147125,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011239051818847656,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 4,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 35.53738212944682,
+        "iterations": 24,
+        "reached_goal": true,
+        "fraction_sensed": 0.1858,
+        "consensus_ok": true,
+        "wall_time_s": 0.2218921184539795,
+        "final_d_to_goal": 1.0,
+        "path_len": 24
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 10.183276517594514,
+        "iterations": 34,
+        "reached_goal": true,
+        "wall_time_s": 0.2565791606903076,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 34
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 31.41406087010428,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011398792266845703,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 5,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 12.759401367973174,
+        "iterations": 22,
+        "reached_goal": true,
+        "fraction_sensed": 0.172,
+        "consensus_ok": true,
+        "wall_time_s": 0.32319211959838867,
+        "final_d_to_goal": 4.47213595499958,
+        "path_len": 22
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 8.649844287319572,
+        "iterations": 23,
+        "reached_goal": true,
+        "wall_time_s": 0.11491990089416504,
+        "final_d_to_goal": 2.0,
+        "path_len": 23
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 23.252807278268886,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011780261993408203,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 6,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 28.982141555957085,
+        "iterations": 22,
+        "reached_goal": true,
+        "fraction_sensed": 0.1754,
+        "consensus_ok": true,
+        "wall_time_s": 0.1531848907470703,
+        "final_d_to_goal": 3.0,
+        "path_len": 22
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 8.675353182008141,
+        "iterations": 31,
+        "reached_goal": true,
+        "wall_time_s": 0.21462512016296387,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 31
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 35.72115957914521,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011050701141357422,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 7,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 9.762021938573138,
+        "iterations": 23,
+        "reached_goal": true,
+        "fraction_sensed": 0.1806,
+        "consensus_ok": true,
+        "wall_time_s": 0.24717211723327637,
+        "final_d_to_goal": 4.0,
+        "path_len": 23
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 6.91123094430864,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.09983587265014648,
+        "final_d_to_goal": 2.0,
+        "path_len": 22
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 33.11580130387672,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.001146078109741211,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 8,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 17.96620705520686,
+        "iterations": 24,
+        "reached_goal": true,
+        "fraction_sensed": 0.1859,
+        "consensus_ok": true,
+        "wall_time_s": 0.21541094779968262,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 24
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 6.543188063372994,
+        "iterations": 23,
+        "reached_goal": true,
+        "wall_time_s": 0.11110877990722656,
+        "final_d_to_goal": 4.0,
+        "path_len": 23
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 28.945668345613775,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011279582977294922,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 9,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 30.052897113569383,
+        "iterations": 21,
+        "reached_goal": true,
+        "fraction_sensed": 0.1724,
+        "consensus_ok": true,
+        "wall_time_s": 0.1429297924041748,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 21
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 7.873471141313898,
+        "iterations": 28,
+        "reached_goal": true,
+        "wall_time_s": 0.24572110176086426,
+        "final_d_to_goal": 4.242640687119285,
+        "path_len": 28
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 33.0555109661259,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011439323425292969,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 10,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 19.333325010663874,
+        "iterations": 25,
+        "reached_goal": true,
+        "fraction_sensed": 0.1933,
+        "consensus_ok": true,
+        "wall_time_s": 0.20673680305480957,
+        "final_d_to_goal": 2.0,
+        "path_len": 25
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 11.69274270714856,
+        "iterations": 31,
+        "reached_goal": true,
+        "wall_time_s": 0.3219602108001709,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 31
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 32.131358788854676,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.00115203857421875,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 11,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 8.029951446993694,
+        "iterations": 21,
+        "reached_goal": true,
+        "fraction_sensed": 0.1681,
+        "consensus_ok": true,
+        "wall_time_s": 0.14018511772155762,
+        "final_d_to_goal": 2.23606797749979,
+        "path_len": 21
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 6.9065334423179205,
+        "iterations": 18,
+        "reached_goal": true,
+        "wall_time_s": 0.0660851001739502,
+        "final_d_to_goal": 3.0,
+        "path_len": 18
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 8.73751626707044,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011262893676757812,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 12,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 12.292982907232826,
+        "iterations": 24,
+        "reached_goal": true,
+        "fraction_sensed": 0.1901,
+        "consensus_ok": true,
+        "wall_time_s": 0.2919952869415283,
+        "final_d_to_goal": 1.0,
+        "path_len": 24
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 8.120435303917994,
+        "iterations": 31,
+        "reached_goal": true,
+        "wall_time_s": 0.25863194465637207,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 31
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 27.850653149640966,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011551380157470703,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 13,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 13.554139161125141,
+        "iterations": 25,
+        "reached_goal": true,
+        "fraction_sensed": 0.1905,
+        "consensus_ok": true,
+        "wall_time_s": 0.16172003746032715,
+        "final_d_to_goal": 1.0,
+        "path_len": 25
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 8.945538979497286,
+        "iterations": 31,
+        "reached_goal": true,
+        "wall_time_s": 0.29801082611083984,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 31
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 24.551032356346987,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011479854583740234,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 14,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 10.77950906668873,
+        "iterations": 28,
+        "reached_goal": true,
+        "fraction_sensed": 0.2103,
+        "consensus_ok": true,
+        "wall_time_s": 0.2749459743499756,
+        "final_d_to_goal": 3.0,
+        "path_len": 28
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 7.1297361877524486,
+        "iterations": 26,
+        "reached_goal": true,
+        "wall_time_s": 0.19037508964538574,
+        "final_d_to_goal": 4.242640687119285,
+        "path_len": 26
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 43.698326687720424,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011489391326904297,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 15,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 37.297765547558456,
+        "iterations": 20,
+        "reached_goal": true,
+        "fraction_sensed": 0.1705,
+        "consensus_ok": true,
+        "wall_time_s": 0.12938499450683594,
+        "final_d_to_goal": 4.0,
+        "path_len": 20
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 9.44646119413185,
+        "iterations": 32,
+        "reached_goal": true,
+        "wall_time_s": 0.18515682220458984,
+        "final_d_to_goal": 4.242640687119285,
+        "path_len": 32
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 38.02118668183133,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011336803436279297,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 16,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 24.094357135811325,
+        "iterations": 22,
+        "reached_goal": true,
+        "fraction_sensed": 0.1825,
+        "consensus_ok": true,
+        "wall_time_s": 0.19431567192077637,
+        "final_d_to_goal": 1.0,
+        "path_len": 22
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 9.08816097546326,
+        "iterations": 29,
+        "reached_goal": true,
+        "wall_time_s": 0.2022547721862793,
+        "final_d_to_goal": 2.8284271247461903,
+        "path_len": 29
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 26.102374691483856,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011358261108398438,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 17,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 28.789758004558642,
+        "iterations": 22,
+        "reached_goal": true,
+        "fraction_sensed": 0.1753,
+        "consensus_ok": true,
+        "wall_time_s": 0.1913907527923584,
+        "final_d_to_goal": 0.0,
+        "path_len": 22
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 9.168457884875933,
+        "iterations": 31,
+        "reached_goal": true,
+        "wall_time_s": 0.165053129196167,
+        "final_d_to_goal": 0.0,
+        "path_len": 31
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 35.1992427249622,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.001138925552368164,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 18,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 22.213762485073005,
+        "iterations": 22,
+        "reached_goal": true,
+        "fraction_sensed": 0.1775,
+        "consensus_ok": true,
+        "wall_time_s": 0.2580680847167969,
+        "final_d_to_goal": 3.1622776601683795,
+        "path_len": 22
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 10.058833905372401,
+        "iterations": 31,
+        "reached_goal": true,
+        "wall_time_s": 0.17878389358520508,
+        "final_d_to_goal": 1.4142135623730951,
+        "path_len": 31
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 43.5604707642956,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.0011920928955078125,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    },
+    {
+      "env": "dense_field",
+      "seed": 19,
+      "start": [
+        10,
+        10
+      ],
+      "goal": [
+        90,
+        90
+      ],
+      "swarm_astar": {
+        "algorithm": "swarm_astar",
+        "status": "reached",
+        "cumulative_cost": 14.98283081935779,
+        "iterations": 26,
+        "reached_goal": true,
+        "fraction_sensed": 0.1879,
+        "consensus_ok": true,
+        "wall_time_s": 0.3099489212036133,
+        "final_d_to_goal": 2.23606797749979,
+        "path_len": 26
+      },
+      "oracle_astar": {
+        "algorithm": "oracle_astar",
+        "status": "reached",
+        "cumulative_cost": 7.4514284756803875,
+        "iterations": 25,
+        "reached_goal": true,
+        "wall_time_s": 0.18951797485351562,
+        "final_d_to_goal": 4.242640687119285,
+        "path_len": 25
+      },
+      "straight": {
+        "algorithm": "straight",
+        "status": "reached",
+        "cumulative_cost": 37.087099470769324,
+        "iterations": 22,
+        "reached_goal": true,
+        "wall_time_s": 0.001188039779663086,
+        "final_d_to_goal": 3.1370849898475996,
+        "path_len": 23
+      }
+    }
+  ]
+}

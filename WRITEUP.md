@@ -36,13 +36,19 @@ shadow nodes (Kim & Welch 1989, DRB framework), GPS-denied operation
 via improved per-drone state estimation (Allan-variance fusion, RNN-EKF
 replacement), and assignment stability via centralized hysteresis-aware
 reinforcement learning. We present a unified architecture that
-addresses these concerns through a single decentralized primitive:
-broadcast-shared state with locally-deterministic computation. The
-architecture's four mechanisms — hierarchical bisection assignment,
-local patch recovery, sub-manifold shadow allocation, and confidence-
-thresholded fiducial selection — share a common substrate and are
-independently provable, with empirical validation across N=10 to
-N=10,000.
+addresses these concerns through a single decentralized primitive in
+the four-layer regime: broadcast-shared state with locally-
+deterministic computation. The architecture's four mechanisms —
+hierarchical bisection assignment, local patch recovery, sub-manifold
+shadow allocation, and confidence-thresholded fiducial selection —
+share a common substrate and are independently provable, with empirical
+validation across N=10 to N=10,000. The v1.2 supplemental (§9.4)
+characterizes the substrate's empirical envelope on three operational
+mission classes (drift handling, online replanning, Bayesian search-
+and-rescue) where degraded-comms regimes additionally require a
+majority-vote aggregation primitive whose contribution is
+characterized empirically rather than claimed as architectural
+novelty.
 
 Headline empirical results: assignment within 1.4–3% of the Hungarian
 optimum (gap empirically fits `a + b/√N` better than alternatives;
@@ -1526,6 +1532,345 @@ driven by reliability (battery, motor, etc.). For threat models with
 spatial or temporal correlation, the architecture supports
 thread-shaped surplus allocation (§5) but the optimization of
 surplus distribution is application-specific.
+
+### 9.4 v1.2 supplemental: composition with operational mission classes
+
+The v1.1 paper established the four-layer architecture and validated
+Lemma 9.5 / Theorem 2.5 on the comms layer (§9.1.5). The v1.2
+supplemental extends the empirical envelope across three operational
+mission classes — drift handling, online replanning, and Bayesian
+search-and-rescue — using benches that pair each new mission with the
+existing broadcast substrate. Detailed companion notes:
+`NOTE_DRIFT.md`, `NOTE_ASTAR.md`, `NOTE_SEARCH.md`. Phase A literature
+audit at `audit/00_synthesis.md`.
+
+#### 9.4.0 Mapping the v1.1 substrate onto the v1.2 regimes
+
+The v1.1 architecture's substrate primitive (§§2 and 7) has two
+components: broadcast as shared state, and deterministic per-drone
+compute. Under reliable broadcast, these alone produce byte-identical
+decisions across drones — consensus-by-determinism, formalized in
+PROOFS Theorem 1 and Theorem 2.5. The v1.2 supplemental retains this
+mechanism unchanged for the reliable-comms regime.
+
+Under degraded comms, drones receive different broadcast subsets and
+develop divergent posteriors. The substrate's "consensus by
+determinism" property no longer holds because the inputs to the
+deterministic function differ across drones. The v1.2 supplemental
+documents that the architecture handles this regime with a third
+component — *majority-vote aggregation on the diverged decisions* —
+and characterizes the resulting envelope empirically. This third
+component is not a substrate-level architectural primitive in the
+v1.1 sense (it is a textbook voting protocol), and its load-bearing
+role under loss is what the v1.2 bench measures rather than asserts.
+
+Three components, two regimes:
+
+- **Reliable broadcast (iid_0%):** broadcast + deterministic compute,
+  consensus by determinism (PROOFS Theorem 1 / 2.5). Decisions
+  byte-identical by construction.
+- **Degraded broadcast (iid loss, GE bursts, asymmetric deaf):**
+  broadcast + deterministic compute + majority-vote aggregation,
+  consensus by majority of informed drones. Decisions diverge per
+  drone; the swarm's motion is determined by the vote. Architecture
+  fails when the voting protocol's structural threshold (n/2 for
+  asymmetric-deaf, all-zero for iid_100%) is reached.
+
+The empirical work below characterizes the boundary between these two
+regimes and shows that all three components are operationally required
+under the degraded-comms regimes that real deployments will encounter.
+We do not claim the third component is a novel substrate primitive —
+it is a known voting protocol applied at the architectural seam.
+
+#### 9.4.1 Drift handling
+
+`bench_drift.py` (200 seeds, N=100 drones, 600s missions) sweeps
+drift × reset × directive frequency across σ_drift ∈ {0.01, 0.1, 1.0}
+m/√s (fiber-INS, tactical-IMU, MEMS dead-reckoning grades), reset
+intervals T_reset ∈ {30s, 300s, ∞}, and directive intervals T_directive
+∈ {30s, 300s, ∞}. Two metrics: external position error (true vs target)
+and external shape error (relative configuration of the swarm vs the
+intended manifold).
+
+External position error tracks σ·√T·1.6 cleanly across three orders of
+magnitude — 0.39m, 3.91m, 39.10m at σ ∈ {0.01, 0.1, 1.0} m/√s — within
+1% of the analytical Maxwell-Boltzmann coefficient for 3D random walk.
+Reference-matching reset clamps external error to the σ_reset noise
+floor (~0.16m at σ_reset = 0.1m) regardless of σ_drift. **Directive
+frequency is empirically orthogonal to drift error**: identical numbers
+across T_directive ∈ {30s, 300s, ∞} for any σ_drift × T_reset
+combination, with residual variation within bootstrap noise.
+
+A separate sub-sweep (`bench_drift.py` Sweep G) characterizes
+inter-drone ranging as a substrate that bounds *shape* error even
+without absolute reset. Across σ_drift ∈ {0.01, 0.1, 1.0} m/√s with
+σ_range = 0.05m residual, ranging caps shape error at ~0.079m
+regardless of drift magnitude — a 500× reduction at MEMS-grade INS
+(σ=1.0 m/√s, no reset) compared to the 38.9m shape error without
+ranging. Internal coherence (each drone's est-vs-target error) is
+exactly zero in all 27 cells of the drift × reset × directive grid:
+the architecture coordinates correctly in its own (drifted) frame
+regardless of how bad the INS gets. The architecture is drift-immune
+internally; the residual external error is purely the absolute-frame
+INS budget, which composes cleanly with off-the-shelf reference-
+matching and inter-drone-ranging substrates without modifying the
+four layers.
+
+#### 9.4.2 Online replanning over partially-known cost fields
+
+`bench_astar.py` extends the architecture to A\*-style adaptive
+replanning across three test environments (single-threat, two-threat,
+dense-field). Each iteration: every drone runs the same A\* over the
+same shared broadcast map (unknown cells use an optimistic baseline
+cost), commits to the first STEP_CELLS of the returned path, transits
+with random-walk sensing that updates the broadcast map, and re-plans
+from the accumulating shared state. 60 runs (3 envs × 20 seeds) in 15s
+wall time, 60/60 reached the goal, **100% byte-identical decisions
+across drones in every iteration** under reliable broadcast.
+
+Cost results (cumulative path cost, bootstrap 95% CIs):
+
+| Environment | swarm-A\* | oracle-A\* | straight | gap vs oracle | savings vs straight |
+|---|---|---|---|---|---|
+| single_threat | 6.37 [5.21, 7.78] | 4.80 | 7.51 | 27.6% | 8.0% |
+| two_threats | 7.40 [6.29, 8.54] | 5.23 | 12.08 | 39.0% | 23.9% |
+| dense_field | 20.49 [16.67, 24.58] | 8.46 | 31.87 | 140.5% | 34.2% |
+
+The gap-vs-oracle grows with cost-field complexity (28% → 39% → 140%);
+this is the information-asymmetry penalty for discovering the cost
+field rather than being told it. The bench uses a simple greedy
+A\*-on-partial-map planner (recompute the path each manifold using
+the accumulating sensor data, take one STEP_CELLS step). This is
+intentionally a baseline, not a state-of-the-art partially-known-
+terrain planner: the question §9.4.2 is answering is *whether the
+broadcast substrate supports a deterministic replanner with byte-
+identical decisions per tick*, not *whether our planner beats D\*
+Lite*. The 100% byte-identical-decisions result and the 60/60 reach-
+goal result establish the substrate property; the dense_field
+140% gap-vs-oracle is real and is a planner gap, not a substrate
+gap. A SOTA partially-known-terrain planner (D\* Lite, frontier-
+based exploration, value-of-information-driven manifold selection)
+substituted for the greedy A\* would close the gap further while
+running on the same broadcast substrate without modification. The
+substrate-level claim is the contribution; the planner-quality
+comparison is left to future work.
+
+#### 9.4.3 Distributed Bayesian search-and-rescue
+
+`bench_search.py` extends the architecture to the canonical SAR
+information-gathering loop: manifold → information collection →
+broadcast → Bayesian update → deterministic decision → next manifold.
+2220 total runs across seven scenarios, ten algorithm variants, and
+thirteen channel models with detection criterion harmonized at
+KCELLS=1 (MAP cell within 1 Chebyshev cell of target). Detailed in
+`NOTE_SEARCH.md`.
+
+The bench is structured around two methodological moves: a
+*falsification battery* against each load-bearing component
+(iid_100% removes the broadcast and reduces the architecture to
+"each drone updates from own observation, swarm coordinates motion
+via majority vote on local decisions"; asym_deaf=50% reaches the
+n/2 voting threshold; B-C T-sweep stress-tests the consensus-round
+strawman) and a *fairness audit* of the comparator (KCELLS=1
+harmonizes the detection criterion across grid and particle-filter
+posteriors, removing a v1 bench artifact that previously
+disadvantaged PF). Headline findings are read against this
+methodological frame.
+
+**Algorithm comparators** include centralized SAROPS-class particle
+filter (5000-particle filter with per-particle Allen Leeway slopes,
+stochastic crosswind sign-flip, K10 negative-info update;
+`audit/07_sarops_class_config.yaml` documents the 20
+OPERATIONAL-UNKNOWN choices), Bandyopadhyay-Chung 2018 log-opinion-pool
+consensus filter at four T values (T ∈ {1, 5, 20, 50}), drift-aware
+lawnmower, and an iid_100% voting baseline (no broadcasts received;
+each drone updates only from its own observation, swarm coordinates
+motion via majority vote on decisions only — isolates the broadcast
+contribution from the voting-rescue mechanism).
+
+**Headline results, post-stress-test, post-reframe:**
+
+1. **Voting alone is insufficient.** The iid_100% voting baseline
+   produces 0/20 found across both bayesian and bayesian_eig
+   algorithms. Without broadcasts, drones cannot coordinate motion
+   well enough to find the target. Broadcast is empirically
+   load-bearing.
+
+2. **Bandyopadhyay-Chung consensus filter is dominated under the
+   fixed consensus-weight matrix and broadcast-topology assumptions
+   tested, across T ∈ {1, 5, 20, 50}.** B-C performance is essentially
+   flat across consensus-round count: T=1 produces 12/20 finds on
+   lost_at_sea at 62.6 mean iters; T=50 produces 12/20 at 61.2 mean
+   iters. T-flatness refutes the "T=5 is a strawman" objection —
+   varying T from 1 to 50 produces no consistent improvement. We
+   tested the Hare-Bandyopadhyay-Chung 2018 log-opinion-pool variant
+   on a broadcast topology (every drone hears every other) with
+   uniform-mean consensus weights. Whether better-tuned B-C
+   (non-uniform weight matrix, sparse-graph topology, or alternative
+   consensus-on-likelihood variants) could close the gap is left to
+   future work. The current claim is bounded: B-C-as-tested is
+   dominated in this regime; B-C-as-a-class may not be.
+
+3. **SAROPS-class particle filter wins on all four drift scenarios**
+   (Leeway PIW, liferaft, skiff, simple drift) at 12–18 mean iters,
+   versus 32–48 for grid-based bayesian. Per-particle Leeway dynamics
+   track moving targets dramatically faster than grid-based Gaussian-
+   shift posterior advection. The architecture is algorithm-agnostic;
+   the algorithm matters most on realistic-drift cases.
+
+4. **The IID-loss degradation curve is gradual through 90% loss and
+   catastrophic at 100%:** find rate 20/20 → 18/20 → 15/20 → 13/20 →
+   0/20 across loss rates 30/50/70/90/100%. The architecture maintains
+   operational find-rate where any broadcast information reaches
+   drones; it fails when no broadcast information reaches them.
+
+5. **The asymmetric-deaf cliff is consistent with the n/2 majority-
+   vote threshold:** 10% deaf, 20/20; 25% deaf, 18-20/20; 50% deaf,
+   0/20; 100% deaf, 0/20. At N=20 drones, deaf=0.5 is the
+   integer-quantized 10/10 tie — the trivially-pathological case for
+   any majority-vote protocol. The data is consistent with the n/2
+   threshold of textbook voting theory; sharper localization of the
+   boundary would require larger N (e.g., 40 or 100 drones) where the
+   integer-quantization cliff becomes informative rather than
+   tautological. We report this as confirmation that the
+   composition's failure mode under asymmetric loss is the failure
+   mode predicted by voting protocol theory applied at the
+   architectural seam.
+
+6. **Gilbert-Elliott burst loss is not worse than IID at the same
+   stationary rate:** 20/20 found across short, medium, and long
+   burst durations at P_stationary=0.3, indistinguishable from
+   IID-30%. The architecture's per-iteration majority vote treats
+   each broadcast set independently; burst-correlated losses do not
+   accumulate decision-divergence beyond what equivalent-rate IID
+   produces, at the P_stationary=0.3 operating point tested. (This
+   parallels the bench_comms.py Sweep A finding in §9.1.5: the
+   inverted EN_ROUTE+ETA protocol shows the same robustness to GE
+   bursts at matched stationary loss; the property is a substrate-
+   level result, demonstrated independently in two operational
+   regimes.)
+
+#### 9.4.4 Position relative to operational state-of-the-art
+
+The contribution is an *engineering composition* — broadcast
+distribution, deterministic compute, and majority-vote aggregation —
+with characterized empirical envelope on operational SAR. The literature
+audit (`audit/00_synthesis.md`) positions the work in the canonical
+decentralized-Bayesian-SAR lineage (Bourgault, Furukawa, Durrant-Whyte
+2003; Furukawa et al. 2006), the consensus-on-PDF lineage (Olfati-Saber-
+Fax-Murray 2007; Bandyopadhyay & Chung 2014, 2018; Hare et al. 2018),
+the channel-filter lineage (Grime & Durrant-Whyte 1994; Manyika &
+Durrant-Whyte 1995; Makarenko & Durrant-Whyte 2006), the
+operational/intermittent-connectivity branch (Hollinger & Singh 2010
+ICRA; Tateo et al. 2018; Hollinger et al. 2015), and the
+connectivity-preservation-with-fault-injection lineage (Minelli,
+Panerati, Kaufmann, Ghedini, Beltrame, Sabattini 2020 RAS — closest
+operational neighbor, *stacked-not-competing* relative to our work).
+Minelli's group solves connectivity preservation under hardware
+faults; we solve byte-identical decision agreement under reliable
+broadcast plus graceful degradation under loss. The two address
+different layers of the deployment stack and could be composed: a
+fault-tolerant connected mesh (Minelli) plus a broadcast-emulation
+layer atop the mesh (e.g., flooding with deduplication or
+epoch-based gossip-to-quiescence) plus our deterministic-decision
+substrate. The composition pays an emulation cost — broadcast over
+a mesh is not free; it costs O(graph-diameter) per snapshot — but
+this is the price of running on a fallible substrate rather than
+assuming reliable broadcast. Our contribution in the composition
+frame is the deterministic-decision agreement layer; Minelli's
+contribution is the connectivity-preservation layer below it.
+Empirical characterization of the composed system on a fallible
+mesh is future work.
+The SAROPS centralized comparator is grounded in Kratzke, Stone, Frost
+(2010); Stone (1975, 2007); Stone-Royset-Washburn (2016); Allen &
+Plourde (1999); Allen (2005); Breivik & Allen (2008), with all 85
+object-class Leeway parameters extracted from OpenDrift's
+`OBJECTPROP.DAT` (the Art Allen → Breivik transcription of the
+operational SAROPS table).
+
+#### 9.4.5 What this work does not establish
+
+We do not claim novel *substrate* architecture; the broadcast,
+deterministic-compute, and majority-vote primitives are individually
+well-known. The contribution is the composition's empirical envelope
+on operational SAR, with explicit comparison to two published
+distributed-Bayesian-SAR alternatives and one centralized SAROPS-class
+baseline.
+
+We have not directly benchmarked against Hollinger et al. (2015 T-RO)
+distributed data fusion for multirobot search, the closest live
+competitor in the operational/intermittent-connectivity branch
+(paywalled; primary source not directly accessed). We have not
+characterized the architecture under adversarial threat models
+(jamming, Byzantine, selective-targeting DoS); these are documented as
+out-of-scope in `audit/06_b2_mission_taxonomy.md` and remain a future
+extension. We have not characterized the GE-not-worse-than-IID result
+at stationary loss rates outside ~30%. The asymmetric-deaf boundary
+characterization at 50% is exactly the integer-quantized 10/10 tie of
+N=20 drones; sharper localization requires larger N. The B-C T-sweep
+varies the consensus-round count but holds the consensus weight
+matrix and broadcast-topology assumption fixed; the conclusion that
+B-C is dominated *as run here* does not generalize to other consensus
+configurations or to B-C's native sparse-graph regime. The
+voting-baseline experiment (iid_100% = 0/20) removes broadcast
+delivery between drones and is consistent with two interpretations:
+(a) broadcast carries information that majority-vote on local-only
+decisions cannot recover (our framing) and (b) any architecture
+stripped of cross-drone information sharing fails on a 5-cell-radius
+footprint search (the simpler reading). The two interpretations agree
+on the bench result; distinguishing them would require an
+intermediate-information baseline (e.g., pairwise sync without full
+broadcast) which we have not run. SAROPS-class results rest on 20
+documented OPERATIONAL-UNKNOWN choices (`audit/07_sarops_class_config.yaml`);
+sensitivity sweeps over the highest-leverage choices (LRC proxies,
+crosswind sign-flip rate, resampling cadence) remain future work.
+KCELLS=1 detection criterion is a single-point harmonization
+choice; KCELLS ∈ {0, 1, 2} sensitivity is documented but not run. The
+bench is a simulation; real-platform sensor and comms calibration
+require deployment data we do not have. N=20 seeds gives roughly ±10
+percentage-point resolution on find-rate proportions (Wilson 95% CI
+on 20/20 is `[0.84, 1.0]`); marginal distinctions like 18/20 vs 20/20
+are within seed noise and should be read accordingly. Reproducing the
+bench exactly requires pinning BLAS thread counts (`OMP_NUM_THREADS=1
+OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1`) and fetching OpenDrift's
+`OBJECTPROP.DAT` to `/tmp/`; the repository documents both.
+
+The market for distributed-Bayesian-SAR architectures operating beyond
+reliable command-and-control (autonomous submersible swarms in
+acoustic-comms-limited environments, AUV cooperative survey beyond
+satellite range, polar autonomous SAR, contested-environment ISR) is
+speculative-near-future. This work is architectural characterization
+ahead of operational demand, not product validation.
+
+#### 9.4.6 Evidentiary hierarchy of v1.2 claims
+
+The v1.2 supplemental's epistemic profile, with each major claim
+tagged for its evidentiary tier:
+
+| Claim | Tier | Source |
+|---|---|---|
+| Determinism, byte-identical per-tick decision under reliable broadcast | Formal theorem | PROOFS Lemma 1 / Theorem 1 / Theorem 2.5 |
+| Quiescence-detection / mid-flight reconfig under packet loss | Computational validation | bench_comms.py, 200 seeds (Sweep B 30 seeds) |
+| Drift error tracks σ·√T·1.6 within 1% of analytical | Computational validation | bench_drift.py, 200 seeds |
+| Inter-drone ranging caps shape error regardless of σ_drift | Computational validation | bench_drift.py Sweep G |
+| Internal coherence exactly zero across 27-cell drift grid | Computational validation supporting formal determinism | bench_drift.py |
+| 60/60 reached goal under partially-known cost fields with 100% byte-identical decisions | Computational validation + formal determinism | bench_astar.py |
+| Cost-gap vs oracle (28% / 39% / 140%) | Computational validation | bench_astar.py, bootstrap CIs |
+| Voting baseline (iid_100%) → 0/20: broadcast is load-bearing | Controlled experiment (component leave-out) | bench_search.py iid_100% cell |
+| Bandyopadhyay-Chung dominated across T ∈ {1, 5, 20, 50} on bench's regime | Controlled experiment (head-to-head, four T values) | bench_search.py B-C T-sweep |
+| SAROPS-class wins on Leeway-drifted scenarios | Controlled experiment against SAROPS-class comparator with documented OPERATIONAL-UNKNOWNs | bench_search.py + audit/07 |
+| IID-loss find rate gradual to 90%, catastrophic at 100% | Computational validation | bench_search.py |
+| Asymmetric-deaf cliff is consistent with n/2 majority-vote threshold | Computational validation of textbook voting-theory bound | bench_search.py asym_deaf cells |
+| Gilbert-Elliott bursts indistinguishable from IID at matched stationary rate | Computational validation at P_stationary=0.3 | bench_search.py + parallel result in bench_comms.py §9.1.5 |
+| Algorithm-agnosticism of the substrate | Structural analogy | §9.4 framing; multi-algorithm bench coverage is supportive |
+| Position relative to centralized SAROPS / decentralized lineages | Natural experiment (literature audit) | audit/00_synthesis.md |
+| "SOTA-planner-would-close-the-gap" / B-C generalization beyond regime / bursts at other P_stationary | Motivated conjecture | §9.4.5 disclosed gaps |
+
+The profile is appropriate for a systems / engineering-composition
+venue: a formal-theorem core (PROOFS), a thick layer of seeded
+computational validation with bootstrap CIs, three controlled
+experiments against literature comparators, with motivated
+conjectures and disclosed gaps explicitly named.
 
 ## 10. Future work
 
