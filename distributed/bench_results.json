@@ -1,0 +1,479 @@
+{
+  "results": [
+    {
+      "scenario": {
+        "name": "S5_random_loss_20pct",
+        "claim": "With 20% of drones removed mid-mission the protocol redistributes survivors to maintain manifold coverage at least as well as the static-assignment drift baseline.",
+        "falsifying": "Final coverage of the protocol is lower than drift's final coverage. Drift loses coverage exactly at the dead drones' assigned slots; if the protocol fails to redistribute, it does no better.",
+        "mechanism": "Kill 6 random drones at tick 100. Run protocol and drift over the same 6 victims. Measure coverage_frac (fraction of manifold targets within 3m of any alive drone) at end of mission.",
+        "pass_criterion": "leader_consensus >= 0.80 AND protocol_coverage >= drift_coverage",
+        "n_drones": 30,
+        "n_ticks": 300,
+        "comms_range_m": 30.0,
+        "loss_rate": 0.05,
+        "sound_speed": 150.0,
+        "spacing_m": 8.0
+      },
+      "n_seeds": 20,
+      "metrics": {
+        "leader_consensus": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "form_err_protocol": [
+          0.569355984290701,
+          0.507749751029834,
+          0.6311436534052672
+        ],
+        "form_err_oracle": [
+          0.4340318333800103,
+          0.3230488790378881,
+          0.5388497604998437
+        ],
+        "form_err_drift": [
+          9.477071846593133e-10,
+          9.45132116260845e-10,
+          9.50156537265569e-10
+        ],
+        "max_collisions_protocol": [
+          1.45,
+          1.15,
+          1.8
+        ],
+        "comms_delivery_rate": [
+          0.9445091368205197,
+          0.9442474156039666,
+          0.9447819275363311
+        ]
+      },
+      "extra": {
+        "coverage_protocol": [
+          0.7633333333333334,
+          0.7550000000000001,
+          0.7716666666666668
+        ],
+        "coverage_oracle": [
+          0.7433333333333334,
+          0.7283333333333334,
+          0.7583333333333334
+        ],
+        "coverage_drift": [
+          0.8000000000000002,
+          0.8000000000000002,
+          0.8000000000000002
+        ],
+        "coverage_protocol_current_manifold": [
+          0.7633333333333334,
+          0.7550000000000001,
+          0.7716666666666668
+        ],
+        "protocol_final_manifold_size": [
+          30.0,
+          30.0,
+          30.0
+        ]
+      },
+      "runs": [
+        {
+          "seed": 0,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.28736215374382534,
+          "oracle_form_err": 0.5128370362637247,
+          "drift_form_err": 9.55322850057149e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 1,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.8484986432832778,
+          "oracle_form_err": 0.7695685538448744,
+          "drift_form_err": 9.428478411490275e-10,
+          "collisions": 3
+        },
+        {
+          "seed": 2,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5596972889298923,
+          "oracle_form_err": 0.0,
+          "drift_form_err": 9.533729507990047e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 3,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5532963883534628,
+          "oracle_form_err": 0.46698034756733103,
+          "drift_form_err": 9.488440666488142e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 4,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.502610685298932,
+          "oracle_form_err": 0.45082894872281115,
+          "drift_form_err": 9.478504797084404e-10,
+          "collisions": 2
+        },
+        {
+          "seed": 5,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.7005846245461423,
+          "oracle_form_err": 0.5190955208415701,
+          "drift_form_err": 9.522774801395583e-10,
+          "collisions": 2
+        },
+        {
+          "seed": 6,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.7647189985358267,
+          "oracle_form_err": 0.7452720884510503,
+          "drift_form_err": 9.5649707351568e-10,
+          "collisions": 3
+        },
+        {
+          "seed": 7,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5319727245075435,
+          "oracle_form_err": 0.4503731290166631,
+          "drift_form_err": 9.479811579656685e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 8,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.7743290778674781,
+          "oracle_form_err": 0.22109525815541928,
+          "drift_form_err": 9.546002989487902e-10,
+          "collisions": 2
+        },
+        {
+          "seed": 9,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5444710621496148,
+          "oracle_form_err": 0.7101726641042632,
+          "drift_form_err": 9.511187790338912e-10,
+          "collisions": 2
+        },
+        {
+          "seed": 10,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5255966500958277,
+          "oracle_form_err": 0.4799420725170343,
+          "drift_form_err": 9.363776065554832e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 11,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5684662082156865,
+          "oracle_form_err": 0.7958295324530261,
+          "drift_form_err": 9.499792876634116e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 12,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5206129673264767,
+          "oracle_form_err": 0.2546302556000439,
+          "drift_form_err": 9.402692495312126e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 13,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.7874928681348449,
+          "oracle_form_err": 0.47572551375546346,
+          "drift_form_err": 9.352893557691778e-10,
+          "collisions": 2
+        },
+        {
+          "seed": 14,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5560925703960705,
+          "oracle_form_err": 0.0,
+          "drift_form_err": 9.428944131629952e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 15,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5108206215455596,
+          "oracle_form_err": 0.7817010807103664,
+          "drift_form_err": 9.442212362662581e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 16,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.2848287787679478,
+          "oracle_form_err": 0.4530792474003939,
+          "drift_form_err": 9.45940718060108e-10,
+          "collisions": 0
+        },
+        {
+          "seed": 17,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.510523171438842,
+          "oracle_form_err": 0.0,
+          "drift_form_err": 9.46284097390681e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 18,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5254651925351682,
+          "oracle_form_err": 0.3388751625961264,
+          "drift_form_err": 9.514587748526716e-10,
+          "collisions": 2
+        },
+        {
+          "seed": 19,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 0.5296790101415995,
+          "oracle_form_err": 0.2546302556000442,
+          "drift_form_err": 9.507159759682426e-10,
+          "collisions": 1
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "name": "S5b_random_loss_with_reform",
+        "claim": "With leader-issued manifold reformation: on losing 20%, the leader detects the loss and broadcasts a smaller manifold (size = alive count). Each survivor uses its current position as input to a single compute_target call against the smaller manifold. Result: clean bijection, no demotion, coverage of the smaller manifold approaches 1.0.",
+        "falsifying": "Protocol coverage of the new (smaller) manifold stays below 0.90 \u2014 meaning reformation did not produce a clean bijection.",
+        "mechanism": "Same kill schedule as S5 (6 random drones at tick 100). enable_reformation=True, loss_threshold_pct=0.15. Leader issues a new Command with a 24-leaf manifold when alive count drops below 0.85 * 30 = 25. Drones re-target via compute_target on the new manifold using current positions.",
+        "pass_criterion": "leader_consensus >= 0.80 AND protocol_coverage_of_new_manifold >= 0.90",
+        "n_drones": 30,
+        "n_ticks": 400,
+        "comms_range_m": 30.0,
+        "loss_rate": 0.05,
+        "sound_speed": 150.0,
+        "spacing_m": 8.0
+      },
+      "n_seeds": 20,
+      "metrics": {
+        "leader_consensus": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "form_err_protocol": [
+          3.813701017922829,
+          3.3919487598347047,
+          4.564519052457526
+        ],
+        "form_err_oracle": [
+          0.4340318333800103,
+          0.3230488790378881,
+          0.5388497604998437
+        ],
+        "form_err_drift": [
+          9.477071846593133e-10,
+          9.45132116260845e-10,
+          9.50156537265569e-10
+        ],
+        "max_collisions_protocol": [
+          11.4,
+          8.15,
+          14.55
+        ],
+        "comms_delivery_rate": [
+          0.9460948430788203,
+          0.9459457130774503,
+          0.9462468665055696
+        ]
+      },
+      "extra": {
+        "coverage_protocol": [
+          0.2333333333333333,
+          0.2066666666666667,
+          0.2616666666666666
+        ],
+        "coverage_oracle": [
+          0.7433333333333334,
+          0.7283333333333334,
+          0.7583333333333334
+        ],
+        "coverage_drift": [
+          0.8000000000000002,
+          0.8000000000000002,
+          0.8000000000000002
+        ],
+        "coverage_protocol_current_manifold": [
+          0.9291666666666665,
+          0.9020833333333332,
+          0.9562499999999998
+        ],
+        "protocol_final_manifold_size": [
+          23.0,
+          21.0,
+          24.0
+        ]
+      },
+      "runs": [
+        {
+          "seed": 0,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.5273273739301416,
+          "oracle_form_err": 0.5128370362637247,
+          "drift_form_err": 9.55322850057149e-10,
+          "collisions": 17
+        },
+        {
+          "seed": 1,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.6320052732182506,
+          "oracle_form_err": 0.7695685538448744,
+          "drift_form_err": 9.428478411490275e-10,
+          "collisions": 16
+        },
+        {
+          "seed": 2,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.02509217712932,
+          "oracle_form_err": 0.0,
+          "drift_form_err": 9.533729507990047e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 3,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.502412024834596,
+          "oracle_form_err": 0.46698034756733103,
+          "drift_form_err": 9.488440666488142e-10,
+          "collisions": 19
+        },
+        {
+          "seed": 4,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.295559905989192,
+          "oracle_form_err": 0.45082894872281115,
+          "drift_form_err": 9.478504797084404e-10,
+          "collisions": 1
+        },
+        {
+          "seed": 5,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.4392704963513503,
+          "oracle_form_err": 0.5190955208415701,
+          "drift_form_err": 9.522774801395583e-10,
+          "collisions": 0
+        },
+        {
+          "seed": 6,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.4361195889754583,
+          "oracle_form_err": 0.7452720884510503,
+          "drift_form_err": 9.5649707351568e-10,
+          "collisions": 17
+        },
+        {
+          "seed": 7,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.705187163178769,
+          "oracle_form_err": 0.4503731290166631,
+          "drift_form_err": 9.479811579656685e-10,
+          "collisions": 15
+        },
+        {
+          "seed": 8,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.6439401246261665,
+          "oracle_form_err": 0.22109525815541928,
+          "drift_form_err": 9.546002989487902e-10,
+          "collisions": 18
+        },
+        {
+          "seed": 9,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.3815675287914178,
+          "oracle_form_err": 0.7101726641042632,
+          "drift_form_err": 9.511187790338912e-10,
+          "collisions": 14
+        },
+        {
+          "seed": 10,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.6968048247541625,
+          "oracle_form_err": 0.4799420725170343,
+          "drift_form_err": 9.363776065554832e-10,
+          "collisions": 14
+        },
+        {
+          "seed": 11,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.440460083256099,
+          "oracle_form_err": 0.7958295324530261,
+          "drift_form_err": 9.499792876634116e-10,
+          "collisions": 12
+        },
+        {
+          "seed": 12,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 10.528747391249494,
+          "oracle_form_err": 0.2546302556000439,
+          "drift_form_err": 9.402692495312126e-10,
+          "collisions": 12
+        },
+        {
+          "seed": 13,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.7765126942266747,
+          "oracle_form_err": 0.47572551375546346,
+          "drift_form_err": 9.352893557691778e-10,
+          "collisions": 19
+        },
+        {
+          "seed": 14,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.5337263316074528,
+          "oracle_form_err": 0.0,
+          "drift_form_err": 9.428944131629952e-10,
+          "collisions": 18
+        },
+        {
+          "seed": 15,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.0557029677172096,
+          "oracle_form_err": 0.7817010807103664,
+          "drift_form_err": 9.442212362662581e-10,
+          "collisions": 0
+        },
+        {
+          "seed": 16,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.410465844033187,
+          "oracle_form_err": 0.4530792474003939,
+          "drift_form_err": 9.45940718060108e-10,
+          "collisions": 19
+        },
+        {
+          "seed": 17,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.560277134008325,
+          "oracle_form_err": 0.0,
+          "drift_form_err": 9.46284097390681e-10,
+          "collisions": 13
+        },
+        {
+          "seed": 18,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.5383605480675278,
+          "oracle_form_err": 0.3388751625961264,
+          "drift_form_err": 9.514587748526716e-10,
+          "collisions": 2
+        },
+        {
+          "seed": 19,
+          "protocol_consensus": 1.0,
+          "protocol_form_err": 3.1444808825117825,
+          "oracle_form_err": 0.2546302556000442,
+          "drift_form_err": 9.507159759682426e-10,
+          "collisions": 1
+        }
+      ]
+    }
+  ],
+  "wall_time_s": 971.3534045839915
+}
