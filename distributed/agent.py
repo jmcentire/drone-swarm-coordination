@@ -225,7 +225,7 @@ class Agent:
                 and isinstance(payload, Heartbeat)
                 and msg.hop == 1
             ):
-                claimed_pos = np.asarray(payload.position, dtype=np.float64)
+                claimed_pos = np.asarray(payload.dr_position, dtype=np.float64)
                 claimed_dist = float(np.linalg.norm(claimed_pos - self.position))
                 physical_dist = msg.range_at_send
                 if abs(claimed_dist - physical_dist) > self.byzantine_tolerance_m:
