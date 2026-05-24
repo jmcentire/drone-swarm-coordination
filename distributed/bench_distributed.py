@@ -251,34 +251,53 @@ class ByzantineHook:
 
 
 class DisplaceHook:
-    """Physically teleports a subset of drones by `offset` at `tick_apply`
-    and (optionally) back by -offset at `tick_reset`. Models a current that
-    sweeps part of the swarm out of comms range, then subsides."""
+    """Models a sustained current that sweeps a subset of drones out of
+    comms range during [tick_apply, tick_reset), then subsides.
+
+    Implementation: snapshots each affected drone's pre-displacement
+    position at tick_apply, then each tick during the active window
+    pushes the drone back to (snapshot + offset), overwriting any motion
+    the attractor would otherwise have produced. Without this, displaced
+    drones would simply swim back toward their targets at ~max_speed
+    m/tick and the partition would self-heal long before tick_reset --
+    making the scenario test something other than what it claims.
+
+    At tick_reset, the displaced drones are released (positions returned
+    to the snapshot, no offset) and the normal attractor logic resumes.
+    """
     def __init__(self, tick_apply: int, tick_reset: int, drone_ids: list[int],
                  offset: np.ndarray) -> None:
         self.tick_apply = tick_apply
         self.tick_reset = tick_reset
         self.drone_ids = drone_ids
         self.offset = np.asarray(offset, dtype=np.float64)
-        self._applied = False
-        self._reset = False
+        self._snapshots: dict[int, np.ndarray] = {}
+        self._active = False
 
     def __call__(self, w: World, tick: int) -> None:
-        if tick == self.tick_apply and not self._applied:
+        if tick == self.tick_apply and not self._snapshots:
             for did in self.drone_ids:
                 if 0 <= did < w.n and w.alive[did]:
-                    w.positions[did] = w.positions[did] + self.offset
-                    if w.agents[did] is not None:
-                        w.agents[did].position = w.positions[did].copy()
-            self._applied = True
-        if tick == self.tick_reset and not self._reset:
-            # Snap back; the "current" subsides and drones rejoin physically.
-            for did in self.drone_ids:
+                    self._snapshots[did] = w.positions[did].copy()
+            self._active = True
+        if self._active and self.tick_apply <= tick < self.tick_reset:
+            # Re-clamp each tick: position := snapshot + offset. This holds
+            # the displaced drones at a fixed offset from their pre-event
+            # positions regardless of attractor motion.
+            for did, snap in self._snapshots.items():
                 if 0 <= did < w.n and w.alive[did]:
-                    w.positions[did] = w.positions[did] - self.offset
+                    w.positions[did] = snap + self.offset
                     if w.agents[did] is not None:
                         w.agents[did].position = w.positions[did].copy()
-            self._reset = True
+        if tick == self.tick_reset and self._active:
+            # Release: snap back to the snapshot positions (no offset), so
+            # the "current" cleanly subsides and physics takes over again.
+            for did, snap in self._snapshots.items():
+                if 0 <= did < w.n and w.alive[did]:
+                    w.positions[did] = snap.copy()
+                    if w.agents[did] is not None:
+                        w.agents[did].position = w.positions[did].copy()
+            self._active = False
 
 
 # ---------------------------------------------------------------------------

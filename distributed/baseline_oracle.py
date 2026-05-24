@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from manifold import ManifoldNode, compute_target
+from manifold import compute_target
 
 
 def run_oracle(
@@ -38,7 +38,6 @@ def run_oracle(
     positions = start_positions.copy()
     alive = np.ones(n_drones, dtype=bool)
     locked = np.zeros(n_drones, dtype=bool)
-    tree = ManifoldNode(manifold)
 
     metrics = {
         "formation_error_mean": [],
@@ -68,7 +67,7 @@ def run_oracle(
         for i in range(n_drones):
             if not alive[i] or not locked[i]:
                 continue
-            t, _ = compute_target(i, drones, tree)
+            t, _ = compute_target(i, drones, manifold)
             if float(np.linalg.norm(positions[i] - t)) > 1.5 * approach_radius_m:
                 locked[i] = False
 
@@ -76,7 +75,7 @@ def run_oracle(
         for i in range(n_drones):
             if not alive[i] or locked[i]:
                 continue
-            target, is_primary = compute_target(i, drones, tree)
+            target, is_primary = compute_target(i, drones, manifold)
             diff = target - positions[i]
             dist = float(np.linalg.norm(diff))
             is_final = dist < approach_radius_m

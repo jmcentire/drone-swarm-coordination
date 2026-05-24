@@ -36,7 +36,7 @@ from typing import Any
 
 import numpy as np
 
-from manifold import ManifoldNode, compute_target
+from manifold import compute_target
 from protocol import (
     Command,
     DEFAULT_FRESHNESS_TICKS,
@@ -114,8 +114,6 @@ class Agent:
         self.command_epoch_counter = 0
         self.heartbeat_epoch_counter = 0
         self.priority_epoch_counter = 0
-        self._tree: ManifoldNode | None = None
-        self._tree_signature: int = -1
         self.seen_messages: set[tuple[str, int, int]] = set()
         self.byzantine_flags: dict[int, int] = {}
         # Cache for consensus_positions: only recompute when new heartbeats
@@ -312,11 +310,7 @@ class Agent:
             if mt is not None:
                 manifold_targets = mt
         if manifold_targets is not None:
-            sig = hash(manifold_targets.tobytes())
-            if sig != self._tree_signature:
-                self._tree = ManifoldNode(manifold_targets)
-                self._tree_signature = sig
-            target, is_primary = compute_target(self.drone_id, known, self._tree)
+            target, is_primary = compute_target(self.drone_id, known, manifold_targets)
         else:
             # No command yet: hold position; primary=False.
             target = self.position.copy()
