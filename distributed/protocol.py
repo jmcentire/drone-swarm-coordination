@@ -1,77 +1,118 @@
 # /// script
 # dependencies = ["numpy<3", "scipy"]
 # ///
-"""Single-message-type, event-driven gossip protocol for limited-comms.
+"""Event-driven gossip protocol for limited-comms underwater swarms.
 
-DESIGN PREMISE: the underlying channel is bandwidth- and energy-starved
-(acoustic, range-limited, with propagation delay). Continuous broadcast
-("heartbeats", periodic vote pings) defeats the entire purpose of the
-research and is explicitly excluded. A drone transmits IFF it has new
-information worth propagating. Liveness is INFERRED from received
+DESIGN PREMISE: bandwidth- and energy-starved acoustic channel. A drone
+transmits ONLY when one of four explicit events fires. Continuous
+broadcast ("heartbeats", periodic liveness pings) is explicitly excluded
+as incompatible with the premise. Liveness is INFERRED from received
 activity, not announced.
 
-One message type travels through gossip:
+Four communicative event types travel through gossip:
 
-  Update(origin, priority, epoch, dr_position, dr_sigma, range_obs,
-         command, sig_stub)
-      Carries everything the sender currently has worth sharing:
-        - signed (priority, epoch) -- this IS the vote; flood-max merge
-          on the receiving side
-        - dr_position + dr_sigma   -- sender's self-estimate, soft anchor
-                                       for the DR-anchored IRLS consensus
-        - range_obs                -- ranges the sender has physically
-                                       MEASURED since its last transmit
-                                       (origin->neighbor); not claims
-        - command                  -- attached if the sender is currently
-                                       acting as leader and has a new
-                                       directive; otherwise None
+  Map(kind=call|response, origin, epoch, dr_position, dr_sigma,
+      range_obs, round_id, sig_stub)
+      Situational-awareness round. The current leader emits Map.CALL
+      (carrying just round_id + own dr_pos for the responders to ToF-
+      range against). Other drones reply with Map.RESPONSE carrying
+      their own (dr_pos, dr_sigma, accumulated range_obs). Result: every
+      participating drone has updated data for the consensus IRLS.
 
-  Forwarding is per-message: receivers relay the original Update with
-  TTL decrement and (origin, epoch) dedup. Forwarding is NOT a fresh
-  broadcast; the relayer does not augment the payload.
+  Vote(kind=call|response, origin, priority, epoch, round_id, sig_stub)
+      Election round. Leader emits Vote.CALL after a Map round.
+      Candidates emit Vote.RESPONSE carrying their (priority, epoch)
+      claim. Flood-max merge produces consensus on leader.
 
-Each drone maintains:
-  - known_priorities[origin] = (priority, epoch, heard_tick)
-  - self_estimates[origin]   = (dr_position, epoch, heard_tick)
-  - dr_sigmas[origin]        = sender's reported dr_sigma
-  - range_obs[(obs, observed)] = (range_m, heard_tick)
-  - latest_command           = highest-(priority,epoch) Command in fresh
-                               window, or None
+  Command(origin, leader_priority, epoch, payload, sig_stub)
+      Mission directive. Issued by confirmed leader after a Vote round
+      closes. Carries manifold + heading + leg metadata.
 
-Leader inference is local: highest (priority, epoch) among fresh
-known_priorities; tie-break on origin id; falls back to self if no peer
-is fresh.
+  OhShit(origin, kind, payload, sig_stub)
+      Emergency. Drone-initiated when it detects something it cannot
+      handle alone (own sensor failure, byzantine peer detected via
+      consensus residual analysis, participant-count collapse, mission
+      infeasibility). VALID ONLY DURING MOVE/SETTLE/REFORM phases --
+      raising during a Map/Vote round would create a race; those rounds
+      are themselves the response to whatever needs attention.
 
-Signature stub is NOT real crypto. The 16-byte tag exists to model the
-bandwidth of an Ed25519 signature; verification is "origin == claimed
-origin" (returned to us by LocalComms.Message). Byzantine drones still
-pass this check because they lie about content, not identity.
+PASSIVE (non-communicative) signal: any acoustic message has measurable
+ToF at receivers. There is NO standalone ranging ping; the existence-
+and-distance information comes from the act of any communicative
+transmission. Between rounds = silence = no new ranges = neighbors' last
+known positions age out of the freshness window.
+
+Forwarding: per-message TTL decrement with (kind, origin, epoch,
+round_id) dedup. Forwarding is NOT a fresh broadcast; relayers do not
+augment the payload.
+
+Signature stub: 16-byte tag occupying the bandwidth a real Ed25519
+signature would. Verification is origin-consistency only (the substrate
+delivers msg.origin == sender). Byzantine drones lie about CONTENT, not
+identity, so this check holds against them; the consensus IRLS is the
+mechanism that handles content lies via outlier rejection.
 """
 
 from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
 import numpy as np
 
 
 SIG_LEN = 16
-DEFAULT_FRESHNESS_TICKS = 30  # how recent a heard message must be to count
+DEFAULT_FRESHNESS_TICKS = 30
 
 
 def make_sig(origin: int, epoch: int, kind: str, secret: bytes = b"unused") -> bytes:
-    """Stub 'signature' -- deterministic 16-byte tag. NOT secure. Used to
-    fill the bandwidth budget for a real Ed25519 signature."""
+    """Deterministic 16-byte stub of an Ed25519 signature."""
     h = hashlib.sha256(secret + str(origin).encode() + str(epoch).encode() + kind.encode())
     return h.digest()[:SIG_LEN]
 
 
+# ---------------------------------------------------------------------------
+# Message types -- all event-driven, never periodic.
+# ---------------------------------------------------------------------------
+
+
+class MsgKind(Enum):
+    CALL = "call"
+    RESPONSE = "response"
+
+
+@dataclass
+class Map:
+    """Situational-awareness round. CALL initiates from leader; RESPONSE
+    carries the responder's dr_pos + range obs accumulated since the last
+    Map round."""
+    kind: MsgKind
+    origin: int
+    epoch: int
+    round_id: int
+    dr_position: np.ndarray
+    dr_sigma: float
+    range_obs: dict[int, float]
+    sig_stub: bytes
+
+
+@dataclass
+class Vote:
+    """Election round. CALL initiates from leader after a Map closes.
+    RESPONSE carries each candidate's (priority, epoch) claim."""
+    kind: MsgKind
+    origin: int
+    priority: int
+    epoch: int
+    round_id: int
+    sig_stub: bytes
+
+
 @dataclass
 class Command:
-    """Mission directive payload. Carried INSIDE an Update when the
-    sender is acting as leader and has new content to issue."""
+    """Mission directive issued by confirmed leader after a Vote round."""
     origin: int
     leader_priority: int
     epoch: int
@@ -79,35 +120,26 @@ class Command:
     sig_stub: bytes
 
 
-@dataclass
-class Update:
-    """The single event-driven gossip message. Transmitted by a drone
-    ONLY when it has something genuinely new to say (see Agent.step for
-    the trigger conditions). Forwarded by neighbors via TTL+dedup gossip.
+class OhShitKind(Enum):
+    OWN_SENSOR_FAILURE = "own_sensor_failure"
+    BYZANTINE_PEER = "byzantine_peer"          # data names suspected origin
+    PARTICIPANT_COLLAPSE = "participant_collapse"
+    MISSION_INFEASIBLE = "mission_infeasible"
 
-    Fields:
-      origin       : sender drone id
-      priority     : sender's signed priority (this is the vote)
-      epoch        : sender's update counter; monotonic per origin.
-                     Receivers accept the (origin, epoch) tuple at most
-                     once and merge by max (priority, epoch).
-      dr_position  : sender's current dead-reckoning self-estimate (3,)
-      dr_sigma     : sender's DR uncertainty (m), grows since last fix
-      range_obs    : {observed_id: range_m} -- physical ToF measurements
-                     the sender accumulated since its last transmit
-      command      : optional Command if the sender is leader and has a
-                     new directive; otherwise None
-      sig_stub     : 16-byte stub of an Ed25519 signature over the
-                     packed fields
-    """
+
+@dataclass
+class OhShit:
+    """Emergency. Gated to MOVE/SETTLE/REFORM phases by the agent."""
     origin: int
-    priority: int
+    kind: OhShitKind
+    payload: Any
     epoch: int
-    dr_position: np.ndarray
-    dr_sigma: float
-    range_obs: dict[int, float]
-    command: Command | None
     sig_stub: bytes
+
+
+# ---------------------------------------------------------------------------
+# Per-drone state.
+# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -120,110 +152,160 @@ class ProtocolState:
     known_priorities: dict[int, tuple[int, int, int]] = field(default_factory=dict)
     # origin -> (dr_position, epoch, heard_tick)
     self_estimates: dict[int, tuple[np.ndarray, int, int]] = field(default_factory=dict)
-    # origin -> dr_sigma (m), reported by sender; updated when newer epoch arrives
+    # origin -> reported dr_sigma (m)
     dr_sigmas: dict[int, float] = field(default_factory=dict)
     # (observer_id, observed_id) -> (range_m, heard_tick)
     range_obs: dict[tuple[int, int], tuple[float, int]] = field(default_factory=dict)
-    # Latest known mission directive by (priority, epoch).
+    # Latest confirmed mission directive.
     latest_command: Command | None = None
     latest_command_tick: int = -1
-    # Back-compat alias used by callers that haven't migrated to consensus
-    # position lookups. Populated from self_estimates with no robust fit.
+    # Round bookkeeping (rounds are leader-initiated and identified by
+    # (origin_of_call, round_id); responders use round_id to dedup their
+    # own responses so they don't reply twice to the same call).
+    last_map_round_responded: tuple[int, int] | None = None  # (leader_id, round_id)
+    last_vote_round_responded: tuple[int, int] | None = None
+    # Back-compat alias for callers that still read known_positions
+    # (manifold.compute_target, baseline_oracle). Populated from
+    # self_estimates with no robust fit.
     known_positions: dict[int, tuple[np.ndarray, int, int]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.known_priorities[self.drone_id] = (self.my_priority, self.my_epoch, 0)
 
 
-def verify_origin(claimed_origin: int, msg_origin: int) -> bool:
-    """Origin-consistency stub. Real impl is Ed25519 verify over the
-    Update's signed fields. Byzantine drones lie about content, not
-    identity, so this check holds against them."""
-    return claimed_origin == msg_origin
+def verify_origin(claimed: int, msg_origin: int) -> bool:
+    """Origin-consistency stub. Real impl is Ed25519 verify over signed
+    fields. Byzantine drones lie about content, not identity."""
+    return claimed == msg_origin
 
 
-def ingest_update(
-    state: ProtocolState,
-    u: Update,
-    current_tick: int,
+# ---------------------------------------------------------------------------
+# Ingest functions -- one per message type.
+# Each returns True iff state changed (caller uses this to gate consensus
+# recomputation; it is NOT a trigger for outgoing transmissions).
+# ---------------------------------------------------------------------------
+
+
+def _merge_priority(
+    state: ProtocolState, origin: int, priority: int, epoch: int, tick: int
+) -> bool:
+    """Flood-max merge on (priority, epoch). Refresh heard_tick on equality."""
+    prev = state.known_priorities.get(origin)
+    if prev is None:
+        state.known_priorities[origin] = (priority, epoch, tick)
+        return True
+    pp, pe, _ = prev
+    if (priority, epoch) > (pp, pe):
+        state.known_priorities[origin] = (priority, epoch, tick)
+        return True
+    if (priority, epoch) == (pp, pe):
+        state.known_priorities[origin] = (pp, pe, tick)
+    return False
+
+
+def _merge_self_estimate(
+    state: ProtocolState, origin: int, dr_pos: np.ndarray, dr_sigma: float,
+    epoch: int, tick: int
+) -> bool:
+    prev = state.self_estimates.get(origin)
+    if prev is not None and epoch < prev[1]:
+        return False
+    pos = np.asarray(dr_pos, dtype=np.float64).copy()
+    state.self_estimates[origin] = (pos, epoch, tick)
+    state.dr_sigmas[origin] = float(dr_sigma)
+    state.known_positions[origin] = (pos.copy(), epoch, tick)
+    return True
+
+
+def _merge_range_obs(
+    state: ProtocolState, observer: int, observed_id: int, range_m: float, tick: int
+) -> None:
+    state.range_obs[(observer, observed_id)] = (float(range_m), tick)
+
+
+def ingest_map(
+    state: ProtocolState, m: Map, tick: int,
     measured_range_to_sender: float | None = None,
 ) -> bool:
-    """Merge an Update into local state.
-
-    Side effects:
-      - known_priorities: max-merge on (priority, epoch); refreshes
-        heard_tick when the seen entry equals the stored one
-      - self_estimates / dr_sigmas: replace when epoch >= stored epoch
-      - range_obs: store sender's reported ranges (origin -> observed_id)
-        AND, if the substrate told us the measured range to the sender,
-        store our own (self -> origin) observation
-      - latest_command: if Update carries a Command, fold it in by
-        (leader_priority, epoch) max
-      - known_positions: maintained as a back-compat alias to self_estimates
-
-    Returns True iff state changed (caller uses this to decide whether
-    consensus needs to be re-computed -- pure throttle, not a trigger
-    for outgoing transmits).
-    """
-    if not verify_origin(u.origin, u.origin):
+    """Merge a Map message (either CALL or RESPONSE)."""
+    if not verify_origin(m.origin, m.origin):
         return False
     changed = False
-
-    prev_pri = state.known_priorities.get(u.origin)
-    if prev_pri is None:
-        state.known_priorities[u.origin] = (u.priority, u.epoch, current_tick)
-        changed = True
-    else:
-        pp, pe, _ = prev_pri
-        if (u.priority, u.epoch) > (pp, pe):
-            state.known_priorities[u.origin] = (u.priority, u.epoch, current_tick)
-            changed = True
-        elif (u.priority, u.epoch) == (pp, pe):
-            # Refresh heard-tick so freshness window doesn't expire.
-            state.known_priorities[u.origin] = (pp, pe, current_tick)
-
-    prev_self = state.self_estimates.get(u.origin)
-    if prev_self is None or u.epoch >= prev_self[1]:
-        state.self_estimates[u.origin] = (
-            np.asarray(u.dr_position, dtype=np.float64).copy(),
-            u.epoch,
-            current_tick,
-        )
-        state.dr_sigmas[u.origin] = float(u.dr_sigma)
-        state.known_positions[u.origin] = (
-            np.asarray(u.dr_position, dtype=np.float64).copy(),
-            u.epoch,
-            current_tick,
-        )
-        changed = True
-
-    for observed_id, r in u.range_obs.items():
-        state.range_obs[(u.origin, int(observed_id))] = (float(r), current_tick)
+    # Both kinds carry sender's dr_pos + range observations -- the act of
+    # emitting any message reveals where you are, regardless of intent.
+    changed |= _merge_self_estimate(
+        state, m.origin, m.dr_position, m.dr_sigma, m.epoch, tick
+    )
+    for observed_id, r in m.range_obs.items():
+        _merge_range_obs(state, m.origin, int(observed_id), float(r), tick)
     if measured_range_to_sender is not None:
-        state.range_obs[(state.drone_id, u.origin)] = (
-            float(measured_range_to_sender), current_tick
-        )
-
-    if u.command is not None:
-        if state.latest_command is None or (
-            u.command.leader_priority, u.command.epoch
-        ) > (state.latest_command.leader_priority, state.latest_command.epoch):
-            state.latest_command = u.command
-            state.latest_command_tick = current_tick
-            changed = True
-
+        _merge_range_obs(state, state.drone_id, m.origin, measured_range_to_sender, tick)
     return changed
 
 
+def ingest_vote(
+    state: ProtocolState, v: Vote, tick: int,
+    measured_range_to_sender: float | None = None,
+) -> bool:
+    """Merge a Vote message (either CALL or RESPONSE). Flood-max on
+    (priority, epoch). Records range observation if substrate provided one."""
+    if not verify_origin(v.origin, v.origin):
+        return False
+    changed = _merge_priority(state, v.origin, v.priority, v.epoch, tick)
+    if measured_range_to_sender is not None:
+        _merge_range_obs(state, state.drone_id, v.origin, measured_range_to_sender, tick)
+    return changed
+
+
+def ingest_command(
+    state: ProtocolState, c: Command, tick: int,
+    measured_range_to_sender: float | None = None,
+) -> bool:
+    """Merge a Command. Highest (leader_priority, epoch) wins."""
+    if not verify_origin(c.origin, c.origin):
+        return False
+    if measured_range_to_sender is not None:
+        _merge_range_obs(state, state.drone_id, c.origin, measured_range_to_sender, tick)
+    if state.latest_command is None or (
+        c.leader_priority, c.epoch
+    ) > (state.latest_command.leader_priority, state.latest_command.epoch):
+        state.latest_command = c
+        state.latest_command_tick = tick
+        return True
+    return False
+
+
+def ingest_oh_shit(
+    state: ProtocolState, e: OhShit, tick: int,
+    measured_range_to_sender: float | None = None,
+) -> bool:
+    """Merge an OhShit. State change recorded by the caller (agent decides
+    how to react -- e.g., leader may trigger a fresh Vote round if
+    BYZANTINE_PEER points at the current leader)."""
+    if not verify_origin(e.origin, e.origin):
+        return False
+    if measured_range_to_sender is not None:
+        _merge_range_obs(state, state.drone_id, e.origin, measured_range_to_sender, tick)
+    # OhShit doesn't directly mutate known_priorities or self_estimates;
+    # the agent handles it as a signal. Returning True so the consensus
+    # cache is invalidated (a peer's emergency is information).
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Inference helpers.
+# ---------------------------------------------------------------------------
+
+
 def infer_leader(
-    state: ProtocolState, current_tick: int, freshness: int = DEFAULT_FRESHNESS_TICKS
+    state: ProtocolState, tick: int, freshness: int = DEFAULT_FRESHNESS_TICKS
 ) -> int:
     """Leader = highest (priority, epoch) among fresh known_priorities.
     Tie-break: highest origin id. Falls back to self if no peer is fresh."""
     best_origin = state.drone_id
     best = (state.my_priority, state.my_epoch, state.drone_id)
     for origin, (pri, epoch, heard) in state.known_priorities.items():
-        if current_tick - heard > freshness:
+        if tick - heard > freshness:
             continue
         key = (pri, epoch, origin)
         if key > best:
@@ -233,24 +315,38 @@ def infer_leader(
 
 
 def fresh_known_drones(
-    state: ProtocolState, current_tick: int, freshness: int = DEFAULT_FRESHNESS_TICKS
+    state: ProtocolState, tick: int, freshness: int = DEFAULT_FRESHNESS_TICKS
 ) -> list[dict]:
-    """Drones this node currently believes are alive and known. Reads
-    from known_positions (back-compat) for callers that haven't migrated
-    to consensus_position lookups."""
+    """Drones this node currently believes are alive and known. Back-compat
+    accessor: reads from known_positions."""
     drones = []
     for origin, (pos, epoch, heard) in state.known_positions.items():
         if origin == state.drone_id:
             continue
-        if current_tick - heard > freshness:
+        if tick - heard > freshness:
             continue
         drones.append({"id": origin, "pos": pos.copy()})
     return drones
 
 
+def fresh_participant_count(
+    state: ProtocolState, tick: int, freshness: int = DEFAULT_FRESHNESS_TICKS
+) -> int:
+    """How many peers (including self) this drone currently considers
+    in-contact. Used for the leader's viability check before issuing a
+    mission Command (catastrophic-comms detection)."""
+    n = 1  # self
+    for origin, (_, _, heard) in state.known_priorities.items():
+        if origin == state.drone_id:
+            continue
+        if tick - heard <= freshness:
+            n += 1
+    return n
+
+
 def compute_consensus_positions(
     state: ProtocolState,
-    current_tick: int,
+    tick: int,
     freshness: int = DEFAULT_FRESHNESS_TICKS,
     huber_scale_m: float = 2.0,
     n_irls_iters: int = 3,
@@ -259,23 +355,23 @@ def compute_consensus_positions(
     """DR-anchored Huber least-squares consensus position fit.
 
     Minimizes:
-        sum_i (1/sigma_DR_i^2) rho(||x_i - DR_i||) +
-        sum_(i,j) (1/sigma_R_ij^2) rho(||x_i - x_j|| - r_ij)
+      sum_i (1/sigma_DR_i^2) rho(||x_i - DR_i||) +
+      sum_(i,j) (1/sigma_R_ij^2) rho(||x_i - x_j|| - r_ij)
 
     where rho is Huber. DR anchors break the rigid-body / reflection
     ambiguity that pure-range fits suffer; Huber + IRLS reweighting
-    downweights outliers (bad sensors) automatically.
+    downweights outliers (bad sensors, byzantine peers lying about their
+    dr_position) automatically. THIS is the byzantine-resilience mechanism
+    -- no separate per-message detection layer.
 
-    Hot-path optimization (2026-05-23): vectorized residuals + analytic
-    Jacobian collapse a 333ms/call implementation to ~55ms/call.
-
-    Returns: drone_id -> (3,) consensus position.
+    Vectorized residuals + analytic Jacobian: ~55ms/call for n=20 with
+    full edge fan-out (validated 2026-05-23, kindex 8a270cb76915).
     """
     from scipy.optimize import least_squares
 
     fresh_self_ids = [
         origin for origin, (_, _, heard) in state.self_estimates.items()
-        if current_tick - heard <= freshness
+        if tick - heard <= freshness
     ]
     drone_ids = sorted(fresh_self_ids)
     if not drone_ids:
@@ -290,7 +386,7 @@ def compute_consensus_positions(
 
     e_i, e_j, e_d = [], [], []
     for (obs, observed), (r, heard) in state.range_obs.items():
-        if current_tick - heard > freshness:
+        if tick - heard > freshness:
             continue
         if obs not in id_to_idx or observed not in id_to_idx:
             continue
@@ -356,6 +452,33 @@ def compute_consensus_positions(
     return {did: positions[id_to_idx[did]] for did in drone_ids}
 
 
+def detect_byzantine_via_residuals(
+    state: ProtocolState,
+    tick: int,
+    freshness: int = DEFAULT_FRESHNESS_TICKS,
+    threshold_m: float = 20.0,
+) -> list[int]:
+    """Identify peers whose dr_position disagrees with their range-implied
+    position by more than threshold_m, AFTER the IRLS has run. This is the
+    residual-driven detection -- a byproduct of consensus, not a separate
+    pre-filter on incoming messages. Returns list of suspect origin ids.
+
+    The CALLER decides what to do with the result (typically: leader emits
+    OhShit naming the suspect; mission planning routes the formation
+    around the byzantine's physical position).
+    """
+    consensus = compute_consensus_positions(state, tick, freshness=freshness)
+    suspects = []
+    for origin, c_pos in consensus.items():
+        if origin not in state.self_estimates:
+            continue
+        dr_pos, _, _ = state.self_estimates[origin]
+        residual = float(np.linalg.norm(c_pos - dr_pos))
+        if residual > threshold_m:
+            suspects.append(origin)
+    return suspects
+
+
 # ---------------------------------------------------------------------------
 # Falsifiability tests.
 # ---------------------------------------------------------------------------
@@ -364,100 +487,103 @@ def compute_consensus_positions(
 def _tests() -> int:
     failed = 0
 
-    # T1: update merges max (priority, epoch); lower priority does not override.
-    s = ProtocolState(drone_id=0, my_priority=10, my_epoch=0)
-    u1 = Update(origin=1, priority=5, epoch=0, dr_position=np.zeros(3),
-                dr_sigma=1.0, range_obs={}, command=None, sig_stub=b"")
-    u2 = Update(origin=1, priority=5, epoch=1, dr_position=np.zeros(3),
-                dr_sigma=1.0, range_obs={}, command=None, sig_stub=b"")
-    u3 = Update(origin=1, priority=4, epoch=99, dr_position=np.zeros(3),
-                dr_sigma=1.0, range_obs={}, command=None, sig_stub=b"")
-    ingest_update(s, u1, current_tick=0)
-    ingest_update(s, u2, current_tick=1)
-    ingest_update(s, u3, current_tick=2)
+    # T1: Vote merges by max (priority, epoch); lower priority does not override.
+    s = ProtocolState(drone_id=0, my_priority=10)
+    for vp, ve in [(5, 0), (5, 1), (4, 99)]:
+        v = Vote(MsgKind.RESPONSE, origin=1, priority=vp, epoch=ve, round_id=0, sig_stub=b"")
+        ingest_vote(s, v, tick=ve)
     p, e, _ = s.known_priorities[1]
     if (p, e) != (5, 1):
-        print(f"FAIL T1: priority merge wrong: got ({p}, {e})")
+        print(f"FAIL T1: vote merge wrong: got ({p}, {e})")
         failed += 1
 
-    # T2: leader inference picks highest fresh priority; stale entries drop out.
-    s = ProtocolState(drone_id=0, my_priority=2, my_epoch=0)
-    ingest_update(s, Update(1, 5, 0, np.zeros(3), 1.0, {}, None, b""), current_tick=0)
-    ingest_update(s, Update(2, 7, 0, np.zeros(3), 1.0, {}, None, b""), current_tick=0)
-    if infer_leader(s, current_tick=0) != 2:
+    # T2: leader inference picks highest fresh priority; stale entries drop.
+    s = ProtocolState(drone_id=0, my_priority=2)
+    ingest_vote(s, Vote(MsgKind.RESPONSE, 1, 5, 0, 0, b""), tick=0)
+    ingest_vote(s, Vote(MsgKind.RESPONSE, 2, 7, 0, 0, b""), tick=0)
+    if infer_leader(s, tick=0) != 2:
         print(f"FAIL T2a: leader should be 2, got {infer_leader(s, 0)}")
         failed += 1
-    if infer_leader(s, current_tick=100, freshness=10) != 0:
+    if infer_leader(s, tick=100, freshness=10) != 0:
         print(f"FAIL T2b: stale peers should fall away to self(0)")
         failed += 1
 
-    # T3: self-estimate keeps latest dr_position by epoch.
-    s = ProtocolState(drone_id=0, my_priority=1, my_epoch=0)
-    ingest_update(s, Update(2, 1, 0, np.array([1.0, 0, 0]), 1.0, {}, None, b""), 0)
-    ingest_update(s, Update(2, 1, 1, np.array([2.0, 0, 0]), 1.0, {}, None, b""), 1)
-    ingest_update(s, Update(2, 1, 0, np.array([99.0, 0, 0]), 1.0, {}, None, b""), 2)  # stale
+    # T3: Map merges self_estimate by epoch; older epoch is ignored.
+    s = ProtocolState(drone_id=0, my_priority=1)
+    for ep, x in [(0, 1.0), (1, 2.0), (0, 99.0)]:
+        m = Map(MsgKind.RESPONSE, origin=2, epoch=ep, round_id=0,
+                dr_position=np.array([x, 0, 0]), dr_sigma=1.0,
+                range_obs={}, sig_stub=b"")
+        ingest_map(s, m, tick=ep)
     pos, ep, _ = s.self_estimates[2]
     if not (abs(pos[0] - 2.0) < 1e-9 and ep == 1):
         print(f"FAIL T3: dr_position merge wrong, got pos={pos[0]} ep={ep}")
         failed += 1
 
-    # T3b: outlier detection -- a bad self-estimate gets corrected by neighbor
-    # range observations through the consensus IRLS.
-    s = ProtocolState(drone_id=99, my_priority=1, my_epoch=0)
+    # T3b: outlier rejection via consensus IRLS (no per-message detection).
+    s = ProtocolState(drone_id=99, my_priority=1)
     for nid, pos in [(0, [0, 0, 0]), (1, [20, 0, 0]), (2, [10, 10, 0]), (3, [10, 0, 10])]:
         s.self_estimates[nid] = (np.array(pos, dtype=float), 0, 0)
         s.dr_sigmas[nid] = 1.0
-    s.self_estimates[5] = (np.array([50.0, 0, 0]), 0, 0)  # bad sensor: claims 50,0,0
+    s.self_estimates[5] = (np.array([50.0, 0, 0]), 0, 0)  # bad sensor: claims (50,0,0)
     s.dr_sigmas[5] = 1.0
     true_p5 = np.array([10.0, 0, 0])
     for nid, npos in [(0, [0,0,0]), (1, [20,0,0]), (2, [10,10,0]), (3, [10,0,10])]:
         r = float(np.linalg.norm(true_p5 - np.array(npos)))
         s.range_obs[(nid, 5)] = (r, 0)
-    consensus = compute_consensus_positions(s, current_tick=0)
+    consensus = compute_consensus_positions(s, tick=0)
     p5 = consensus[5]
-    err_from_truth = float(np.linalg.norm(p5 - true_p5))
-    err_from_lie = float(np.linalg.norm(p5 - np.array([50.0, 0, 0])))
-    if err_from_truth > 1.0:
-        print(f"FAIL T3b: consensus for bad-sensor drone {err_from_truth:.3f}m from truth")
+    if float(np.linalg.norm(p5 - true_p5)) > 1.0:
+        print(f"FAIL T3b: bad-sensor drone consensus {np.linalg.norm(p5 - true_p5):.3f}m from truth")
         failed += 1
-    if err_from_lie < 30.0:
-        print(f"FAIL T3b: consensus didn't reject the outlier (only {err_from_lie:.3f}m from lie)")
+    if float(np.linalg.norm(p5 - np.array([50.0, 0, 0]))) < 30.0:
+        print(f"FAIL T3b: consensus didn't reject the outlier")
         failed += 1
 
-    # T4: command attached to an Update is folded in by (priority, epoch) max.
-    s = ProtocolState(drone_id=0, my_priority=1, my_epoch=0)
-    c1 = Command(origin=5, leader_priority=10, epoch=0, payload="A", sig_stub=b"")
-    c2 = Command(origin=6, leader_priority=10, epoch=1, payload="B", sig_stub=b"")
-    c3 = Command(origin=7, leader_priority=20, epoch=0, payload="C", sig_stub=b"")
-    c4 = Command(origin=8, leader_priority=5, epoch=999, payload="D", sig_stub=b"")
-    for ci in [c1, c2, c3, c4]:
-        u = Update(ci.origin, ci.leader_priority, ci.epoch, np.zeros(3), 1.0,
-                   {}, ci, b"")
-        ingest_update(s, u, current_tick=0)
+    # T3c: byzantine detection via post-IRLS residuals -- the bad-sensor
+    # drone from T3b should be flagged.
+    suspects = detect_byzantine_via_residuals(s, tick=0, threshold_m=20.0)
+    if 5 not in suspects:
+        print(f"FAIL T3c: drone 5 should be flagged as byzantine, got suspects={suspects}")
+        failed += 1
+
+    # T4: Command merge by (leader_priority, epoch) max.
+    s = ProtocolState(drone_id=0, my_priority=1)
+    for orig, lp, ep, pl in [(5, 10, 0, "A"), (6, 10, 1, "B"), (7, 20, 0, "C"), (8, 5, 999, "D")]:
+        ingest_command(s, Command(orig, lp, ep, pl, b""), tick=0)
     if s.latest_command is None or s.latest_command.payload != "C":
         got = s.latest_command.payload if s.latest_command else None
         print(f"FAIL T4: command merge wrong, got {got}")
         failed += 1
 
-    # T5: range_obs from the Update payload are stored under sender's origin.
-    s = ProtocolState(drone_id=0, my_priority=1, my_epoch=0)
-    u = Update(origin=7, priority=1, epoch=0, dr_position=np.zeros(3),
-               dr_sigma=1.0, range_obs={3: 12.0, 4: 8.5}, command=None,
-               sig_stub=b"")
-    ingest_update(s, u, current_tick=10, measured_range_to_sender=4.2)
+    # T5: substrate-measured range to sender is stored on any ingest.
+    s = ProtocolState(drone_id=0, my_priority=1)
+    m = Map(MsgKind.RESPONSE, origin=7, epoch=0, round_id=1,
+            dr_position=np.zeros(3), dr_sigma=1.0,
+            range_obs={3: 12.0, 4: 8.5}, sig_stub=b"")
+    ingest_map(s, m, tick=10, measured_range_to_sender=4.2)
     if s.range_obs.get((7, 3)) != (12.0, 10):
-        print(f"FAIL T5a: sender's range to 3 not stored, got {s.range_obs.get((7,3))}")
-        failed += 1
-    if s.range_obs.get((7, 4)) != (8.5, 10):
-        print(f"FAIL T5b: sender's range to 4 not stored, got {s.range_obs.get((7,4))}")
+        print(f"FAIL T5a: sender's range to 3 not stored")
         failed += 1
     if s.range_obs.get((0, 7)) != (4.2, 10):
-        print(f"FAIL T5c: my measured range to 7 not stored, got {s.range_obs.get((0,7))}")
+        print(f"FAIL T5b: my measured range to 7 not stored")
+        failed += 1
+
+    # T6: fresh_participant_count drops as peers age out.
+    s = ProtocolState(drone_id=0, my_priority=10)
+    for did in range(1, 6):
+        ingest_vote(s, Vote(MsgKind.RESPONSE, did, did, 0, 0, b""), tick=0)
+    if fresh_participant_count(s, tick=0) != 6:
+        print(f"FAIL T6a: expected 6 participants, got {fresh_participant_count(s, 0)}")
+        failed += 1
+    if fresh_participant_count(s, tick=100, freshness=10) != 1:
+        print(f"FAIL T6b: expected 1 (self only) after aging, got "
+              f"{fresh_participant_count(s, 100, 10)}")
         failed += 1
 
     return failed
 
 
 if __name__ == "__main__":
-    n_failed = _tests()
-    print("protocol: all tests passed" if n_failed == 0 else f"protocol: {n_failed} tests failed")
+    n = _tests()
+    print("protocol: all tests passed" if n == 0 else f"protocol: {n} tests failed")

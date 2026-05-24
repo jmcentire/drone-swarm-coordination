@@ -99,12 +99,10 @@ def _build_world(spec: ScenarioSpec, seed: int) -> tuple[World, np.ndarray]:
         log_events=False,
     )
     w = World(cfg, seed=seed)
-    enable_byz_detect = spec.name == "S10_byzantine_with_detection"
     enable_reform = spec.name == "S5b_random_loss_with_reform"
     for i in range(spec.n_drones):
         a = Agent(
             drone_id=i, priority=i, position=starts[i].copy(),
-            enable_byzantine_detection=enable_byz_detect,
             enable_reformation=enable_reform,
             initial_n_drones=spec.n_drones,
         )
