@@ -1,0 +1,2282 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "drone_swarm",
+    "description": "Code map exported from Kindex for drone_swarm.",
+    "languages": [
+      "Python"
+    ],
+    "frameworks": [],
+    "analyzedAt": "2026-05-24T14:54:40",
+    "gitCommitHash": "fa2bb7a95374c2e1152b1cbf298ef87dba91ae80"
+  },
+  "nodes": [
+    {
+      "id": "code-mod-drone_swarm-eaa462aab102",
+      "type": "file",
+      "name": "bench_layer4.py",
+      "filePath": "bench_layer4.py",
+      "summary": "Language: Python | Path: bench_layer4.py | ~428 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 11,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-67ea60b86e43",
+      "type": "file",
+      "name": "bench_localization.py",
+      "filePath": "bench_localization.py",
+      "summary": "Language: Python | Path: bench_localization.py | ~430 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 9,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-3c86467b4120",
+      "type": "file",
+      "name": "bench_attrition.py",
+      "filePath": "bench_attrition.py",
+      "summary": "Language: Python | Path: bench_attrition.py | ~403 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 11,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-a95c3dbf1236",
+      "type": "file",
+      "name": "bench_witness.py",
+      "filePath": "bench_witness.py",
+      "summary": "Language: Python | Path: bench_witness.py | ~363 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 11,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-738cbdb0c788",
+      "type": "file",
+      "name": "bench_search.py",
+      "filePath": "bench_search.py",
+      "summary": "Language: Python | Path: bench_search.py | ~1581 lines ## Classes - AsymmetricChannel(Channel)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 41,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-155568d5a4dc",
+      "type": "file",
+      "name": "bench_loss.py",
+      "filePath": "bench_loss.py",
+      "summary": "Language: Python | Path: bench_loss.py | ~582 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 11,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-e8fd8a4b81e6",
+      "type": "file",
+      "name": "bench_streaming.py",
+      "filePath": "bench_streaming.py",
+      "summary": "Language: Python | Path: bench_streaming.py | ~290 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 11,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-e5ee57c72961",
+      "type": "file",
+      "name": "simulator.py",
+      "filePath": "simulator.py",
+      "summary": "Language: Python | Path: simulator.py | ~647 lines ## Classes - Broadcast",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 12,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-c8ec0caeff6c",
+      "type": "file",
+      "name": "distributed/agent.py",
+      "filePath": "distributed/agent.py",
+      "summary": "Language: Python | Path: distributed/agent.py | ~727 lines ## Classes - Agent",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 6,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-6a8c292b0fa7",
+      "type": "file",
+      "name": "bench_astar.py",
+      "filePath": "bench_astar.py",
+      "summary": "Language: Python | Path: bench_astar.py | ~457 lines ## Functions - bootstrap_ci(arr, n=1000, seed=0)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 15,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-af278f084e16",
+      "type": "file",
+      "name": "distributed/protocol.py",
+      "filePath": "distributed/protocol.py",
+      "summary": "Language: Python | Path: distributed/protocol.py | ~588 lines ## Classes - Command",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 22,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-1b99b017505d",
+      "type": "file",
+      "name": "distributed/bench_distributed.py",
+      "filePath": "distributed/bench_distributed.py",
+      "summary": "Language: Python | Path: distributed/bench_distributed.py | ~894 lines ## Classes - ByzantineHook",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 20,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-e65abbb9d118",
+      "type": "file",
+      "name": "underwater/bench_convergence.py",
+      "filePath": "underwater/bench_convergence.py",
+      "summary": "Language: Python | Path: underwater/bench_convergence.py | ~73 lines ## Classes - RoundStats",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-e15a0f51b784",
+      "type": "file",
+      "name": "underwater/bench_losses.py",
+      "filePath": "underwater/bench_losses.py",
+      "summary": "Language: Python | Path: underwater/bench_losses.py | ~260 lines ## Classes - ScenarioRun",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 6,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-0f7280c58db3",
+      "type": "file",
+      "name": "underwater/bench_mission.py",
+      "filePath": "underwater/bench_mission.py",
+      "summary": "Language: Python | Path: underwater/bench_mission.py | ~426 lines ## Classes - MissionRun",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 7,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-49a29f3b5b55",
+      "type": "file",
+      "name": "underwater/bench_topology.py",
+      "filePath": "underwater/bench_topology.py",
+      "summary": "Language: Python | Path: underwater/bench_topology.py | ~176 lines ## Classes - ScenarioResult",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-b13f493583f6",
+      "type": "file",
+      "name": "underwater/debug_baseline.py",
+      "filePath": "underwater/debug_baseline.py",
+      "summary": "Language: Python | Path: underwater/debug_baseline.py | ~26 lines ## Functions - main() -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-1f47e0101426",
+      "type": "file",
+      "name": "distributed/local_comms.py",
+      "filePath": "distributed/local_comms.py",
+      "summary": "Language: Python | Path: distributed/local_comms.py | ~366 lines ## Classes - CommsEvent",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 4,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-322c0a720670",
+      "type": "file",
+      "name": "bench_comms.py",
+      "filePath": "bench_comms.py",
+      "summary": "Language: Python | Path: bench_comms.py | ~932 lines ## Classes - GilbertElliott",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 19,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-63a9b3c9088a",
+      "type": "file",
+      "name": "patent/make_patent_figures.py",
+      "filePath": "patent/make_patent_figures.py",
+      "summary": "Language: Python | Path: patent/make_patent_figures.py | ~559 lines ## Functions - arrow(ax, p, q, **kw)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 13,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-922732a46df3",
+      "type": "file",
+      "name": "underwater/debug_loss.py",
+      "filePath": "underwater/debug_loss.py",
+      "summary": "Language: Python | Path: underwater/debug_loss.py | ~17 lines ## Functions - main() -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-a979419c3f3a",
+      "type": "file",
+      "name": "make_figures.py",
+      "filePath": "make_figures.py",
+      "summary": "Language: Python | Path: make_figures.py | ~138 lines ## Functions - fig1_gap_vs_n()",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 5,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-fc6cfe1e511d",
+      "type": "file",
+      "name": "underwater/failures.py",
+      "filePath": "underwater/failures.py",
+      "summary": "Language: Python | Path: underwater/failures.py | ~186 lines ## Classes - FailureSchedule",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 12,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-0eea47132d5b",
+      "type": "file",
+      "name": "bench_drift.py",
+      "filePath": "bench_drift.py",
+      "summary": "Language: Python | Path: bench_drift.py | ~306 lines ## Functions - bootstrap_ci(arr, n=1000, seed=0)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 12,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-6d0662eeb9a9",
+      "type": "file",
+      "name": "underwater/mapping.py",
+      "filePath": "underwater/mapping.py",
+      "summary": "Language: Python | Path: underwater/mapping.py | ~462 lines ## Classes - LocalObservation",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 11,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-99131f4406a9",
+      "type": "file",
+      "name": "bench_conjecture4.py",
+      "filePath": "bench_conjecture4.py",
+      "summary": "Language: Python | Path: bench_conjecture4.py | ~70 lines ## Functions - M1(N, a)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 7,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-a10296e9eeaf",
+      "type": "file",
+      "name": "bench_cbba.py",
+      "filePath": "bench_cbba.py",
+      "summary": "Language: Python | Path: bench_cbba.py | ~207 lines ## Functions - cbba_assign(starts, targets, max_rounds=MAX_ROUNDS)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 5,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-1cae3769c298",
+      "type": "file",
+      "name": "underwater/mission.py",
+      "filePath": "underwater/mission.py",
+      "summary": "Language: Python | Path: underwater/mission.py | ~483 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 9,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-250f3e54655c",
+      "type": "file",
+      "name": "bench_adversarial.py",
+      "filePath": "bench_adversarial.py",
+      "summary": "Language: Python | Path: bench_adversarial.py | ~251 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 9,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-0840d50d0e14",
+      "type": "file",
+      "name": "bench_assignment.py",
+      "filePath": "bench_assignment.py",
+      "summary": "Language: Python | Path: bench_assignment.py | ~314 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 17,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-443d6fc8e771",
+      "type": "file",
+      "name": "bench_determinism.py",
+      "filePath": "bench_determinism.py",
+      "summary": "Language: Python | Path: bench_determinism.py | ~138 lines ## Classes - ManifoldNode",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 5,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-0e630d1bc0f4",
+      "type": "file",
+      "name": "bench_patch_optimality.py",
+      "filePath": "bench_patch_optimality.py",
+      "summary": "Language: Python | Path: bench_patch_optimality.py | ~125 lines ## Functions - greedy_assign(dead_leaves, surplus_pos, order='forward')",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 7,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-9e0c944f3098",
+      "type": "file",
+      "name": "underwater/pbd.py",
+      "filePath": "underwater/pbd.py",
+      "summary": "Language: Python | Path: underwater/pbd.py | ~188 lines ## Classes - PBDLattice",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-020be96c9406",
+      "type": "file",
+      "name": "underwater/lattice.py",
+      "filePath": "underwater/lattice.py",
+      "summary": "Language: Python | Path: underwater/lattice.py | ~116 lines ## Functions - build_neighbor_graph( positions: np.ndarray, comms_range: float ) -> list[list[int]]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 4,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-da73cc12688f",
+      "type": "file",
+      "name": "distributed/world.py",
+      "filePath": "distributed/world.py",
+      "summary": "Language: Python | Path: distributed/world.py | ~402 lines ## Classes - World",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 4,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-d427ed5e7dd2",
+      "type": "file",
+      "name": "distributed/manifold.py",
+      "filePath": "distributed/manifold.py",
+      "summary": "Language: Python | Path: distributed/manifold.py | ~240 lines ## Functions - compute_target( my_id: int, drones: list[dict], manifold: np.ndarray, ) -> tuple[np.ndarray,bool]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 4,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-70a6b77e4db6",
+      "type": "file",
+      "name": "distributed/test_graph_rigidity.py",
+      "filePath": "distributed/test_graph_rigidity.py",
+      "summary": "Language: Python | Path: distributed/test_graph_rigidity.py | ~486 lines ## Functions - align_to_truth_frame(positions: np.ndarray, truth: np.ndarray) -> np.ndarray",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 13,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-dfa1815e91a5",
+      "type": "file",
+      "name": "distributed/stats.py",
+      "filePath": "distributed/stats.py",
+      "summary": "Language: Python | Path: distributed/stats.py | ~53 lines ## Functions - bootstrap_ci( values: list[float] | np.ndarray, alpha: float = 0.05, n_boot: int = 10_000, rng: np.random.Generator | None = None, ) -> tuple[float,float,float]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 4,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-51f60657869b",
+      "type": "file",
+      "name": "distributed/test_gpa_consensus.py",
+      "filePath": "distributed/test_gpa_consensus.py",
+      "summary": "Language: Python | Path: distributed/test_gpa_consensus.py | ~657 lines ## Functions - compare_to_truth( consensus: dict[int, np.ndarray], truth: np.ndarray ) -> tuple[np.ndarray,float,float]",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 20,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-1635879a58a0",
+      "type": "file",
+      "name": "extract_search_results.py",
+      "filePath": "extract_search_results.py",
+      "summary": "Language: Python | Path: extract_search_results.py | ~22 lines ## Functions - fmt_ci(arr)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-665ac86e38f8",
+      "type": "file",
+      "name": "distributed/bench_sensitivity.py",
+      "filePath": "distributed/bench_sensitivity.py",
+      "summary": "Language: Python | Path: distributed/bench_sensitivity.py | ~82 lines ## Functions - main()",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-a5fcbb23a404",
+      "type": "file",
+      "name": "underwater/debug_assignment.py",
+      "filePath": "underwater/debug_assignment.py",
+      "summary": "Language: Python | Path: underwater/debug_assignment.py | ~12 lines ## Functions - main() -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-dbb417d9861b",
+      "type": "file",
+      "name": "distributed/baseline_drift.py",
+      "filePath": "distributed/baseline_drift.py",
+      "summary": "Language: Python | Path: distributed/baseline_drift.py | ~18 lines ## Functions - run_drift( n_drones: int, start_positions: np.ndarray, manifold: np.ndarray, n_ticks: int, physics_dt: float = 1.0, max_speed: float = 0.8, repulsion_radius_m: float = 3.5, alive_schedule: dict[int, list[int]] | None = None, ) -> dict",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-drone_swarm-861db18de72d",
+      "type": "file",
+      "name": "distributed/baseline_oracle.py",
+      "filePath": "distributed/baseline_oracle.py",
+      "summary": "Language: Python | Path: distributed/baseline_oracle.py | ~26 lines ## Functions - run_oracle( n_drones: int, start_positions: np.ndarray, manifold: np.ndarray, n_ticks: int, physics_dt: float = 1.0, max_speed: float = 0.8, repulsion_radius_m: float = 3.5, approach_radius_m: float = 4.0, alive_schedule: dict[int, list[int]] | None = None, ) -> dict",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-3d66d0be5940",
+      "type": "class",
+      "name": "WorldMetrics",
+      "filePath": "distributed/world.py",
+      "summary": "class WorldMetrics (distributed/world.py:39)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-a7b1dc9bc85f",
+      "type": "class",
+      "name": "PBDLattice",
+      "filePath": "underwater/pbd.py",
+      "summary": "class PBDLattice (underwater/pbd.py:29) ## Methods - edge_strain(self) -> np.ndarray",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 3,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-fb9fc61b4035",
+      "type": "class",
+      "name": "World",
+      "filePath": "distributed/world.py",
+      "summary": "class World (distributed/world.py:63) ## Methods - add_tick_hook(self, hook: TickHook) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 5,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-6cc585ea77b3",
+      "type": "class",
+      "name": "WorldConfig",
+      "filePath": "distributed/world.py",
+      "summary": "class WorldConfig (distributed/world.py:28)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-f55cac3d3738",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_determinism.py",
+      "summary": "class ManifoldNode (bench_determinism.py:56)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-0121ac7db412",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_adversarial.py",
+      "summary": "class ManifoldNode (bench_adversarial.py:49)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-d9816132d4ca",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_assignment.py",
+      "summary": "class ManifoldNode (bench_assignment.py:126)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-b58aa672a2c2",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "underwater/mission.py",
+      "summary": "class ManifoldNode (underwater/mission.py:44)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-27e04d56caf5",
+      "type": "class",
+      "name": "MissionConfig",
+      "filePath": "underwater/mission.py",
+      "summary": "class MissionConfig (underwater/mission.py:143)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-9921d19e728c",
+      "type": "class",
+      "name": "MissionState",
+      "filePath": "underwater/mission.py",
+      "summary": "class MissionState (underwater/mission.py:180)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-3ecdebb94011",
+      "type": "class",
+      "name": "Phase",
+      "filePath": "underwater/mission.py",
+      "summary": "class Phase(Enum) (underwater/mission.py:136)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-529e37010cd1",
+      "type": "class",
+      "name": "LocalObservation",
+      "filePath": "underwater/mapping.py",
+      "summary": "class LocalObservation (underwater/mapping.py:36)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-512c1a253a09",
+      "type": "class",
+      "name": "FailureSchedule",
+      "filePath": "underwater/failures.py",
+      "summary": "class FailureSchedule (underwater/failures.py:32)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-e028db7505d0",
+      "type": "class",
+      "name": "GilbertElliott",
+      "filePath": "bench_comms.py",
+      "summary": "class GilbertElliott (bench_comms.py:105) ## Methods - deliver(self, n_recipients, sender=None)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-b5857104e7d7",
+      "type": "class",
+      "name": "IIDChannel",
+      "filePath": "bench_comms.py",
+      "summary": "class IIDChannel (bench_comms.py:95) ## Methods - deliver(self, n_recipients, sender=None)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-a6803c18bb0d",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_comms.py",
+      "summary": "class ManifoldNode (bench_comms.py:438)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-fd38c91a468c",
+      "type": "class",
+      "name": "ShadowedClusterChannel",
+      "filePath": "bench_comms.py",
+      "summary": "class ShadowedClusterChannel (bench_comms.py:128) ## Methods - deliver(self, n_recipients, sender=None)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-5a58f5d34293",
+      "type": "class",
+      "name": "CommsEvent",
+      "filePath": "distributed/local_comms.py",
+      "summary": "class CommsEvent (distributed/local_comms.py:62)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-3ee324e17ef0",
+      "type": "class",
+      "name": "LocalComms",
+      "filePath": "distributed/local_comms.py",
+      "summary": "class LocalComms (distributed/local_comms.py:70) ## Methods - agent_step_order(self, rng: np.random.Generator) -> np.ndarray",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 4,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-73cbe889d93d",
+      "type": "class",
+      "name": "Message",
+      "filePath": "distributed/local_comms.py",
+      "summary": "class Message (distributed/local_comms.py:46)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-58724c2e5f37",
+      "type": "class",
+      "name": "MissionStats",
+      "filePath": "underwater/bench_mission.py",
+      "summary": "class MissionStats (underwater/bench_mission.py:97)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-a0dc909ab18e",
+      "type": "class",
+      "name": "ScenarioResult",
+      "filePath": "underwater/bench_topology.py",
+      "summary": "class ScenarioResult (underwater/bench_topology.py:53)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-fa66a27e66af",
+      "type": "class",
+      "name": "ScenarioRun",
+      "filePath": "underwater/bench_losses.py",
+      "summary": "class ScenarioRun (underwater/bench_losses.py:63)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-ba146985eac6",
+      "type": "class",
+      "name": "ScenarioStats",
+      "filePath": "underwater/bench_losses.py",
+      "summary": "class ScenarioStats (underwater/bench_losses.py:79)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-6ae822e343a3",
+      "type": "class",
+      "name": "MissionRun",
+      "filePath": "underwater/bench_mission.py",
+      "summary": "class MissionRun (underwater/bench_mission.py:70)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-1ba81172f46b",
+      "type": "class",
+      "name": "ScenarioSpec",
+      "filePath": "distributed/bench_distributed.py",
+      "summary": "class ScenarioSpec (distributed/bench_distributed.py:49)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-1e6f28d63b10",
+      "type": "class",
+      "name": "SeedRun",
+      "filePath": "distributed/bench_distributed.py",
+      "summary": "class SeedRun (distributed/bench_distributed.py:121)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-6142eca40d97",
+      "type": "class",
+      "name": "RoundStats",
+      "filePath": "underwater/bench_convergence.py",
+      "summary": "class RoundStats (underwater/bench_convergence.py:56)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-ea9f8c882491",
+      "type": "class",
+      "name": "Vote",
+      "filePath": "distributed/protocol.py",
+      "summary": "class Vote (distributed/protocol.py:102)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-bad80a68124a",
+      "type": "class",
+      "name": "ByzantineHook",
+      "filePath": "distributed/bench_distributed.py",
+      "summary": "class ByzantineHook (distributed/bench_distributed.py:228) ## Methods - __call__(self, w: World, tick: int) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-109bedd7be2f",
+      "type": "class",
+      "name": "DisplaceHook",
+      "filePath": "distributed/bench_distributed.py",
+      "summary": "class DisplaceHook (distributed/bench_distributed.py:251) ## Methods - __call__(self, w: World, tick: int) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-92cfa5d99d01",
+      "type": "class",
+      "name": "KillHook",
+      "filePath": "distributed/bench_distributed.py",
+      "summary": "class KillHook (distributed/bench_distributed.py:213) ## Methods - __call__(self, w: World, tick: int) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-44d341d4e162",
+      "type": "class",
+      "name": "MsgKind",
+      "filePath": "distributed/protocol.py",
+      "summary": "class MsgKind(Enum) (distributed/protocol.py:81)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-e6188ecaad64",
+      "type": "class",
+      "name": "OhShit",
+      "filePath": "distributed/protocol.py",
+      "summary": "class OhShit (distributed/protocol.py:131)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-0ee1c88f8c19",
+      "type": "class",
+      "name": "OhShitKind",
+      "filePath": "distributed/protocol.py",
+      "summary": "class OhShitKind(Enum) (distributed/protocol.py:123)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-cb85304de518",
+      "type": "class",
+      "name": "ProtocolState",
+      "filePath": "distributed/protocol.py",
+      "summary": "class ProtocolState (distributed/protocol.py:146) ## Methods - __post_init__(self) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-a390025c5ed8",
+      "type": "class",
+      "name": "Command",
+      "filePath": "distributed/protocol.py",
+      "summary": "class Command (distributed/protocol.py:114)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-4b1139f25cd7",
+      "type": "class",
+      "name": "Map",
+      "filePath": "distributed/protocol.py",
+      "summary": "class Map (distributed/protocol.py:87)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-3617a57cbfba",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "simulator.py",
+      "summary": "class ManifoldNode (simulator.py:202)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-8c06ba32b8fa",
+      "type": "class",
+      "name": "Agent",
+      "filePath": "distributed/agent.py",
+      "summary": "class Agent (distributed/agent.py:112) ## Methods - __post_init__(self) -> None",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-ff452f6432af",
+      "type": "class",
+      "name": "AgentStepLog",
+      "filePath": "distributed/agent.py",
+      "summary": "class AgentStepLog (distributed/agent.py:85)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-c8c0d56ebf56",
+      "type": "class",
+      "name": "Phase",
+      "filePath": "distributed/agent.py",
+      "summary": "class Phase(Enum) (distributed/agent.py:76)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-04847a793bd3",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_streaming.py",
+      "summary": "class ManifoldNode (bench_streaming.py:155)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-2869cb9e024d",
+      "type": "class",
+      "name": "Broadcast",
+      "filePath": "simulator.py",
+      "summary": "class Broadcast (simulator.py:302) ## Methods - read(self)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-e85b00a70f4d",
+      "type": "class",
+      "name": "DroneAgent",
+      "filePath": "simulator.py",
+      "summary": "class DroneAgent(threading.Thread) (simulator.py:341) ## Methods - run(self)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-6518fa91d697",
+      "type": "class",
+      "name": "ParticleFilter",
+      "filePath": "bench_search.py",
+      "summary": "class ParticleFilter (bench_search.py:599) ## Methods - propagate(self, rng, fallback_drift_vec=(0.0, 0.0), fallback_drift_noise=0.0)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 4,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-473842d007f9",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_loss.py",
+      "summary": "class ManifoldNode (bench_loss.py:83)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-c864c2693aa8",
+      "type": "class",
+      "name": "AsymmetricChannel",
+      "filePath": "bench_search.py",
+      "summary": "class AsymmetricChannel(Channel) (bench_search.py:1280) ## Methods - drops(self, sender_idx, receiver_idx, tick, rng)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-da6ed22c9a9f",
+      "type": "class",
+      "name": "Channel",
+      "filePath": "bench_search.py",
+      "summary": "class Channel (bench_search.py:1205) ## Methods - drops(self, sender_idx: int, receiver_idx: int, tick: int, rng) -> bool",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-f37216232adb",
+      "type": "class",
+      "name": "GilbertElliottChannel",
+      "filePath": "bench_search.py",
+      "summary": "class GilbertElliottChannel(Channel) (bench_search.py:1238) ## Methods - drops(self, sender_idx, receiver_idx, tick, rng)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-c20cd7db9e98",
+      "type": "class",
+      "name": "IIDChannel",
+      "filePath": "bench_search.py",
+      "summary": "class IIDChannel(Channel) (bench_search.py:1223) ## Methods - drops(self, sender_idx, receiver_idx, tick, rng)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-66f042d539b0",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_attrition.py",
+      "summary": "class ManifoldNode (bench_attrition.py:69)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-8065b036928c",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_witness.py",
+      "summary": "class ManifoldNode (bench_witness.py:76)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-f8727d2c24fc",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_layer4.py",
+      "summary": "class ManifoldNode (bench_layer4.py:101)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-sym-drone_swarm-32c4fddb7578",
+      "type": "class",
+      "name": "ManifoldNode",
+      "filePath": "bench_localization.py",
+      "summary": "class ManifoldNode (bench_localization.py:79)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "code-sym-drone_swarm-3d66d0be5940",
+      "target": "code-mod-drone_swarm-da73cc12688f",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-a7b1dc9bc85f",
+      "target": "code-mod-drone_swarm-9e0c944f3098",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-fb9fc61b4035",
+      "target": "code-mod-drone_swarm-da73cc12688f",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-6cc585ea77b3",
+      "target": "code-mod-drone_swarm-da73cc12688f",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-f55cac3d3738",
+      "target": "code-mod-drone_swarm-443d6fc8e771",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-0121ac7db412",
+      "target": "code-mod-drone_swarm-250f3e54655c",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-d9816132d4ca",
+      "target": "code-mod-drone_swarm-0840d50d0e14",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-b58aa672a2c2",
+      "target": "code-mod-drone_swarm-1cae3769c298",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-27e04d56caf5",
+      "target": "code-mod-drone_swarm-1cae3769c298",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-9921d19e728c",
+      "target": "code-mod-drone_swarm-1cae3769c298",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-3ecdebb94011",
+      "target": "code-mod-drone_swarm-1cae3769c298",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-529e37010cd1",
+      "target": "code-mod-drone_swarm-6d0662eeb9a9",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-512c1a253a09",
+      "target": "code-mod-drone_swarm-fc6cfe1e511d",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-e028db7505d0",
+      "target": "code-mod-drone_swarm-322c0a720670",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-b5857104e7d7",
+      "target": "code-mod-drone_swarm-322c0a720670",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-a6803c18bb0d",
+      "target": "code-mod-drone_swarm-322c0a720670",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-fd38c91a468c",
+      "target": "code-mod-drone_swarm-322c0a720670",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-5a58f5d34293",
+      "target": "code-mod-drone_swarm-1f47e0101426",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-3ee324e17ef0",
+      "target": "code-mod-drone_swarm-1f47e0101426",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-73cbe889d93d",
+      "target": "code-mod-drone_swarm-1f47e0101426",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-58724c2e5f37",
+      "target": "code-mod-drone_swarm-0f7280c58db3",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-a0dc909ab18e",
+      "target": "code-mod-drone_swarm-49a29f3b5b55",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-fa66a27e66af",
+      "target": "code-mod-drone_swarm-e15a0f51b784",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-ba146985eac6",
+      "target": "code-mod-drone_swarm-e15a0f51b784",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-6ae822e343a3",
+      "target": "code-mod-drone_swarm-0f7280c58db3",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-1ba81172f46b",
+      "target": "code-mod-drone_swarm-1b99b017505d",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-1e6f28d63b10",
+      "target": "code-mod-drone_swarm-1b99b017505d",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-6142eca40d97",
+      "target": "code-mod-drone_swarm-e65abbb9d118",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-ea9f8c882491",
+      "target": "code-mod-drone_swarm-af278f084e16",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-bad80a68124a",
+      "target": "code-mod-drone_swarm-1b99b017505d",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-109bedd7be2f",
+      "target": "code-mod-drone_swarm-1b99b017505d",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-92cfa5d99d01",
+      "target": "code-mod-drone_swarm-1b99b017505d",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-44d341d4e162",
+      "target": "code-mod-drone_swarm-af278f084e16",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-e6188ecaad64",
+      "target": "code-mod-drone_swarm-af278f084e16",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-0ee1c88f8c19",
+      "target": "code-mod-drone_swarm-af278f084e16",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-cb85304de518",
+      "target": "code-mod-drone_swarm-af278f084e16",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-a390025c5ed8",
+      "target": "code-mod-drone_swarm-af278f084e16",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-4b1139f25cd7",
+      "target": "code-mod-drone_swarm-af278f084e16",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-3617a57cbfba",
+      "target": "code-mod-drone_swarm-e5ee57c72961",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-8c06ba32b8fa",
+      "target": "code-mod-drone_swarm-c8ec0caeff6c",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-ff452f6432af",
+      "target": "code-mod-drone_swarm-c8ec0caeff6c",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-c8c0d56ebf56",
+      "target": "code-mod-drone_swarm-c8ec0caeff6c",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-04847a793bd3",
+      "target": "code-mod-drone_swarm-e8fd8a4b81e6",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-2869cb9e024d",
+      "target": "code-mod-drone_swarm-e5ee57c72961",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-e85b00a70f4d",
+      "target": "code-mod-drone_swarm-e5ee57c72961",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-6518fa91d697",
+      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-473842d007f9",
+      "target": "code-mod-drone_swarm-155568d5a4dc",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-c864c2693aa8",
+      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-da6ed22c9a9f",
+      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-f37216232adb",
+      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-c20cd7db9e98",
+      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-66f042d539b0",
+      "target": "code-mod-drone_swarm-3c86467b4120",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-8065b036928c",
+      "target": "code-mod-drone_swarm-a95c3dbf1236",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-f8727d2c24fc",
+      "target": "code-mod-drone_swarm-eaa462aab102",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    },
+    {
+      "source": "code-sym-drone_swarm-32c4fddb7578",
+      "target": "code-mod-drone_swarm-67ea60b86e43",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.6
+    }
+  ],
+  "layers": [
+    {
+      "id": "core",
+      "name": "Core",
+      "description": "Kindex-inferred core layer.",
+      "nodeIds": [
+        "code-mod-drone_swarm-020be96c9406",
+        "code-mod-drone_swarm-0840d50d0e14",
+        "code-mod-drone_swarm-0e630d1bc0f4",
+        "code-mod-drone_swarm-0eea47132d5b",
+        "code-mod-drone_swarm-0f7280c58db3",
+        "code-mod-drone_swarm-155568d5a4dc",
+        "code-mod-drone_swarm-1635879a58a0",
+        "code-mod-drone_swarm-1b99b017505d",
+        "code-mod-drone_swarm-1cae3769c298",
+        "code-mod-drone_swarm-1f47e0101426",
+        "code-mod-drone_swarm-250f3e54655c",
+        "code-mod-drone_swarm-322c0a720670",
+        "code-mod-drone_swarm-3c86467b4120",
+        "code-mod-drone_swarm-443d6fc8e771",
+        "code-mod-drone_swarm-49a29f3b5b55",
+        "code-mod-drone_swarm-63a9b3c9088a",
+        "code-mod-drone_swarm-665ac86e38f8",
+        "code-mod-drone_swarm-67ea60b86e43",
+        "code-mod-drone_swarm-6a8c292b0fa7",
+        "code-mod-drone_swarm-6d0662eeb9a9",
+        "code-mod-drone_swarm-738cbdb0c788",
+        "code-mod-drone_swarm-861db18de72d",
+        "code-mod-drone_swarm-922732a46df3",
+        "code-mod-drone_swarm-99131f4406a9",
+        "code-mod-drone_swarm-9e0c944f3098",
+        "code-mod-drone_swarm-a10296e9eeaf",
+        "code-mod-drone_swarm-a5fcbb23a404",
+        "code-mod-drone_swarm-a95c3dbf1236",
+        "code-mod-drone_swarm-a979419c3f3a",
+        "code-mod-drone_swarm-af278f084e16",
+        "code-mod-drone_swarm-b13f493583f6",
+        "code-mod-drone_swarm-c8ec0caeff6c",
+        "code-mod-drone_swarm-d427ed5e7dd2",
+        "code-mod-drone_swarm-da73cc12688f",
+        "code-mod-drone_swarm-dbb417d9861b",
+        "code-mod-drone_swarm-dfa1815e91a5",
+        "code-mod-drone_swarm-e15a0f51b784",
+        "code-mod-drone_swarm-e5ee57c72961",
+        "code-mod-drone_swarm-e65abbb9d118",
+        "code-mod-drone_swarm-e8fd8a4b81e6",
+        "code-mod-drone_swarm-eaa462aab102",
+        "code-mod-drone_swarm-fc6cfe1e511d"
+      ]
+    },
+    {
+      "id": "domain",
+      "name": "Domain",
+      "description": "Kindex-inferred domain layer.",
+      "nodeIds": [
+        "code-sym-drone_swarm-0121ac7db412",
+        "code-sym-drone_swarm-04847a793bd3",
+        "code-sym-drone_swarm-0ee1c88f8c19",
+        "code-sym-drone_swarm-109bedd7be2f",
+        "code-sym-drone_swarm-1ba81172f46b",
+        "code-sym-drone_swarm-1e6f28d63b10",
+        "code-sym-drone_swarm-27e04d56caf5",
+        "code-sym-drone_swarm-2869cb9e024d",
+        "code-sym-drone_swarm-32c4fddb7578",
+        "code-sym-drone_swarm-3617a57cbfba",
+        "code-sym-drone_swarm-3d66d0be5940",
+        "code-sym-drone_swarm-3ecdebb94011",
+        "code-sym-drone_swarm-3ee324e17ef0",
+        "code-sym-drone_swarm-44d341d4e162",
+        "code-sym-drone_swarm-473842d007f9",
+        "code-sym-drone_swarm-4b1139f25cd7",
+        "code-sym-drone_swarm-512c1a253a09",
+        "code-sym-drone_swarm-529e37010cd1",
+        "code-sym-drone_swarm-58724c2e5f37",
+        "code-sym-drone_swarm-5a58f5d34293",
+        "code-sym-drone_swarm-6142eca40d97",
+        "code-sym-drone_swarm-6518fa91d697",
+        "code-sym-drone_swarm-66f042d539b0",
+        "code-sym-drone_swarm-6ae822e343a3",
+        "code-sym-drone_swarm-6cc585ea77b3",
+        "code-sym-drone_swarm-73cbe889d93d",
+        "code-sym-drone_swarm-8065b036928c",
+        "code-sym-drone_swarm-8c06ba32b8fa",
+        "code-sym-drone_swarm-92cfa5d99d01",
+        "code-sym-drone_swarm-9921d19e728c",
+        "code-sym-drone_swarm-a0dc909ab18e",
+        "code-sym-drone_swarm-a390025c5ed8",
+        "code-sym-drone_swarm-a6803c18bb0d",
+        "code-sym-drone_swarm-a7b1dc9bc85f",
+        "code-sym-drone_swarm-b5857104e7d7",
+        "code-sym-drone_swarm-b58aa672a2c2",
+        "code-sym-drone_swarm-ba146985eac6",
+        "code-sym-drone_swarm-bad80a68124a",
+        "code-sym-drone_swarm-c20cd7db9e98",
+        "code-sym-drone_swarm-c864c2693aa8",
+        "code-sym-drone_swarm-c8c0d56ebf56",
+        "code-sym-drone_swarm-cb85304de518",
+        "code-sym-drone_swarm-d9816132d4ca",
+        "code-sym-drone_swarm-da6ed22c9a9f",
+        "code-sym-drone_swarm-e028db7505d0",
+        "code-sym-drone_swarm-e6188ecaad64",
+        "code-sym-drone_swarm-e85b00a70f4d",
+        "code-sym-drone_swarm-ea9f8c882491",
+        "code-sym-drone_swarm-f37216232adb",
+        "code-sym-drone_swarm-f55cac3d3738",
+        "code-sym-drone_swarm-f8727d2c24fc",
+        "code-sym-drone_swarm-fa66a27e66af",
+        "code-sym-drone_swarm-fb9fc61b4035",
+        "code-sym-drone_swarm-fd38c91a468c",
+        "code-sym-drone_swarm-ff452f6432af"
+      ]
+    },
+    {
+      "id": "test",
+      "name": "Test",
+      "description": "Kindex-inferred test layer.",
+      "nodeIds": [
+        "code-mod-drone_swarm-51f60657869b",
+        "code-mod-drone_swarm-70a6b77e4db6"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Core",
+      "description": "Review 42 node(s) in the Core layer.",
+      "nodeIds": [
+        "code-mod-drone_swarm-020be96c9406",
+        "code-mod-drone_swarm-0840d50d0e14",
+        "code-mod-drone_swarm-0e630d1bc0f4",
+        "code-mod-drone_swarm-0eea47132d5b",
+        "code-mod-drone_swarm-0f7280c58db3",
+        "code-mod-drone_swarm-155568d5a4dc",
+        "code-mod-drone_swarm-1635879a58a0",
+        "code-mod-drone_swarm-1b99b017505d",
+        "code-mod-drone_swarm-1cae3769c298",
+        "code-mod-drone_swarm-1f47e0101426",
+        "code-mod-drone_swarm-250f3e54655c",
+        "code-mod-drone_swarm-322c0a720670",
+        "code-mod-drone_swarm-3c86467b4120",
+        "code-mod-drone_swarm-443d6fc8e771",
+        "code-mod-drone_swarm-49a29f3b5b55",
+        "code-mod-drone_swarm-63a9b3c9088a",
+        "code-mod-drone_swarm-665ac86e38f8",
+        "code-mod-drone_swarm-67ea60b86e43",
+        "code-mod-drone_swarm-6a8c292b0fa7",
+        "code-mod-drone_swarm-6d0662eeb9a9",
+        "code-mod-drone_swarm-738cbdb0c788",
+        "code-mod-drone_swarm-861db18de72d",
+        "code-mod-drone_swarm-922732a46df3",
+        "code-mod-drone_swarm-99131f4406a9",
+        "code-mod-drone_swarm-9e0c944f3098"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Domain",
+      "description": "Review 55 node(s) in the Domain layer.",
+      "nodeIds": [
+        "code-sym-drone_swarm-0121ac7db412",
+        "code-sym-drone_swarm-04847a793bd3",
+        "code-sym-drone_swarm-0ee1c88f8c19",
+        "code-sym-drone_swarm-109bedd7be2f",
+        "code-sym-drone_swarm-1ba81172f46b",
+        "code-sym-drone_swarm-1e6f28d63b10",
+        "code-sym-drone_swarm-27e04d56caf5",
+        "code-sym-drone_swarm-2869cb9e024d",
+        "code-sym-drone_swarm-32c4fddb7578",
+        "code-sym-drone_swarm-3617a57cbfba",
+        "code-sym-drone_swarm-3d66d0be5940",
+        "code-sym-drone_swarm-3ecdebb94011",
+        "code-sym-drone_swarm-3ee324e17ef0",
+        "code-sym-drone_swarm-44d341d4e162",
+        "code-sym-drone_swarm-473842d007f9",
+        "code-sym-drone_swarm-4b1139f25cd7",
+        "code-sym-drone_swarm-512c1a253a09",
+        "code-sym-drone_swarm-529e37010cd1",
+        "code-sym-drone_swarm-58724c2e5f37",
+        "code-sym-drone_swarm-5a58f5d34293",
+        "code-sym-drone_swarm-6142eca40d97",
+        "code-sym-drone_swarm-6518fa91d697",
+        "code-sym-drone_swarm-66f042d539b0",
+        "code-sym-drone_swarm-6ae822e343a3",
+        "code-sym-drone_swarm-6cc585ea77b3"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Test",
+      "description": "Review 2 node(s) in the Test layer.",
+      "nodeIds": [
+        "code-mod-drone_swarm-51f60657869b",
+        "code-mod-drone_swarm-70a6b77e4db6"
+      ]
+    }
+  ]
+}
