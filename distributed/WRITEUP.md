@@ -2,7 +2,7 @@
 
 Date: 2026-05-23 (overnight autonomous build)
 Author: Claude (autonomous run at user's direction)
-Status: v0.3 — multi-hop forwarding, Byzantine detection, tight-range and sensitivity scenarios
+Status: v0.4 — event-triggered Map/Vote/Command/OhShit protocol, tight-range and sensitivity scenarios
 
 ## Plain English
 
@@ -15,8 +15,8 @@ for coordination data. An underwater swarm cannot rely on the
 work used.
 
 This experiment asks: if you design a coordination protocol where each
-drone only talks to nearby neighbors, gossips signed priority votes and
-position heartbeats around (with multi-hop relays so info propagates),
+drone only talks to nearby neighbors, gossips signed Map/Vote/Command/OhShit
+events around (with multi-hop relays so info propagates),
 and runs a divide-and-conquer formation algorithm on whichever drones
 it has heard from recently — does that protocol actually work?
 
@@ -29,8 +29,8 @@ Specifically:
 - Does it survive sensor-failed drones broadcasting bad positions?
 - Does it still work when drones can only communicate over very short ranges
   (so most pairs need multi-hop)?
-- Can active Byzantine detection (cross-checking claimed position vs
-  measured time-of-flight distance) bound the damage?
+- Can DR-anchored IRLS position consensus bound the damage from drones
+  reporting bad dead-reckoning positions?
 
 The answers, in plain English, are mixed and reported honestly below.
 
@@ -58,16 +58,16 @@ stage AND results stage.
   divide-and-conquer (lifted from the validated above-water
   `simulator.py`).
 - `local_comms.py` — range-limited acoustic message passing with
-  propagation delay (1500 m/s), receive-time range check, per-message
-  loss, multi-hop relay headers, audit log. Six substrate-level
-  falsifiability tests all pass.
-- `protocol.py` — signed-priority flood-max consensus
-  (PriorityVote, Heartbeat, Command). Stub Ed25519 signatures.
+  propagation delay (1500 m/s), receive-time range check, monotonic
+  signal-strength degradation, per-message loss, multi-hop relay headers,
+  audit log. Substrate-level falsifiability tests all pass.
+- `protocol.py` — event-triggered Map, Vote, Command, and OhShit messages.
+  Stub Ed25519 signatures.
 - `agent.py` — per-drone state + decision step. Audit-tested for oracle
   leaks (step signature has no global-state params; divergent local
   views produce divergent targets). Multi-hop relay with TTL=6 and
-  (kind, origin, epoch) dedup. Range-consistency Byzantine detection
-  (verified-then-forward).
+  (kind, origin, epoch) dedup. Byzantine/outlier handling comes from
+  post-fit IRLS residuals, not a per-message filter.
 - `world.py` — simulation harness. Random per-drone step order each
   tick. Failure hooks (kill, byzantine, displacement).
 - `baseline_oracle.py` / `baseline_drift.py` — comparator baselines.
@@ -82,12 +82,11 @@ stage AND results stage.
 - Per-drone independent computation (audit-verified).
 - Range-limited acoustic comms with propagation delay (substrate
   unit tests verify failure modes).
-- Per-drone flood-max merge of signed priority votes, heartbeats,
-  commands.
+- Per-drone flood-max merge of signed Vote responses and Commands.
 - Per-drone leader inference from fresh known-priorities.
 - Per-drone divide-and-conquer formation against locally-known set.
 - Multi-hop forwarding with TTL and dedup.
-- Active range-consistency Byzantine detection.
+- DR-anchored IRLS consensus positioning under bad dead-reckoning/range inputs.
 - 20 seeds per scenario, bootstrap 95% CIs on continuous metrics,
   Wilson 95% CIs on binary success.
 
@@ -96,10 +95,10 @@ stage AND results stage.
 - Acoustic effects beyond range + propagation delay: no multipath, no
   thermocline / sound-speed-profile refraction, no biological
   interference, no frequency-dependent attenuation.
-- Power consumption (gossip + multi-hop is chatty; real acoustic
+- Power consumption (gossip + multi-hop can be costly; real acoustic
   modems are power-hungry).
-- INS-noise-aware position perception. Heartbeats carry true
-  positions; a real deployment would carry INS-derived estimates.
+- INS-noise-aware position perception. Map responses carry dead-reckoned
+  estimates; a real deployment would carry INS-derived estimates.
   Module `underwater/mapping.py` (validated separately by
   `bench_convergence.py`) is the natural place to wire that in.
 - CBBA (Choi-Brunet-How auction) comparator — the standard distributed
@@ -173,16 +172,14 @@ property, not a bench bug.
    sparse for global consensus within the TTL bound — multiple local
    leaders coexist.
 
-4. **"Active Byzantine detection bounds damage" — not by itself.**
-   S10 with range-consistency detection: form_err 2.07m, actually
-   WORSE than S6 without detection (1.90m). The detection correctly
-   IDENTIFIES lying drones (rejects their heartbeats after 3 flags
-   and stops forwarding), but the byzantine drones are still
-   physically present and disrupt the lattice. The protocol re-runs
-   formation without them, producing assignments that conflict with
-   their physical occupation. Honest finding: detection without
-   physical-isolation mechanism doesn't fix formation under
-   Byzantine attack.
+4. **"A separate Byzantine filter bounds damage" — wrong layer.**
+   The rejected S10 framing added range-consistency filtering on top
+   of the position fit and made formation worse. In the event-driven
+   design, messages are retained and the DR-anchored IRLS fit
+   downweights outliers through residuals. A byzantine drone is still
+   physically present and may disrupt the lattice; routing around its
+   physical occupation is a mission/formation problem, not a reason to
+   reject packets before the consensus fit.
 
 5. **"Partition reconvergence is fast" — actually non-monotonic.**
    S8 final consensus reaches 1.0 in all 20 seeds, but the post-heal

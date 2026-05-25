@@ -332,7 +332,7 @@ def test_recovery_with_bad_sensor(n: int = 20, comms_range: float = 18.0, seeds:
             truth, comms_range=comms_range, perturb_drone=bad_id, perturb_amount=50.0
         )
         # In the real protocol the bad drone's outgoing range list lives in
-        # ITS heartbeat; honest drones contribute the correct ranges from
+        # its Map response; honest drones contribute the correct ranges from
         # their own measurements. Combine: every edge gets BOTH the honest
         # reading and the bad drone's reading (if bad_id is incident).
         # That gives the rigidity solver redundant constraints where the

@@ -15,12 +15,12 @@ PHASE FSM (per-drone, ported from underwater/mission.py):
 
 LEADER-INITIATED ROUNDS (only emitted by the drone currently inferring
 itself as leader):
-  - MAP_CALL when fleet readiness suspected (own READY + K ticks since
-    last MAP) -- gathers updated dr_pos + range obs from peers
-  - VOTE_CALL after a MAP round closes -- confirms leadership
-  - COMMAND after a VOTE round -- issues next directive (only when
-    mission has advanced; in the single-leg bench, leaders mostly
-    re-issue the same Command to keep latest_command fresh in the swarm)
+  - MAP_CALL when the plan's expected completion tick arrives OR own
+    READY makes the leg clearly complete -- gathers updated dr_pos +
+    range obs from peers
+  - VOTE_CALL after a MAP round closes -- collects candidate plan ranks
+    (not a democratic vote; a flood-max arrangement step)
+  - COMMAND after a VOTE round -- issues the selected directive
 
 EVERY OTHER DRONE responds reactively:
   - On MAP_CALL: emit MAP_RESPONSE with own dr_pos + accumulated range obs
@@ -31,6 +31,10 @@ OH_SHIT is gated to MOVE/SETTLE/REFORM phases. Triggered by:
   - leader-side byzantine detection (post-IRLS residual > threshold)
   - participant count collapse (fresh peers < threshold)
   - own dr_pos disagreeing with consensus by > threshold (own sensor bad)
+Any accepted OhShit pushes the receiver into a bounded alert mode. During
+alert it steers to the current plan's rally point if one exists, otherwise
+to the safest known stationary target it has. The alert is intentionally
+not a new periodic mode; the OhShit packet is the event.
 
 PASSIVE RANGING: any received message yields a ToF measurement via the
 substrate's msg.range_at_send. There is no standalone ping. Between
@@ -59,7 +63,6 @@ from protocol import (
     ProtocolState,
     Vote,
     compute_consensus_positions,
-    detect_byzantine_via_residuals,
     fresh_participant_count,
     infer_leader,
     ingest_command,
@@ -132,14 +135,23 @@ class Agent:
     reform_locked_ticks: int = 5      # consecutive locked ticks to enter READY
 
     # --- Leader-side round scheduling ---
-    map_round_interval_ticks: int = 30   # leader's max silence before re-MAP
+    map_round_interval_ticks: int = 30   # de-dup throttle for plan-timeout/READY maps
     map_response_window_ticks: int = 8   # how long leader waits for responses
     vote_response_window_ticks: int = 8
+    expected_completion_margin_ticks: int = 20
 
     # --- Byzantine residual detection thresholds ---
     byzantine_residual_threshold_m: float = 15.0
     own_sensor_residual_threshold_m: float = 25.0
     participant_collapse_threshold: float = 0.5  # frac of initial_n_drones
+    consensus_irls_iters: int = 2
+    consensus_refresh_ticks: int = 15
+    # Throttle for the leader-side byzantine residual check. Byzantine
+    # state doesn't change every tick; running this every tick doubles
+    # consensus cost. Once per 15 ticks gives plenty of detection
+    # latency while halving compute on the leader.
+    byzantine_check_interval_ticks: int = 15
+    alert_duration_ticks: int = 80
 
     def __post_init__(self) -> None:
         eff_priority = self.spam_priority if self.spam_priority is not None else self.priority
@@ -164,6 +176,7 @@ class Agent:
         self.vote_round_counter: int = 0
         self._last_map_call_tick: int = -10_000
         self._last_vote_call_tick: int = -10_000
+        self._last_vote_for_map_round: int = -1
         self._map_responses_received: dict[int, int] = {}   # round_id -> n responses
         self._vote_responses_received: dict[int, int] = {}
         # Per-round queued response (key: (round_kind, round_id) so each call
@@ -173,6 +186,7 @@ class Agent:
 
         # Range obs accumulated since I last emitted a MAP_RESPONSE
         self._range_obs_buffer: dict[int, float] = {}
+        self._signal_strength_buffer: dict[int, float] = {}
 
         # Epoch counters per emission kind
         self.my_dr_epoch: int = 0
@@ -191,6 +205,65 @@ class Agent:
         # OhShit cooldown so a stuck condition doesn't flood
         self._last_ohshit_tick: dict[OhShitKind, int] = {}
         self._ohshit_cooldown_ticks: int = 30
+        self._last_byzantine_check_tick: int = -10_000
+        self._alert_until_tick: int = -1
+        self._alert_reason: OhShitKind | None = None
+
+    def _current_command_payload(self) -> dict[str, Any]:
+        if self.proto.latest_command is None:
+            return {}
+        payload = self.proto.latest_command.payload
+        return payload if isinstance(payload, dict) else {}
+
+    def _expected_completion_tick(self, fallback_tick: int) -> int:
+        payload = self._current_command_payload()
+        explicit = payload.get("expected_completion_tick")
+        if explicit is not None:
+            return int(explicit)
+        targets = payload.get("manifold_targets")
+        if targets is None:
+            return fallback_tick
+        try:
+            target, _ = compute_target(
+                self.drone_id,
+                [{"id": self.drone_id, "pos": self.position.copy()}],
+                targets,
+            )
+            dist = float(np.linalg.norm(target - self.position))
+        except Exception:
+            dist = 0.0
+        # max_speed defaults to 0.8 in step(); keep this conservative so
+        # a stuck peer does not block the next map/arrangement round.
+        return self.proto.latest_command_tick + int(np.ceil(dist / 0.8)) + self.expected_completion_margin_ticks
+
+    def _rally_target(self) -> np.ndarray | None:
+        payload = self._current_command_payload()
+        rally = payload.get("rally_points")
+        if rally is None:
+            rally = payload.get("rally_point")
+        if rally is None:
+            targets = payload.get("manifold_targets")
+            if targets is None:
+                return None
+            pts = np.asarray(targets, dtype=np.float64)
+            if pts.ndim == 2 and pts.shape[1] == 3 and len(pts) > 0:
+                return np.mean(pts, axis=0)
+            return None
+        pts = np.asarray(rally, dtype=np.float64)
+        if pts.ndim == 1 and pts.shape[0] == 3:
+            return pts.copy()
+        if pts.ndim == 2 and pts.shape[1] == 3 and len(pts) > 0:
+            d = np.linalg.norm(pts - self.position[None, :], axis=1)
+            return pts[int(np.argmin(d))].copy()
+        return None
+
+    def _enter_alert(self, kind: OhShitKind, tick: int) -> None:
+        self._alert_reason = kind
+        self._alert_until_tick = max(self._alert_until_tick, tick + self.alert_duration_ticks)
+        self.locked = False
+        if self.phase == Phase.READY:
+            self.phase = Phase.MOVE
+            self.phase_start_tick = tick
 
     # ------------------------------------------------------------------
     # Local self-estimate update (called each tick before emission decisions)
@@ -309,6 +382,7 @@ class Agent:
                     {"my_dr": my_pos.tolist(), "consensus": c_pos.tolist()},
                 ))
                 self._last_ohshit_tick[OhShitKind.OWN_SENSOR_FAILURE] = tick
+                self._enter_alert(OhShitKind.OWN_SENSOR_FAILURE, tick)
 
         # 2. participant collapse
         if self.initial_n_drones > 0:
@@ -320,22 +394,37 @@ class Agent:
                     {"n_visible": np_count, "expected_min": threshold},
                 ))
                 self._last_ohshit_tick[OhShitKind.PARTICIPANT_COLLAPSE] = tick
+                self._enter_alert(OhShitKind.PARTICIPANT_COLLAPSE, tick)
 
         # 3. byzantine peer (leader-side only -- everyone could detect but
-        # only the leader broadcasts to avoid duplication storms)
+        # only the leader broadcasts to avoid duplication storms). Use the
+        # already-computed self._consensus_cache and run the residual check
+        # only every byzantine_check_interval_ticks; rerunning IRLS per tick
+        # here would double consensus cost on the leader.
         leader_id = infer_leader(self.proto, tick)
-        if leader_id == self.drone_id and can_fire(OhShitKind.BYZANTINE_PEER):
-            suspects = detect_byzantine_via_residuals(
-                self.proto, tick,
-                threshold_m=self.byzantine_residual_threshold_m,
-            )
-            suspects = [s for s in suspects if s != self.drone_id]
+        do_check = (
+            leader_id == self.drone_id
+            and can_fire(OhShitKind.BYZANTINE_PEER)
+            and (tick - self._last_byzantine_check_tick) >= self.byzantine_check_interval_ticks
+        )
+        if do_check:
+            self._last_byzantine_check_tick = tick
+            suspects: list[int] = []
+            for origin, c_pos in self._consensus_cache.items():
+                if origin == self.drone_id:
+                    continue
+                if origin not in self.proto.self_estimates:
+                    continue
+                dr_pos, _, _ = self.proto.self_estimates[origin]
+                if float(np.linalg.norm(c_pos - dr_pos)) > self.byzantine_residual_threshold_m:
+                    suspects.append(origin)
             if suspects:
                 events.append(self._make_ohshit(
                     OhShitKind.BYZANTINE_PEER,
                     {"suspects": suspects},
                 ))
                 self._last_ohshit_tick[OhShitKind.BYZANTINE_PEER] = tick
+                self._enter_alert(OhShitKind.BYZANTINE_PEER, tick)
 
         return events
 
@@ -354,20 +443,21 @@ class Agent:
     # ------------------------------------------------------------------
 
     def _maybe_initiate_map(self, tick: int, am_leader: bool) -> Map | None:
-        """Leader decides to emit a MAP_CALL if it has been quiet for too
-        long OR the fleet appears READY for the next cycle. Gated to
+        """Leader emits MAP_CALL when the current plan should have finished
+        or this drone has locally reached READY. Gated to
         post-WAITING phases -- a drone with no Command yet has no
         situational-awareness round to run."""
         if not am_leader or self.phase == Phase.WAITING:
             return None
         since_last_map = tick - self._last_map_call_tick
-        fleet_quiescent = (
+        locally_ready = (
             self.phase == Phase.READY
             and tick - self.phase_start_tick >= self.reform_locked_ticks
         )
-        # Fallback: at the configured silence cap, regardless of phase.
-        forced_poll = since_last_map >= self.map_round_interval_ticks
-        if not (fleet_quiescent or forced_poll):
+        expected_done = tick >= self._expected_completion_tick(tick)
+        # map_round_interval_ticks is now a de-duplication throttle, not
+        # a liveness poll. Silence before expected completion is normal.
+        if not ((locally_ready or expected_done) and since_last_map >= self.map_round_interval_ticks):
             return None
         self.map_round_counter += 1
         self._last_map_call_tick = tick
@@ -393,6 +483,10 @@ class Agent:
         for obs_id, r in self._range_obs_buffer.items():
             my_obs[int(obs_id)] = float(r)
         self._range_obs_buffer.clear()
+        strength_obs: dict[int, float] = {}
+        for obs_id, strength in self._signal_strength_buffer.items():
+            strength_obs[int(obs_id)] = float(strength)
+        self._signal_strength_buffer.clear()
         return Map(
             kind=MsgKind.RESPONSE,
             origin=self.drone_id,
@@ -402,6 +496,7 @@ class Agent:
             dr_sigma=1.0,
             range_obs=my_obs,
             sig_stub=make_sig(self.drone_id, self.my_dr_epoch, "MR"),
+            signal_strength_obs=strength_obs,
         )
 
     def _build_vote_response(self, leader_id: int, round_id: int, tick: int) -> Vote:
@@ -413,6 +508,33 @@ class Agent:
             epoch=self.my_vote_epoch,
             round_id=round_id,
             sig_stub=make_sig(self.drone_id, self.my_vote_epoch, "VR"),
+        )
+
+    def _maybe_initiate_vote(self, tick: int, am_leader: bool) -> Vote | None:
+        """Leader starts the arrangement round after its MAP response window.
+
+        This is not a periodic liveness vote. It is the second half of the
+        plan-timeout/READY event: after MAP gathers situational awareness,
+        Vote flood-max propagates the highest-ranked plan/authority visible
+        to this component.
+        """
+        if not am_leader or self.map_round_counter <= 0:
+            return None
+        if self._last_vote_for_map_round == self.map_round_counter:
+            return None
+        if tick - self._last_map_call_tick < self.map_response_window_ticks:
+            return None
+        self.vote_round_counter += 1
+        self._last_vote_call_tick = tick
+        self._last_vote_for_map_round = self.map_round_counter
+        self.my_vote_epoch += 1
+        return Vote(
+            kind=MsgKind.CALL,
+            origin=self.drone_id,
+            priority=self.proto.my_priority,
+            epoch=self.my_vote_epoch,
+            round_id=self.vote_round_counter,
+            sig_stub=make_sig(self.drone_id, self.my_vote_epoch, "VC"),
         )
 
     # ------------------------------------------------------------------
@@ -437,6 +559,7 @@ class Agent:
             payload = msg.payload
             origin = msg.origin
             measured_range = getattr(msg, "range_at_send", None)
+            signal_strength = getattr(msg, "signal_strength_at_receive", None)
             # Dedup key: (kind, origin, epoch, round_id_or_0)
             kind_name = type(payload).__name__
             epoch = getattr(payload, "epoch", 0)
@@ -466,6 +589,8 @@ class Agent:
                 # Record my own range to the sender (substrate-measured)
                 if measured_range is not None:
                     self._range_obs_buffer[origin] = float(measured_range)
+                if signal_strength is not None:
+                    self._signal_strength_buffer[origin] = float(signal_strength)
 
             elif isinstance(payload, Vote):
                 changed = ingest_vote(
@@ -484,6 +609,8 @@ class Agent:
                     )
                 if measured_range is not None:
                     self._range_obs_buffer[origin] = float(measured_range)
+                if signal_strength is not None:
+                    self._signal_strength_buffer[origin] = float(signal_strength)
 
             elif isinstance(payload, Command):
                 ingest_command(
@@ -492,14 +619,19 @@ class Agent:
                 )
                 if measured_range is not None:
                     self._range_obs_buffer[origin] = float(measured_range)
+                if signal_strength is not None:
+                    self._signal_strength_buffer[origin] = float(signal_strength)
 
             elif isinstance(payload, OhShit):
                 ingest_oh_shit(
                     self.proto, payload, current_tick,
                     measured_range_to_sender=measured_range,
                 )
+                self._enter_alert(payload.kind, current_tick)
                 if measured_range is not None:
                     self._range_obs_buffer[origin] = float(measured_range)
+                if signal_strength is not None:
+                    self._signal_strength_buffer[origin] = float(signal_strength)
 
             # Forward all live (non-stale) messages.
             if not self.refuse_to_forward and msg.hop < MAX_HOPS:
@@ -509,12 +641,15 @@ class Agent:
         self._refresh_my_self_estimate(current_tick)
 
         # ----- 3. Maybe recompute consensus (throttled) -----
-        REFRESH_TICKS = 5
         if (
             self._dirty_since_consensus
-            and (current_tick - self._consensus_last_tick) >= REFRESH_TICKS
+            and (current_tick - self._consensus_last_tick) >= self.consensus_refresh_ticks
         ) or self._consensus_last_tick < 0:
-            self._consensus_cache = compute_consensus_positions(self.proto, current_tick)
+            self._consensus_cache = compute_consensus_positions(
+                self.proto,
+                current_tick,
+                n_irls_iters=self.consensus_irls_iters,
+            )
             self._consensus_last_tick = current_tick
             self._dirty_since_consensus = False
 
@@ -535,7 +670,11 @@ class Agent:
             mt = self.proto.latest_command.payload.get("manifold_targets")
             if mt is not None:
                 manifold_targets = mt
-        if manifold_targets is not None:
+        rally_target = self._rally_target() if current_tick <= self._alert_until_tick else None
+        if rally_target is not None:
+            target = rally_target
+            is_primary = True
+        elif manifold_targets is not None:
             target, is_primary = compute_target(self.drone_id, known, manifold_targets)
         else:
             target = self.position.copy()
@@ -590,6 +729,9 @@ class Agent:
         map_call = self._maybe_initiate_map(current_tick, am_leader)
         if map_call is not None:
             outgoing.append(map_call)
+        vote_call = self._maybe_initiate_vote(current_tick, am_leader)
+        if vote_call is not None:
+            outgoing.append(vote_call)
 
         # 7c. OhShit (gated to MOVE/SETTLE/REFORM).
         for ev in self._check_oh_shit(current_tick):
@@ -677,6 +819,15 @@ def _tests() -> int:
     if emitted_map_calls > 5:
         print(f"FAIL T3: leader emitted too many MAP_CALLS in 50 ticks: {emitted_map_calls}")
         failed += 1
+    emitted_vote_calls = 0
+    for t in range(50, 90):
+        _, out, _ = a.step(current_tick=t, inbox=[])
+        emitted_vote_calls += sum(
+            1 for o in out if isinstance(o, Vote) and o.kind == MsgKind.CALL
+        )
+    if emitted_vote_calls < 1:
+        print(f"FAIL T3c: leader should emit VOTE_CALL after MAP window, got {emitted_vote_calls}")
+        failed += 1
 
     # T4: non-leader receives MAP_CALL, responds once.
     a = Agent(drone_id=5, priority=5, position=np.array([0, 0, 0]))
@@ -699,6 +850,36 @@ def _tests() -> int:
     dups = [o for o in out2 if isinstance(o, Map) and o.kind == MsgKind.RESPONSE]
     if dups:
         print(f"FAIL T4: duplicate call should not produce a second response, got {len(dups)}")
+        failed += 1
+
+    # T5: OhShit moves receiver into alert mode and targets rally point.
+    a = Agent(drone_id=2, priority=2, position=np.array([10.0, 0.0, 0.0]))
+    rally = np.array([1.0, 2.0, 3.0])
+    a.proto.latest_command = Command(
+        origin=9,
+        leader_priority=9,
+        epoch=0,
+        payload={
+            "manifold_targets": np.array([[10.0, 0.0, 0.0]]),
+            "rally_point": rally,
+            "expected_completion_tick": 100,
+        },
+        sig_stub=b"",
+    )
+    a.phase = Phase.READY
+    alert = OhShit(
+        origin=1,
+        kind=OhShitKind.PARTICIPANT_COLLAPSE,
+        payload={"n_visible": 1},
+        epoch=1,
+        sig_stub=b"",
+    )
+    _, _, log = a.step(current_tick=10, inbox=[_Msg(alert, origin=1, range_at_send=4.0)])
+    if log.phase != "move":
+        print(f"FAIL T5a: alert should leave READY for MOVE, got {log.phase}")
+        failed += 1
+    if float(np.linalg.norm(log.target - rally)) > 1e-9:
+        print(f"FAIL T5b: alert target should be rally point, got {log.target}")
         failed += 1
 
     return failed

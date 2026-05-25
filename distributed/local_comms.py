@@ -10,6 +10,11 @@ prior plan:
 
   - Propagation delay: receive_tick = send_tick + ceil(d/c) where c is
     sound speed in water (~1500 m/s). Messages are NOT instant.
+  - Signal strength degrades with range. Receivers get a coarse
+    strength scalar on every packet, giving them a passive bearing cue
+    when they vary their own position and observe whether strength rises
+    or falls. This is a physical side-effect of communication, not a
+    separate ranging ping.
   - Range check at RECEIVE time, not send time. A message sent in-range
     can still be lost if the receiver moves out of range before it
     arrives. Messages also dropped if sender or receiver dies between.
@@ -56,6 +61,8 @@ class Message:
     hop: int = 0              # propagation hop count
     # Bookkeeping for the audit log:
     range_at_send: float = 0.0
+    signal_strength_at_send: float = 0.0
+    signal_strength_at_receive: float = 0.0
 
 
 @dataclass
@@ -99,6 +106,31 @@ class LocalComms:
         self.n_dropped_loss = 0
         self.n_dropped_range = 0
         self.n_dropped_dead = 0
+        self._seen_packet_receivers: set[tuple[int, str, int, int, int]] = set()
+
+    def _packet_receiver_key(
+        self, receiver: int, origin: int, payload: Any
+    ) -> tuple[int, str, int, int, int | str]:
+        kind = type(payload).__name__
+        epoch = int(getattr(payload, "epoch", 0))
+        round_id = int(getattr(payload, "round_id", 0))
+        if not hasattr(payload, "origin") and not hasattr(payload, "epoch"):
+            round_key: int | str = repr(payload)
+        else:
+            round_key = round_id
+        return (int(receiver), kind, int(origin), epoch, round_key)
+
+    def signal_strength(self, distance_m: float) -> float:
+        """Coarse acoustic strength model.
+
+        This intentionally avoids pretending to be a full sonar channel:
+        spreading loss is enough for the protocol to ask directional
+        questions like "did my small motion make this peer louder or
+        quieter?" Strength is normalized to 1.0 at zero range and decays
+        monotonically with distance.
+        """
+        d = max(0.0, float(distance_m))
+        return 1.0 / (1.0 + d * d)
 
     def send(
         self,
@@ -122,8 +154,8 @@ class LocalComms:
         """
         if not alive[sender_id]:
             return
-        # `origin` is the ORIGINAL sender (the drone whose Heartbeat /
-        # PriorityVote / Command this carries). When `origin` is None,
+        # `origin` is the ORIGINAL sender (the drone whose Map / Vote /
+        # Command / OhShit this carries). When `origin` is None,
         # this is a fresh broadcast from sender_id itself. When set, this
         # is a multi-hop relay: sender_id is forwarding info originally
         # sourced from `origin`. `starting_hop` lets relayers increment
@@ -134,11 +166,17 @@ class LocalComms:
         for j in range(self.n):
             if j == sender_id:
                 continue
+            if origin is not None and j == effective_origin:
+                continue
             if not alive[j]:
                 continue
             d_send = float(dists[j])
             if d_send > self.comms_range_m:
                 continue
+            packet_key = self._packet_receiver_key(j, effective_origin, payload)
+            if packet_key in self._seen_packet_receivers:
+                continue
+            self._seen_packet_receivers.add(packet_key)
             delay_ticks = max(1, int(math.ceil(d_send / self.sound_speed)))
             deliver_tick = current_tick + delay_ticks
             msg = Message(
@@ -152,6 +190,7 @@ class LocalComms:
                 sig_stub=sig_stub,
                 hop=starting_hop,
                 range_at_send=d_send,
+                signal_strength_at_send=self.signal_strength(d_send),
             )
             self._inflight.setdefault(deliver_tick, []).append(msg)
             self.n_sent += 1
@@ -161,7 +200,12 @@ class LocalComms:
                         tick=current_tick,
                         drone_id=sender_id,
                         kind="SEND",
-                        info={"to": j, "deliver_tick": deliver_tick, "d": d_send},
+                        info={
+                            "to": j,
+                            "deliver_tick": deliver_tick,
+                            "d": d_send,
+                            "strength": msg.signal_strength_at_send,
+                        },
                     )
                 )
 
@@ -203,6 +247,7 @@ class LocalComms:
                 continue
             # Receive-time range check — receiver may have moved.
             d_recv = float(np.linalg.norm(positions[msg.receiver] - positions[msg.origin]))
+            rx_strength = self.signal_strength(d_recv)
             if d_recv > self.comms_range_m:
                 self.n_dropped_range += 1
                 if self.log_events:
@@ -211,7 +256,12 @@ class LocalComms:
                             tick=current_tick,
                             drone_id=msg.receiver,
                             kind="DROP_RANGE",
-                            info={"from": msg.origin, "d_send": msg.range_at_send, "d_recv": d_recv},
+                            info={
+                                "from": msg.origin,
+                                "d_send": msg.range_at_send,
+                                "d_recv": d_recv,
+                                "strength": rx_strength,
+                            },
                         )
                     )
                 continue
@@ -228,6 +278,7 @@ class LocalComms:
                         )
                     )
                 continue
+            msg.signal_strength_at_receive = rx_strength
             inbox[msg.receiver].append(msg)
             self.n_delivered += 1
             if self.log_events:
@@ -236,7 +287,12 @@ class LocalComms:
                         tick=current_tick,
                         drone_id=msg.receiver,
                         kind="RECV",
-                        info={"from": msg.origin, "d_recv": d_recv, "hop": msg.hop},
+                        info={
+                            "from": msg.origin,
+                            "d_recv": d_recv,
+                            "hop": msg.hop,
+                            "strength": rx_strength,
+                        },
                     )
                 )
         return inbox
@@ -335,28 +391,44 @@ def _falsifiability_tests() -> int:
         print(f"FAIL test4: dead sender drop count {comms.n_dropped_dead} expected 1")
         failed += 1
 
-    # Test 5: loss rate actually drops some messages.
+    # Test 5: signal strength degrades monotonically with range.
+    comms = LocalComms(n=3, comms_range_m=100.0)
+    if not (comms.signal_strength(10.0) > comms.signal_strength(50.0) > comms.signal_strength(90.0)):
+        print("FAIL test5: signal strength should decrease as range increases")
+        failed += 1
+
+    # Test 6: delivered messages carry receive-time signal strength.
+    positions = np.array([[0.0, 0, 0], [10.0, 0, 0]])
+    alive = np.ones(2, dtype=bool)
+    comms = LocalComms(n=2, comms_range_m=100.0, sound_speed=100.0, loss_rate=0.0)
+    comms.send(0, positions[0], "hello", b"\x00" * 16, positions, alive, current_tick=0, rng=rng)
+    inbox = comms.deliver(1, positions, alive, rng)
+    if not inbox[1] or inbox[1][0].signal_strength_at_receive <= 0:
+        print("FAIL test6: delivered message missing receive signal strength")
+        failed += 1
+
+    # Test 7: loss rate actually drops some messages.
     n = 2
     positions = np.array([[0.0, 0, 0], [50.0, 0, 0]])
     alive = np.ones(n, dtype=bool)
     comms = LocalComms(n=n, comms_range_m=100.0, sound_speed=10.0, loss_rate=0.5)
     rng2 = np.random.default_rng(42)
     n_trials = 1000
-    for _ in range(n_trials):
-        comms.send(0, positions[0], "hello", b"\x00" * 16, positions, alive, current_tick=0, rng=rng2)
+    for i in range(n_trials):
+        comms.send(0, positions[0], f"hello-{i}", b"\x00" * 16, positions, alive, current_tick=0, rng=rng2)
     inbox = comms.deliver(5, positions, alive, rng2)
     dropped_fraction = comms.n_dropped_loss / n_trials
     if not (0.4 < dropped_fraction < 0.6):
-        print(f"FAIL test5: loss fraction {dropped_fraction:.3f} not within [0.4, 0.6]")
+        print(f"FAIL test7: loss fraction {dropped_fraction:.3f} not within [0.4, 0.6]")
         failed += 1
 
-    # Test 6: shuffle order is actually random (different across calls).
+    # Test 8: shuffle order is actually random (different across calls).
     rng3 = np.random.default_rng(0)
     comms = LocalComms(n=10, comms_range_m=100.0)
     o1 = comms.agent_step_order(rng3)
     o2 = comms.agent_step_order(rng3)
     if list(o1) == list(o2):
-        print("FAIL test6: agent_step_order returned same permutation twice")
+        print("FAIL test8: agent_step_order returned same permutation twice")
         failed += 1
 
     return failed

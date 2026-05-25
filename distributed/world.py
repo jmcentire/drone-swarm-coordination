@@ -115,6 +115,21 @@ class World:
         # the operator's initial command via the (priority, epoch) merge.
         # Setting equal means the leader wins by bumping the epoch.
         op_priority = max(0, self.n - 1)
+        live_positions = self.positions[self.alive]
+        rally_point = (
+            np.mean(live_positions, axis=0)
+            if len(live_positions) > 0
+            else np.zeros(3, dtype=np.float64)
+        )
+        if len(live_positions) > 0 and len(manifold) > 0:
+            nearest = np.linalg.norm(
+                live_positions[:, None, :] - manifold[None, :, :],
+                axis=-1,
+            ).min(axis=1)
+            max_leg_distance = float(np.max(nearest))
+        else:
+            max_leg_distance = 0.0
+        expected_completion_tick = self.current_tick + int(np.ceil(max_leg_distance / 0.8)) + 20
         for i, agent in enumerate(self.agents):
             if agent is None:
                 continue
@@ -126,6 +141,8 @@ class World:
                     "manifold_targets": manifold.copy(),
                     "heading": heading.copy(),
                     "leg": 0,
+                    "rally_point": rally_point.copy(),
+                    "expected_completion_tick": expected_completion_tick,
                 },
                 sig_stub=b"\x00" * 16,
             )
@@ -150,9 +167,9 @@ class World:
         # 3. Per-drone action in random order. The random order means
         #    a drone acting early in the tick uses pre-step state for
         #    its known_positions of late-acting drones; drones acting
-        #    later see the just-updated positions of early-acting drones
-        #    NEXT tick (after their next heartbeat). Within this tick no
-        #    drone sees another's current-tick decision.
+        #    later only learn about early-acting drones after an actual
+        #    event-triggered acoustic message is delivered. Within this
+        #    tick no drone sees another's current-tick decision.
         order = self.comms.agent_step_order(self.rng)
         new_velocities = np.zeros_like(self.velocities)
         new_positions = self.positions.copy()
@@ -384,8 +401,8 @@ def _smoke() -> int:
     # The five drones with priorities 0..4 should converge on drone 4 as leader
     # (highest priority) -- but the initial command from "operator" has higher
     # priority (10_000) so latest_command stays the operator's. Leader inference
-    # uses known_priorities, which only contains drone-origin votes; operator
-    # never sent a PriorityVote. So among drones, 4 should win.
+    # uses known_priorities, which only contains drone-origin Vote responses;
+    # the operator never sent a Vote. So among drones, 4 should win.
 
     # Formation error: should be low (drones near their targets).
     if summary["final_formation_err_mean"] > 2.0:

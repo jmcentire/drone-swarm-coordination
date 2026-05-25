@@ -56,6 +56,7 @@ mechanism that handles content lies via outlier rejection.
 from __future__ import annotations
 
 import hashlib
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -65,6 +66,11 @@ import numpy as np
 
 SIG_LEN = 16
 DEFAULT_FRESHNESS_TICKS = 30
+_CONSENSUS_CACHE_MAX = 4096
+_consensus_cache: OrderedDict[tuple, dict[int, np.ndarray]] = OrderedDict()
+_consensus_cache_hits = 0
+_consensus_cache_misses = 0
+_consensus_solves = 0
 
 
 def make_sig(origin: int, epoch: int, kind: str, secret: bytes = b"unused") -> bytes:
@@ -96,6 +102,7 @@ class Map:
     dr_sigma: float
     range_obs: dict[int, float]
     sig_stub: bytes
+    signal_strength_obs: dict[int, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -156,6 +163,8 @@ class ProtocolState:
     dr_sigmas: dict[int, float] = field(default_factory=dict)
     # (observer_id, observed_id) -> (range_m, heard_tick)
     range_obs: dict[tuple[int, int], tuple[float, int]] = field(default_factory=dict)
+    # (observer_id, observed_id) -> (normalized_strength, heard_tick)
+    signal_strength_obs: dict[tuple[int, int], tuple[float, int]] = field(default_factory=dict)
     # Latest confirmed mission directive.
     latest_command: Command | None = None
     latest_command_tick: int = -1
@@ -223,6 +232,12 @@ def _merge_range_obs(
     state.range_obs[(observer, observed_id)] = (float(range_m), tick)
 
 
+def _merge_signal_strength_obs(
+    state: ProtocolState, observer: int, observed_id: int, strength: float, tick: int
+) -> None:
+    state.signal_strength_obs[(observer, observed_id)] = (float(strength), tick)
+
+
 def ingest_map(
     state: ProtocolState, m: Map, tick: int,
     measured_range_to_sender: float | None = None,
@@ -238,6 +253,8 @@ def ingest_map(
     )
     for observed_id, r in m.range_obs.items():
         _merge_range_obs(state, m.origin, int(observed_id), float(r), tick)
+    for observed_id, strength in m.signal_strength_obs.items():
+        _merge_signal_strength_obs(state, m.origin, int(observed_id), float(strength), tick)
     if measured_range_to_sender is not None:
         _merge_range_obs(state, state.drone_id, m.origin, measured_range_to_sender, tick)
     return changed
@@ -344,6 +361,72 @@ def fresh_participant_count(
     return n
 
 
+def clear_consensus_cache() -> None:
+    global _consensus_cache_hits, _consensus_cache_misses, _consensus_solves
+    _consensus_cache.clear()
+    _consensus_cache_hits = 0
+    _consensus_cache_misses = 0
+    _consensus_solves = 0
+
+
+def consensus_cache_stats() -> dict[str, int]:
+    return {
+        "size": len(_consensus_cache),
+        "hits": _consensus_cache_hits,
+        "misses": _consensus_cache_misses,
+        "solves": _consensus_solves,
+    }
+
+
+def _q(value: float, scale: float = 1000.0) -> int:
+    return int(round(float(value) * scale))
+
+
+def _consensus_input_key(
+    state: ProtocolState,
+    tick: int,
+    freshness: int,
+    huber_scale_m: float,
+    n_irls_iters: int,
+    default_range_sigma_m: float,
+) -> tuple:
+    self_items = []
+    for origin, (pos, epoch, heard) in state.self_estimates.items():
+        if tick - heard > freshness:
+            continue
+        p = np.asarray(pos, dtype=np.float64)
+        self_items.append((
+            int(origin),
+            int(epoch),
+            _q(p[0]), _q(p[1]), _q(p[2]),
+            _q(state.dr_sigmas.get(origin, 1.0)),
+        ))
+    self_items.sort()
+
+    edge_items = []
+    fresh_ids = {origin for origin, *_ in self_items}
+    for (obs, observed), (r, heard) in state.range_obs.items():
+        if tick - heard > freshness:
+            continue
+        if obs not in fresh_ids or observed not in fresh_ids:
+            continue
+        edge_items.append((int(obs), int(observed), _q(r)))
+    edge_items.sort()
+
+    return (
+        int(freshness),
+        _q(huber_scale_m),
+        int(n_irls_iters),
+        _q(default_range_sigma_m),
+        tuple(self_items),
+        tuple(edge_items),
+    )
+
+
+def _copy_consensus_result(result: dict[int, np.ndarray]) -> dict[int, np.ndarray]:
+    return {int(k): v.copy() for k, v in result.items()}
+
+
 def compute_consensus_positions(
     state: ProtocolState,
     tick: int,
@@ -367,7 +450,18 @@ def compute_consensus_positions(
     Vectorized residuals + analytic Jacobian: ~55ms/call for n=20 with
     full edge fan-out (validated 2026-05-23, kindex 8a270cb76915).
     """
+    global _consensus_cache_hits, _consensus_cache_misses, _consensus_solves
     from scipy.optimize import least_squares
+
+    cache_key = _consensus_input_key(
+        state, tick, freshness, huber_scale_m, n_irls_iters, default_range_sigma_m
+    )
+    cached = _consensus_cache.get(cache_key)
+    if cached is not None:
+        _consensus_cache_hits += 1
+        _consensus_cache.move_to_end(cache_key)
+        return _copy_consensus_result(cached)
+    _consensus_cache_misses += 1
 
     fresh_self_ids = [
         origin for origin, (_, _, heard) in state.self_estimates.items()
@@ -395,6 +489,12 @@ def compute_consensus_positions(
     edges_j = np.array(e_j, dtype=np.int64)
     edges_d = np.array(e_d, dtype=np.float64)
     n_edges = edges_i.size
+    if n < 2 or n_edges == 0:
+        result = {did: DR[id_to_idx[did]].copy() for did in drone_ids}
+        _consensus_cache[cache_key] = _copy_consensus_result(result)
+        _consensus_cache.move_to_end(cache_key)
+        return result
+    _consensus_solves += 1
     ew_sqrt = np.full(n_edges, 1.0 / default_range_sigma_m, dtype=np.float64)
 
     M_anchor = 3 * n
@@ -449,7 +549,12 @@ def compute_consensus_positions(
             ew_sqrt[:] = 1.0 / np.sqrt(edge_sig ** 2 + edge_raw ** 2)
 
     positions = x.reshape((n, 3))
-    return {did: positions[id_to_idx[did]] for did in drone_ids}
+    result = {did: positions[id_to_idx[did]].copy() for did in drone_ids}
+    _consensus_cache[cache_key] = _copy_consensus_result(result)
+    _consensus_cache.move_to_end(cache_key)
+    while len(_consensus_cache) > _CONSENSUS_CACHE_MAX:
+        _consensus_cache.popitem(last=False)
+    return result
 
 
 def detect_byzantine_via_residuals(

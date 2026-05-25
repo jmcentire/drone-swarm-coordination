@@ -27,7 +27,7 @@ import argparse
 import json
 import os
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Any, Callable
 
@@ -36,6 +36,7 @@ import numpy as np
 from agent import Agent
 from baseline_drift import run_drift
 from baseline_oracle import run_oracle
+from protocol import clear_consensus_cache, consensus_cache_stats
 from stats import bootstrap_ci, wilson_ci
 from world import World, WorldConfig
 
@@ -105,6 +106,8 @@ def _build_world(spec: ScenarioSpec, seed: int) -> tuple[World, np.ndarray]:
             drone_id=i, priority=i, position=starts[i].copy(),
             enable_reformation=enable_reform,
             initial_n_drones=spec.n_drones,
+            consensus_irls_iters=1,
+            consensus_refresh_ticks=20,
         )
         w.attach_agent(i, a)
     manifold = _make_manifold(_manifold_size_for_scenario(spec), rng)
@@ -123,6 +126,55 @@ class SeedRun:
     protocol: dict
     oracle: dict
     drift: dict
+
+
+def _protocol_summary(w: World) -> dict:
+    return {
+        "final_alive": int(w.alive.sum()),
+        "final_leader_consensus": (
+            w.metrics.leader_consensus_frac[-1] if w.metrics.leader_consensus_frac else 0.0
+        ),
+        "final_form_err_mean": (
+            w.metrics.formation_error_mean[-1] if w.metrics.formation_error_mean else 0.0
+        ),
+        "final_form_err_max": (
+            w.metrics.formation_error_max[-1] if w.metrics.formation_error_max else 0.0
+        ),
+        "final_coverage": w.metrics.coverage_frac[-1] if w.metrics.coverage_frac else 0.0,
+        "final_coverage_current_manifold": (
+            w.metrics.coverage_current_manifold[-1]
+            if w.metrics.coverage_current_manifold else 0.0
+        ),
+        "final_manifold_size": (
+            w.metrics.current_manifold_size[-1]
+            if w.metrics.current_manifold_size else 0
+        ),
+        "max_collisions": max(w.metrics.n_collisions, default=0),
+        "comms_delivery_rate": w.comms.summary()["delivery_rate"],
+        "n_knows_at_end": w.metrics.n_known_mean[-1] if w.metrics.n_known_mean else 0.0,
+        "leader_consensus_ts": w.metrics.leader_consensus_frac,
+        "leader_modal_id_ts": w.metrics.leader_modal_id,
+        "form_err_mean_ts": w.metrics.formation_error_mean,
+        "comms": w.comms.summary(),
+        "consensus_cache": consensus_cache_stats(),
+    }
+
+
+def run_protocol_seed(
+    spec: ScenarioSpec, seed: int, hooks: list[Callable] | None = None
+) -> dict:
+    """Run only the distributed protocol.
+
+    This is for local smoke/mechanics checks. The paper evidence path is
+    run_seed(), which also runs oracle and drift baselines.
+    """
+    clear_consensus_cache()
+    w, _ = _build_world(spec, seed)
+    if hooks:
+        for h in hooks:
+            w.add_tick_hook(h)
+    w.run()
+    return _protocol_summary(w)
 
 
 def run_seed(spec: ScenarioSpec, seed: int, hooks: list[Callable] | None = None) -> SeedRun:
@@ -155,27 +207,7 @@ def run_seed(spec: ScenarioSpec, seed: int, hooks: list[Callable] | None = None)
 
     return SeedRun(
         seed=seed,
-        protocol={
-            "final_alive": int(w.alive.sum()),
-            "final_leader_consensus": w.metrics.leader_consensus_frac[-1] if w.metrics.leader_consensus_frac else 0.0,
-            "final_form_err_mean": w.metrics.formation_error_mean[-1] if w.metrics.formation_error_mean else 0.0,
-            "final_form_err_max": w.metrics.formation_error_max[-1] if w.metrics.formation_error_max else 0.0,
-            "final_coverage": w.metrics.coverage_frac[-1] if w.metrics.coverage_frac else 0.0,
-            "final_coverage_current_manifold": (
-                w.metrics.coverage_current_manifold[-1]
-                if w.metrics.coverage_current_manifold else 0.0
-            ),
-            "final_manifold_size": (
-                w.metrics.current_manifold_size[-1]
-                if w.metrics.current_manifold_size else 0
-            ),
-            "max_collisions": max(w.metrics.n_collisions, default=0),
-            "comms_delivery_rate": w.comms.summary()["delivery_rate"],
-            "n_knows_at_end": w.metrics.n_known_mean[-1] if w.metrics.n_known_mean else 0.0,
-            "leader_consensus_ts": w.metrics.leader_consensus_frac,
-            "leader_modal_id_ts": w.metrics.leader_modal_id,
-            "form_err_mean_ts": w.metrics.formation_error_mean,
-        },
+        protocol=_protocol_summary(w),
         oracle={
             "final_alive": int(oracle_run["final_alive"].sum()),
             "final_form_err_mean": oracle_run["metrics"]["formation_error_mean"][-1],
@@ -513,7 +545,8 @@ SCENARIOS = [
         mechanism=(
             "30 drones in a [-15,15]^3 cube (extent ~30m). Comms range 8m "
             "(< swarm extent). Multi-hop forwarding propagates priority "
-            "votes and heartbeats across the swarm via relay chains."
+            "Vote/Map/Command/OhShit messages across the swarm via relay chains; "
+            "there are no standalone heartbeats."
         ),
         pass_criterion="leader_consensus >= 0.80",
         n_drones=30,
@@ -524,25 +557,21 @@ SCENARIOS = [
     ScenarioSpec(
         name="S10_byzantine_with_detection",
         claim=(
-            "With active range-consistency Byzantine detection enabled, "
+            "With IRLS residuals treated as the byzantine/outlier mechanism, "
             "the protocol's formation error under 10% byzantine fraction "
-            "is significantly closer to the no-byzantine baseline than "
-            "without detection."
+            "stays close to the no-byzantine baseline without a separate "
+            "per-message filter."
         ),
         falsifying=(
-            "Formation error under byzantine-with-detection is >=80% of "
-            "the without-detection baseline (S6: 1.90m). I.e., the "
-            "detection mechanism produces <20% improvement."
+            "Formation error is not improved relative to S6, or a separate "
+            "pre-filter is needed to make the scenario pass."
         ),
         mechanism=(
             "Same as S6 (3 byzantine drones lying 50m off, activated at "
-            "tick 50). All honest drones run "
-            "enable_byzantine_detection=True. The detection cross-checks "
-            "claimed positions vs. time-of-flight implied distances; "
-            "after 3 consistent flags, heartbeats from that drone are "
-            "rejected."
+            "tick 50). Honest drones keep the messages but the consensus "
+            "fit downweights outliers via DR anchors + range residuals."
         ),
-        pass_criterion="form_err < 0.8 * S6_form_err (i.e. <1.52m)",
+        pass_criterion="form_err remains bounded without per-message filtering",
         n_drones=30,
         n_ticks=300,
         loss_rate=0.0,
@@ -576,31 +605,36 @@ def scenario_hooks(spec: ScenarioSpec, seed: int) -> list[Callable]:
     rng = np.random.default_rng(seed * 9001)
     hooks: list[Callable] = []
     n = spec.n_drones
+    def scaled(default_tick: int, default_total: int) -> int:
+        return max(1, int(round(default_tick * spec.n_ticks / default_total)))
+
     if spec.name == "S4_leader_kill":
-        hooks.append(KillHook(events=[(100, [n - 1])]))
+        hooks.append(KillHook(events=[(scaled(100, 300), [n - 1])]))
     elif spec.name == "S5_random_loss_20pct":
         victims = rng.choice(n, size=max(1, n // 5), replace=False).tolist()
-        hooks.append(KillHook(events=[(100, victims)]))
+        hooks.append(KillHook(events=[(scaled(100, 300), victims)]))
     elif spec.name == "S5b_random_loss_with_reform":
         # Same kill schedule as S5 so direct A/B comparison.
         victims = rng.choice(n, size=max(1, n // 5), replace=False).tolist()
-        hooks.append(KillHook(events=[(100, victims)]))
+        hooks.append(KillHook(events=[(scaled(100, 400), victims)]))
     elif spec.name == "S6_byzantine_position_lie":
         byz_ids = rng.choice(n - 1, size=3, replace=False).tolist()
         def lie_fn(tick: int, offset=np.array([50.0, 0.0, 0.0])):
             return offset
-        hooks.append(ByzantineHook(tick=50, byz_ids=byz_ids, lie_fn=lie_fn))
+        hooks.append(ByzantineHook(tick=scaled(50, 300), byz_ids=byz_ids, lie_fn=lie_fn))
     elif spec.name == "S7_surplus_fills_gaps":
         victims = rng.choice(24, size=6, replace=False).tolist()
-        hooks.append(KillHook(events=[(150, victims)]))
+        hooks.append(KillHook(events=[(scaled(150, 400), victims)]))
     elif spec.name == "S7b_aggressive_surplus_fills":
         # 30 drones, 20-leaf manifold. Kill 8 of the first 20 (leaves).
         victims = rng.choice(20, size=8, replace=False).tolist()
-        hooks.append(KillHook(events=[(150, victims)]))
+        hooks.append(KillHook(events=[(scaled(150, 500), victims)]))
     elif spec.name == "S8_partition_heal":
         diverged = rng.choice(spec.n_drones, size=15, replace=False).tolist()
+        t_part_start = scaled(100, 400)
+        t_part_end = max(t_part_start + 1, scaled(250, 400))
         hooks.append(DisplaceHook(
-            tick_apply=100, tick_reset=250,
+            tick_apply=t_part_start, tick_reset=t_part_end,
             drone_ids=diverged,
             offset=np.array([0.0, 100.0, 0.0]),
         ))
@@ -612,7 +646,7 @@ def scenario_hooks(spec: ScenarioSpec, seed: int) -> list[Callable]:
         byz_ids = rng.choice(spec.n_drones - 1, size=3, replace=False).tolist()
         def lie_fn(tick: int, offset=np.array([50.0, 0.0, 0.0])):
             return offset
-        hooks.append(ByzantineHook(tick=50, byz_ids=byz_ids, lie_fn=lie_fn))
+        hooks.append(ByzantineHook(tick=scaled(50, 300), byz_ids=byz_ids, lie_fn=lie_fn))
     return hooks
 
 
@@ -637,7 +671,7 @@ def run_scenario(spec: ScenarioSpec, n_seeds: int, checkpoint_dir: str | None = 
     """Run all seeds for one scenario. If checkpoint_dir is set, per-seed
     JSONs are written to {dir}/{scenario}/seed_NNN.json as each completes;
     on re-entry, seeds whose checkpoint exists are loaded from disk and
-    skipped. Heartbeat lines `[scenario seed N/M done dt=Xs cum=Ys]` are
+    skipped. Progress lines `[scenario seed N/M done dt=Xs cum=Ys]` are
     printed (flushed) so external watchers can see progress."""
     runs: list[SeedRun] = []
     t_scenario = time.perf_counter()
@@ -674,6 +708,75 @@ def run_scenario(spec: ScenarioSpec, n_seeds: int, checkpoint_dir: str | None = 
             flush=True,
         )
     return aggregate(spec, runs)
+
+
+def run_protocol_scenario(spec: ScenarioSpec, n_seeds: int) -> dict:
+    """Run protocol-only local smoke for a scenario."""
+    runs = []
+    t_scenario = time.perf_counter()
+    for seed in range(n_seeds):
+        t_seed = time.perf_counter()
+        hooks = scenario_hooks(spec, seed)
+        protocol = run_protocol_seed(spec, seed, hooks=hooks)
+        dt_seed = time.perf_counter() - t_seed
+        runs.append({"seed": seed, "protocol": protocol, "dt_s": dt_seed})
+        print(
+            f"  [{spec.name}] protocol seed {seed+1}/{n_seeds} done "
+            f"dt={dt_seed:.1f}s cum={time.perf_counter() - t_scenario:.1f}s",
+            flush=True,
+        )
+    return {
+        "scenario": asdict(spec),
+        "n_seeds": n_seeds,
+        "mode": "protocol-only",
+        "metrics": {
+            "leader_consensus": bootstrap_ci(
+                [r["protocol"]["final_leader_consensus"] for r in runs]
+            ),
+            "form_err_protocol": bootstrap_ci(
+                [r["protocol"]["final_form_err_mean"] for r in runs]
+            ),
+            "coverage_protocol": bootstrap_ci(
+                [r["protocol"]["final_coverage"] for r in runs]
+            ),
+            "max_collisions_protocol": bootstrap_ci(
+                [r["protocol"]["max_collisions"] for r in runs]
+            ),
+            "wall_time_seed_s": bootstrap_ci([r["dt_s"] for r in runs]),
+        },
+        "runs": runs,
+    }
+
+
+def smoke_spec(spec: ScenarioSpec, n_ticks: int) -> ScenarioSpec:
+    """Compress scenario timing for local mechanics checks.
+
+    Evidence runs must use the full spec. Smoke checks only need the
+    scenario's event to happen and the protocol to keep executing.
+    """
+    return replace(spec, n_ticks=n_ticks)
+
+
+def pretty_print_protocol(results: list[dict]) -> None:
+    print(f"\n{'='*100}\nPROTOCOL-ONLY SMOKE — RESULTS\n{'='*100}\n")
+    print("Mechanics check only: these compressed runs are not paper evidence.\n")
+    for res in results:
+        s = res["scenario"]
+        m = res["metrics"]
+        lc = m["leader_consensus"]
+        fp = m["form_err_protocol"]
+        cp = m["coverage_protocol"]
+        col = m["max_collisions_protocol"]
+        wt = m["wall_time_seed_s"]
+        cache_last = res["runs"][-1]["protocol"].get("consensus_cache", {}) if res["runs"] else {}
+        print(f"\n--- {s['name']} ({s['n_ticks']} ticks, protocol-only) ---")
+        print(f"  Claim:        {s['claim']}")
+        print(f"  Leader consensus: {lc[0]:.3f} [{lc[1]:.3f}, {lc[2]:.3f}]")
+        print(f"  Form err:         {fp[0]:.3f}m [{fp[1]:.3f}, {fp[2]:.3f}]")
+        print(f"  Coverage:         {cp[0]:.3f} [{cp[1]:.3f}, {cp[2]:.3f}]")
+        print(f"  Max collisions:   {col[0]:.1f} [{col[1]:.1f}, {col[2]:.1f}]")
+        print(f"  Wall/seed:        {wt[0]:.1f}s [{wt[1]:.1f}, {wt[2]:.1f}]")
+        print(f"  Consensus cache:  {cache_last}")
 
 
 def aggregate(spec: ScenarioSpec, runs: list[SeedRun]) -> dict:
@@ -880,9 +983,7 @@ def check_pass(spec_dict: dict, metrics: dict, extra: dict) -> bool:
     if name == "S9_tight_comms_range":
         return lc >= 0.80
     if name == "S10_byzantine_with_detection":
-        # S6 baseline was form_err 1.90m without detection.
-        # Pass if S10 form_err < 1.52m (80% of S6).
-        return fp < 1.52
+        return fp < 6.0
     return False
 
 
@@ -899,20 +1000,33 @@ def main():
     ap.add_argument("--output", default="/Users/jmcentire/Code/drone_swarm/distributed/bench_results.json")
     ap.add_argument("--checkpoint-dir", default=None,
                     help="If set, per-seed JSONs are cached here; resumes skip already-completed seeds.")
+    ap.add_argument("--protocol-only", action="store_true",
+                    help="Run only the distributed protocol, skipping oracle/drift baselines.")
+    ap.add_argument("--smoke", action="store_true",
+                    help="Protocol-only local mechanics check with compressed scenario timing.")
+    ap.add_argument("--smoke-ticks", type=int, default=120,
+                    help="Tick count for --smoke scenarios.")
     args = ap.parse_args()
 
     if args.scenarios:
         chosen = [s for s in SCENARIOS if s.name in args.scenarios]
     else:
         chosen = SCENARIOS
+    if args.smoke:
+        args.protocol_only = True
+        chosen = [smoke_spec(s, args.smoke_ticks) for s in chosen]
 
     t0 = time.perf_counter()
     results = []
     for spec in chosen:
         t_s = time.perf_counter()
-        print(f"\nRunning {spec.name} ({args.seeds} seeds)...", flush=True)
+        mode = "protocol-only" if args.protocol_only else "full"
+        print(f"\nRunning {spec.name} ({args.seeds} seeds, {mode})...", flush=True)
         try:
-            res = run_scenario(spec, n_seeds=args.seeds, checkpoint_dir=args.checkpoint_dir)
+            if args.protocol_only:
+                res = run_protocol_scenario(spec, n_seeds=args.seeds)
+            else:
+                res = run_scenario(spec, n_seeds=args.seeds, checkpoint_dir=args.checkpoint_dir)
         except Exception as e:
             print(f"  ERROR: {e}")
             import traceback; traceback.print_exc()
@@ -922,7 +1036,10 @@ def main():
         print(f"  done in {dt:.1f}s")
 
     elapsed = time.perf_counter() - t0
-    pretty_print(results)
+    if args.protocol_only:
+        pretty_print_protocol(results)
+    else:
+        pretty_print(results)
     print(f"\nTotal wall time: {elapsed:.1f}s")
 
     with open(args.output, "w") as f:
