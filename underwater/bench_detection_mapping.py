@@ -30,6 +30,10 @@ The simulation is intentionally compact:
 Primary metrics score the distributed map available to an operational drone
 after acoustic gossip. Baselines score local-only maps, one single-drone map,
 and delayed centralized fusion of recovered local logs.
+
+If acoustic exchange is connected, repeated, and complete enough, distributed
+gossip can become functionally equivalent to central post-mission fusion. D7 is
+the communication-bottleneck check that keeps this equivalence explicit.
 """
 
 from __future__ import annotations
@@ -87,6 +91,8 @@ class Scenario:
     comms_range_m: float = 180.0
     report_loss_rate: float = 0.0
     gossip_rounds_per_tick: int = 1
+    max_reports_per_exchange: int = 2
+    snapshot_interval_s: float = 60.0
     random_drift_m_sqrt_s: float = 0.01
     directed_current_mps: tuple[float, float, float] = (0.0, 0.0, 0.0)
     shear_current_mps_per_m: float = 0.0
@@ -149,6 +155,16 @@ SCENARIOS: list[Scenario] = [
         pass_criterion="calloff_triggered AND calloff_delay_s <= 120",
         random_drift_m_sqrt_s=2.0,
         calloff_uncertainty_m=60.0,
+    ),
+    Scenario(
+        name="D7_bounded_acoustic_bottleneck",
+        claim="When acoustic exchange is narrow and lossy, distributed maps no longer collapse to post-mission centralized fusion, but still outperform local-only maps.",
+        falsifying="Distributed recall remains indistinguishable from centralized logs, or falls back to local-only recall.",
+        mechanism="Nominal survey with 90m comms range, one report per neighbor exchange, and 30% acoustic exchange loss.",
+        pass_criterion="centralized_recall_delta_vs_distributed >= 0.05 AND swarm_recall_gain_vs_single >= 0.50 AND recall >= 0.75",
+        comms_range_m=90.0,
+        max_reports_per_exchange=1,
+        report_loss_rate=0.30,
     ),
 ]
 
@@ -268,9 +284,11 @@ def _gossip_reports(
     neighbors: list[list[int]],
     loss_rate: float,
     rounds: int,
+    max_reports_per_exchange: int,
     rng: np.random.Generator,
 ) -> list[list[ContactReport]]:
-    # Deduplicate by object identity tuple. Reports are immutable enough for this bench.
+    # Deduplicate by object identity tuple. Acoustic exchange is deliberately
+    # budgeted; otherwise final distributed state becomes post-mission log union.
     known = [dict(((r.observer, r.observed_t, r.contact_id, r.position), r) for r in ks) for ks in knowledge]
     for _ in range(rounds):
         prev = [dict(k) for k in known]
@@ -278,7 +296,12 @@ def _gossip_reports(
             for j in ns:
                 if loss_rate > 0 and rng.random() < loss_rate:
                     continue
-                known[i].update(prev[j])
+                candidates = [r for key, r in prev[j].items() if key not in known[i]]
+                candidates.sort(key=lambda r: (r.observed_t, r.confidence), reverse=True)
+                if max_reports_per_exchange > 0:
+                    candidates = candidates[:max_reports_per_exchange]
+                for r in candidates:
+                    known[i][_report_key(r)] = r
     return [list(k.values()) for k in known]
 
 
@@ -371,9 +394,14 @@ def _dedupe_reports(reports: list[ContactReport]) -> list[ContactReport]:
     return list({_report_key(r): r for r in reports}.values())
 
 
-def _score_reports(spec: Scenario, reports: list[ContactReport], contacts: np.ndarray) -> dict[str, float]:
+def _score_reports(
+    spec: Scenario,
+    reports: list[ContactReport],
+    contacts: np.ndarray,
+    t_now: float | None = None,
+) -> dict[str, float]:
     unique_reports = _dedupe_reports(reports)
-    hypotheses = _fuse_map(unique_reports, spec.duration_s, spec.stale_after_s)
+    hypotheses = _fuse_map(unique_reports, spec.duration_s if t_now is None else t_now, spec.stale_after_s)
     score = _score_map(hypotheses, contacts)
     if not np.isfinite(score["localization_rmse_m"]):
         score["localization_rmse_m"] = float(
@@ -405,8 +433,10 @@ def run_seed(spec: Scenario, seed: int, control_without_anchors: bool = False) -
     current = np.asarray(spec.directed_current_mps, dtype=np.float64)
     anchor_interval = None if control_without_anchors else spec.anchor_interval_s
     anchor_ids = set(range(max(1, int(round(spec.n_drones * spec.anchor_fraction)))))
+    snapshots: list[dict[str, float]] = []
 
     n_ticks = int(spec.duration_s / spec.dt_s) + 1
+    snapshot_every_ticks = max(1, int(round(spec.snapshot_interval_s / spec.dt_s)))
     for tick in range(n_ticks):
         t = tick * spec.dt_s
         planned = _planned_positions(spec, t)
@@ -449,8 +479,34 @@ def run_seed(spec: Scenario, seed: int, control_without_anchors: bool = False) -
             local_raw[i].extend(rs)
         neighbors = _neighbors(true_pos, spec.comms_range_m)
         knowledge = _gossip_reports(
-            knowledge, neighbors, spec.report_loss_rate, spec.gossip_rounds_per_tick, rng
+            knowledge,
+            neighbors,
+            spec.report_loss_rate,
+            spec.gossip_rounds_per_tick,
+            spec.max_reports_per_exchange,
+            rng,
         )
+        if tick % snapshot_every_ticks == 0 or tick == n_ticks - 1:
+            distributed_snapshot = _mean_scores([
+                _score_reports(spec, ks, contacts, t_now=t) for ks in knowledge
+            ])
+            central_snapshot = _score_reports(
+                spec,
+                [r for rs in local_raw for r in rs],
+                contacts,
+                t_now=t,
+            )
+            if central_snapshot["recall"] > 1e-9:
+                capture_ratio = distributed_snapshot["recall"] / central_snapshot["recall"]
+            else:
+                capture_ratio = 1.0
+            snapshots.append({
+                "t": float(t),
+                "distributed_recall": distributed_snapshot["recall"],
+                "centralized_recall": central_snapshot["recall"],
+                "recall_gap": central_snapshot["recall"] - distributed_snapshot["recall"],
+                "capture_ratio": min(1.0, capture_ratio),
+            })
 
     distributed_scores = [_score_reports(spec, ks, contacts) for ks in knowledge]
     local_scores = [_score_reports(spec, rs, contacts) for rs in local_raw]
@@ -476,6 +532,11 @@ def run_seed(spec: Scenario, seed: int, control_without_anchors: bool = False) -
     score["centralized_rmse_delta_vs_distributed"] = (
         centralized_score["localization_rmse_m"] - score["localization_rmse_m"]
     )
+    score["operational_recall"] = float(np.mean([s["distributed_recall"] for s in snapshots]))
+    score["operational_centralized_recall"] = float(np.mean([s["centralized_recall"] for s in snapshots]))
+    score["operational_recall_gap"] = float(np.mean([s["recall_gap"] for s in snapshots]))
+    score["operational_capture_ratio"] = float(np.mean([s["capture_ratio"] for s in snapshots]))
+    score["max_operational_recall_gap"] = float(max(s["recall_gap"] for s in snapshots))
     calloff_delay = (
         0.0 if first_bad_t is not None and calloff_t is not None and calloff_t <= first_bad_t
         else float("inf") if first_bad_t is not None
@@ -506,6 +567,12 @@ def _passes(spec: Scenario, metrics: dict[str, tuple[float, float, float]]) -> b
         return m["rmse_improvement_vs_control"] >= 0.40 and m["recall"] >= 0.75
     if spec.name == "D6_calloff_on_stale_map":
         return m["calloff_triggered"] >= 0.5 and m["calloff_delay_s"] <= 120.0
+    if spec.name == "D7_bounded_acoustic_bottleneck":
+        return (
+            m["centralized_recall_delta_vs_distributed"] >= 0.05
+            and m["swarm_recall_gain_vs_single"] >= 0.50
+            and m["recall"] >= 0.75
+        )
     return False
 
 
@@ -519,7 +586,9 @@ def aggregate(
         "mean_confidence", "n_hypotheses", "n_reports", "max_uncertainty_m",
         "calloff_delay_s", "gossip_recall_gain_vs_local", "gossip_rmse_gain_vs_local",
         "swarm_recall_gain_vs_single", "centralized_recall_delta_vs_distributed",
-        "centralized_rmse_delta_vs_distributed",
+        "centralized_rmse_delta_vs_distributed", "operational_recall",
+        "operational_centralized_recall", "operational_recall_gap",
+        "operational_capture_ratio", "max_operational_recall_gap",
     ]
     for prefix in ("distributed", "local_only", "single_drone", "centralized"):
         keys.extend(f"{prefix}_{k}" for k in SCORE_KEYS)
@@ -544,7 +613,6 @@ def aggregate(
         "n_seeds": len(runs),
         "metrics": metrics,
         "passed": _passes(spec, metrics),
-        "runs": runs,
     }
 
 
@@ -640,7 +708,9 @@ def print_report(results: list[dict[str, Any]]) -> None:
         print(f"  Local-only:         recall {m['local_only_recall'][0]:.3f}; RMSE {m['local_only_localization_rmse_m'][0]:.2f}m")
         print(f"  Single-drone:       recall {m['single_drone_recall'][0]:.3f}; RMSE {m['single_drone_localization_rmse_m'][0]:.2f}m")
         print(f"  Centralized logs:   recall {m['centralized_recall'][0]:.3f}; RMSE {m['centralized_localization_rmse_m'][0]:.2f}m")
+        print(f"  Central delta:      recall {m['centralized_recall_delta_vs_distributed'][0]:.3f}; RMSE {m['centralized_rmse_delta_vs_distributed'][0]:.2f}m")
         print(f"  Gossip lift:        recall +{m['gossip_recall_gain_vs_local'][0]:.3f}; RMSE gain {m['gossip_rmse_gain_vs_local'][0]:.3f}")
+        print(f"  Operational gap:    mean {m['operational_recall_gap'][0]:.3f}; max {m['max_operational_recall_gap'][0]:.3f}; capture {m['operational_capture_ratio'][0]:.3f}")
         print(f"  Reports/drone:      {m['n_reports'][0]:.1f}")
         print(f"  Max unc:    {m['max_uncertainty_m'][0]:.1f}m")
         if "rmse_improvement_vs_control" in m:
