@@ -24,6 +24,7 @@ success-rate metrics and bootstrap CIs on continuous metrics.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
 import os
 import time
@@ -667,16 +668,36 @@ def _checkpoint_path(checkpoint_dir: str, scenario: str, seed: int) -> Path:
     return Path(checkpoint_dir) / scenario / f"seed_{seed:03d}.json"
 
 
-def run_scenario(spec: ScenarioSpec, n_seeds: int, checkpoint_dir: str | None = None) -> dict:
+def _run_seed_task(args: tuple[ScenarioSpec, int]) -> tuple[SeedRun, float]:
+    spec, seed = args
+    t_seed = time.perf_counter()
+    hooks = scenario_hooks(spec, seed)
+    return run_seed(spec, seed, hooks=hooks), time.perf_counter() - t_seed
+
+
+def _write_seed_checkpoint(path: Path, run: SeedRun) -> None:
+    tmp = path.with_suffix(".json.tmp")
+    with open(tmp, "w") as f:
+        json.dump(_seed_to_dict(run), f, default=str)
+    os.replace(tmp, path)
+
+
+def run_scenario(
+    spec: ScenarioSpec,
+    n_seeds: int,
+    checkpoint_dir: str | None = None,
+    jobs: int = 1,
+) -> dict:
     """Run all seeds for one scenario. If checkpoint_dir is set, per-seed
     JSONs are written to {dir}/{scenario}/seed_NNN.json as each completes;
     on re-entry, seeds whose checkpoint exists are loaded from disk and
     skipped. Progress lines `[scenario seed N/M done dt=Xs cum=Ys]` are
     printed (flushed) so external watchers can see progress."""
-    runs: list[SeedRun] = []
+    runs_by_seed: dict[int, SeedRun] = {}
     t_scenario = time.perf_counter()
     seeds_done = 0
     seeds_loaded = 0
+    pending_seeds = []
     if checkpoint_dir is not None:
         scen_dir = Path(checkpoint_dir) / spec.name
         scen_dir.mkdir(parents=True, exist_ok=True)
@@ -685,28 +706,47 @@ def run_scenario(spec: ScenarioSpec, n_seeds: int, checkpoint_dir: str | None = 
         if cp is not None and cp.exists():
             try:
                 with open(cp) as f:
-                    runs.append(_seed_from_dict(json.load(f)))
+                    runs_by_seed[seed] = _seed_from_dict(json.load(f))
                 seeds_loaded += 1
                 continue
             except Exception as e:
                 print(f"  [{spec.name}] checkpoint {cp.name} unreadable ({e}); rerunning", flush=True)
-        t_seed = time.perf_counter()
-        hooks = scenario_hooks(spec, seed)
-        run = run_seed(spec, seed, hooks=hooks)
-        runs.append(run)
-        seeds_done += 1
-        dt_seed = time.perf_counter() - t_seed
-        dt_scen = time.perf_counter() - t_scenario
-        if cp is not None:
-            tmp = cp.with_suffix(".json.tmp")
-            with open(tmp, "w") as f:
-                json.dump(_seed_to_dict(run), f, default=str)
-            os.replace(tmp, cp)
-        print(
-            f"  [{spec.name}] seed {seed+1}/{n_seeds} done dt={dt_seed:.1f}s cum={dt_scen:.1f}s "
-            f"(ran={seeds_done} loaded={seeds_loaded})",
-            flush=True,
-        )
+        pending_seeds.append(seed)
+
+    jobs = max(1, min(jobs, len(pending_seeds) or 1))
+    if jobs == 1:
+        for seed in pending_seeds:
+            run, dt_seed = _run_seed_task((spec, seed))
+            runs_by_seed[seed] = run
+            seeds_done += 1
+            if checkpoint_dir is not None:
+                _write_seed_checkpoint(_checkpoint_path(checkpoint_dir, spec.name, seed), run)
+            dt_scen = time.perf_counter() - t_scenario
+            print(
+                f"  [{spec.name}] seed {seed+1}/{n_seeds} done dt={dt_seed:.1f}s cum={dt_scen:.1f}s "
+                f"(ran={seeds_done} loaded={seeds_loaded})",
+                flush=True,
+            )
+    else:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=jobs) as executor:
+            futures = {
+                executor.submit(_run_seed_task, (spec, seed)): seed
+                for seed in pending_seeds
+            }
+            for future in concurrent.futures.as_completed(futures):
+                seed = futures[future]
+                run, dt_seed = future.result()
+                runs_by_seed[seed] = run
+                seeds_done += 1
+                if checkpoint_dir is not None:
+                    _write_seed_checkpoint(_checkpoint_path(checkpoint_dir, spec.name, seed), run)
+                dt_scen = time.perf_counter() - t_scenario
+                print(
+                    f"  [{spec.name}] seed {seed+1}/{n_seeds} done dt={dt_seed:.1f}s cum={dt_scen:.1f}s "
+                    f"(ran={seeds_done} loaded={seeds_loaded} jobs={jobs})",
+                    flush=True,
+                )
+    runs = [runs_by_seed[seed] for seed in range(n_seeds)]
     return aggregate(spec, runs)
 
 
@@ -1000,6 +1040,8 @@ def main():
     ap.add_argument("--output", default="/Users/jmcentire/Code/drone_swarm/distributed/bench_results.json")
     ap.add_argument("--checkpoint-dir", default=None,
                     help="If set, per-seed JSONs are cached here; resumes skip already-completed seeds.")
+    ap.add_argument("--jobs", type=int, default=1,
+                    help="Parallel seed workers per scenario for full runs.")
     ap.add_argument("--protocol-only", action="store_true",
                     help="Run only the distributed protocol, skipping oracle/drift baselines.")
     ap.add_argument("--smoke", action="store_true",
@@ -1026,7 +1068,12 @@ def main():
             if args.protocol_only:
                 res = run_protocol_scenario(spec, n_seeds=args.seeds)
             else:
-                res = run_scenario(spec, n_seeds=args.seeds, checkpoint_dir=args.checkpoint_dir)
+                res = run_scenario(
+                    spec,
+                    n_seeds=args.seeds,
+                    checkpoint_dir=args.checkpoint_dir,
+                    jobs=args.jobs,
+                )
         except Exception as e:
             print(f"  ERROR: {e}")
             import traceback; traceback.print_exc()
