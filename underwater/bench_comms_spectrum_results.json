@@ -1,0 +1,7081 @@
+{
+  "method": {
+    "base_scenario": {
+      "name": "SPECTRUM_BASE",
+      "claim": "Distributed mapping degrades gracefully as acoustic exchange becomes range-limited, lossy, or message-budgeted.",
+      "falsifying": "Recall cliffs abruptly without warning, or bounded comms collapses to local-only performance over plausible acoustic settings.",
+      "mechanism": "Nominal detection survey with acoustic range, exchange budget, and exchange loss swept independently.",
+      "pass_criterion": "analysis artifact; see cliff_summary and per-cell metrics",
+      "n_drones": 8,
+      "n_contacts": 28,
+      "duration_s": 1200.0,
+      "dt_s": 5.0,
+      "area_length_m": 900.0,
+      "area_width_m": 360.0,
+      "depth_m": 80.0,
+      "sensor_radius_m": 45.0,
+      "detection_p_at_center": 0.92,
+      "sensor_noise_m": 4.0,
+      "false_contact_rate_per_drone_s": 0.00025,
+      "comms_range_m": 180.0,
+      "report_loss_rate": 0.0,
+      "gossip_rounds_per_tick": 1,
+      "max_reports_per_exchange": 2,
+      "snapshot_interval_s": 60.0,
+      "random_drift_m_sqrt_s": 0.01,
+      "directed_current_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "shear_current_mps_per_m": 0.0,
+      "anchor_interval_s": null,
+      "anchor_fix_noise_m": 2.0,
+      "anchor_fraction": 0.25,
+      "calloff_uncertainty_m": 60.0,
+      "stale_after_s": 240.0
+    },
+    "ranges_m": [
+      30.0,
+      45.0,
+      60.0,
+      75.0,
+      90.0,
+      120.0,
+      150.0,
+      180.0
+    ],
+    "max_reports_per_exchange": [
+      1,
+      2,
+      4
+    ],
+    "loss_rates": [
+      0.0,
+      0.3,
+      0.5,
+      0.7
+    ],
+    "n_cells": 96,
+    "n_seeds_per_cell": 100,
+    "parameter_model": {
+      "distance_axis": {
+        "field": "comms_range_m",
+        "unit": "meters",
+        "meaning": "Maximum acoustic neighbor-exchange radius. This is a graph-connectivity parameter, not a physical modem range claim."
+      },
+      "information_capacity_axis": {
+        "field": "max_reports_per_exchange",
+        "unit": "contact reports per neighbor exchange per 5 s simulation tick",
+        "meaning": "Per-link payload budget for sharing mapped contacts. It approximates bandwidth, packet size, and scheduling limits without assigning bytes or modem rate."
+      },
+      "loss_axis": {
+        "field": "report_loss_rate",
+        "unit": "probability",
+        "meaning": "Independent probability that a neighbor exchange contributes no shared reports during a tick. It approximates packet loss, missed scheduling slots, or short acoustic outages."
+      },
+      "held_constant_detection_mapping_parameters": {
+        "sensor_noise_m": 4.0,
+        "false_contact_rate_per_drone_s": 0.00025,
+        "random_drift_m_sqrt_s": 0.01,
+        "directed_current_mps": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shear_current_mps_per_m": 0.0,
+        "duration_s": 1200.0,
+        "dt_s": 5.0
+      },
+      "not_yet_modeled": [
+        "bit-level payload corruption",
+        "explicit bytes-per-second modem rates",
+        "half-duplex MAC scheduling",
+        "propagation latency",
+        "asymmetric links",
+        "frequency-dependent attenuation",
+        "multipath",
+        "Doppler",
+        "ambient-noise-derived SNR or decoding probability"
+      ],
+      "interpretation": "The sweep is a coordination-envelope test. It is useful for identifying connectivity and information-capacity cliffs before replacing the abstract loss/range knobs with a modem- and channel-specific acoustic model."
+    },
+    "paper_derived_targets": {
+      "source": "OCEANS26B_0177_MS-2.pdf",
+      "title": "Feasibility of Dual-Layer Acoustic Communication Architectures for Supervisory Control of Heterogeneous AUV Swarms",
+      "features_to_track": {
+        "dual_layer_architecture": "Long-range human-on-the-loop administrative channel separated from short-range peer-to-peer swarm coordination.",
+        "admin_channel_frequency_hz": 28000,
+        "uplink_payload_bytes": 32,
+        "uplink_update_rate_hz": 1,
+        "admin_channel_viable_range_m": 2000,
+        "missed_command_retry_delay_s": 15,
+        "traffic_asymmetry": "Sparse low-rate downlink commands and denser continuous uplink state.",
+        "channel_constraints_called_out": [
+          "frequency-dependent attenuation",
+          "multipath",
+          "Doppler",
+          "ambient noise",
+          "low bandwidth",
+          "approximately 1500 m/s propagation speed",
+          "half-duplex acoustic channel access",
+          "packet scheduling"
+        ]
+      },
+      "sufficient_claim": "For the paper's admin channel, 32-byte 1 Hz uplink telemetry over a 28 kHz acoustic channel was reported viable and uncongested up to 2 km in simulation. That is a useful sufficiency target for supervisory telemetry, not proof that peer gossip, detection-map exchange, or formation control are sufficient at 2 km.",
+      "missing_for_physical_model": [
+        "modem data rate or packet airtime",
+        "MAC schedule and number of vehicles sharing the half-duplex channel",
+        "source level, receive threshold, and SNR-to-packet-error mapping",
+        "environmental noise distribution",
+        "water depth and sound-speed profile",
+        "multipath and Doppler model parameters",
+        "range-dependent packet loss or latency curves",
+        "topology and mobility assumptions for the peer-coordination layer"
+      ],
+      "benchmark_use": "Use 2 km/32-byte/1 Hz/15 s as paper-tracked admin-channel targets. Keep this spectrum bench's range/capacity/loss axes as abstract peer-gossip envelope parameters until modem-specific packet timing and channel error models are available.",
+      "zenodo_check": {
+        "checked_queries": [
+          "underwater_acoustic_simulation",
+          "Feasibility of Dual-Layer Acoustic Communication Architectures",
+          "bw1l50n",
+          "SeaLink OEM",
+          "Brandon Wilson SeaLink"
+        ],
+        "matching_archive_found": false,
+        "notes": "Zenodo did not expose an exact archive for the local paper or the referenced underwater_acoustic_simulation repository during this run."
+      },
+      "external_modeling_sources_to_consider": [
+        {
+          "name": "UnetStack underwater network simulator handbook",
+          "url": "https://unetstack.net/handbook/unet-handbook.html",
+          "use": "Practical simulator defaults for protocol and acoustic channels, including communication/detection/interference ranges and BasicAcousticChannel parameters such as carrier frequency, bandwidth, spreading, salinity, noise level, and water depth."
+        },
+        {
+          "name": "Lucani, Medard, Stojanovic underwater acoustic network channel models",
+          "url": "https://arxiv.org/abs/0809.0070",
+          "use": "Analytical distance/capacity/power framing for underwater acoustic links; good source for replacing report-count budgets with capacity-vs-distance requirements."
+        },
+        {
+          "name": "Network-coding hybrid ARQ protocol for underwater acoustic sensor networks",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5038722/",
+          "use": "Packet loss/error modeling under path loss, ambient noise, and fading; useful for replacing independent exchange loss with distance/frequency dependent packet error probability."
+        }
+      ]
+    },
+    "classification": {
+      "central_equivalent": "recall >= 0.90 and centralized_recall_delta_vs_distributed < 0.02",
+      "bounded_distributed": "recall >= 0.75 and central delta >= 0.10",
+      "near_central": "recall >= 0.75 and 0.02 <= central delta < 0.10",
+      "mission_cliff": "recall < 0.75 but remains above local collapse",
+      "local_collapse": "recall < max(0.35, local_only_recall + 0.10)"
+    }
+  },
+  "rows": [
+    {
+      "name": "C_range030_budget1_loss00",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.026310999994166195,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget1_loss00",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01452008297201246,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget1_loss00",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01444308296777308,
+      "recall": [
+        0.9441964285714286,
+        0.9412946428571429,
+        0.9470100446428573
+      ],
+      "localization_rmse_m": [
+        2.605186814446715,
+        2.5567016387641806,
+        2.65405420183818
+      ],
+      "false_per_true": [
+        0.04026785714285715,
+        0.03410044642857143,
+        0.04678794642857142
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.055803571428571425,
+        0.05298995535714285,
+        0.058705357142857136
+      ],
+      "operational_recall_gap": [
+        0.04383078231292517,
+        0.04196343537414966,
+        0.04565917304421769
+      ],
+      "max_operational_recall_gap": [
+        0.0898214285714286,
+        0.08633816964285716,
+        0.09330468750000002
+      ],
+      "operational_capture_ratio": [
+        0.9059132606288857,
+        0.901077270892234,
+        0.9106142744454025
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7284375000000002,
+        0.7253113839285712,
+        0.7316071428571429
+      ],
+      "reports_per_drone": [
+        375.91,
+        373.84315625,
+        378.0689375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range075_budget1_loss00",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014509208966046572,
+      "recall": [
+        0.9441964285714286,
+        0.9412946428571429,
+        0.9470100446428573
+      ],
+      "localization_rmse_m": [
+        2.605186814446715,
+        2.5567016387641806,
+        2.65405420183818
+      ],
+      "false_per_true": [
+        0.04026785714285715,
+        0.03410044642857143,
+        0.04678794642857142
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.055803571428571425,
+        0.05298995535714285,
+        0.058705357142857136
+      ],
+      "operational_recall_gap": [
+        0.04383078231292517,
+        0.04196343537414966,
+        0.04565917304421769
+      ],
+      "max_operational_recall_gap": [
+        0.0898214285714286,
+        0.08633816964285716,
+        0.09330468750000002
+      ],
+      "operational_capture_ratio": [
+        0.9059132606288857,
+        0.901077270892234,
+        0.9106142744454025
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7284375000000002,
+        0.7253113839285712,
+        0.7316071428571429
+      ],
+      "reports_per_drone": [
+        375.91,
+        373.84315625,
+        378.0689375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range090_budget1_loss00",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014345624949783087,
+      "recall": [
+        0.9441964285714286,
+        0.9412946428571429,
+        0.9470100446428573
+      ],
+      "localization_rmse_m": [
+        2.605186814446715,
+        2.5567016387641806,
+        2.65405420183818
+      ],
+      "false_per_true": [
+        0.04026785714285715,
+        0.03410044642857143,
+        0.04678794642857142
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.055803571428571425,
+        0.05298995535714285,
+        0.058705357142857136
+      ],
+      "operational_recall_gap": [
+        0.04383078231292517,
+        0.04196343537414966,
+        0.04565917304421769
+      ],
+      "max_operational_recall_gap": [
+        0.0898214285714286,
+        0.08633816964285716,
+        0.09330468750000002
+      ],
+      "operational_capture_ratio": [
+        0.9059132606288857,
+        0.901077270892234,
+        0.9106142744454025
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7284375000000002,
+        0.7253113839285712,
+        0.7316071428571429
+      ],
+      "reports_per_drone": [
+        375.91,
+        373.84315625,
+        378.0689375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range120_budget1_loss00",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014411916956305504,
+      "recall": [
+        0.999375,
+        0.9990178571428571,
+        0.9996875
+      ],
+      "localization_rmse_m": [
+        1.7225998875865531,
+        1.6971177217350861,
+        1.749858163589293
+      ],
+      "false_per_true": [
+        0.05790178571428571,
+        0.04941964285714285,
+        0.06669754464285714
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0006249999999999977,
+        0.00031249999999999887,
+        0.0009821428571428537
+      ],
+      "operational_recall_gap": [
+        0.005637755102040817,
+        0.005267803996598641,
+        0.006028911564625849
+      ],
+      "max_operational_recall_gap": [
+        0.029330357142857158,
+        0.02718638392857144,
+        0.03156361607142858
+      ],
+      "operational_capture_ratio": [
+        0.9797545224222091,
+        0.9773999097187812,
+        0.9817399070056368
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7836160714285715,
+        0.7815178571428573,
+        0.7856261160714288
+      ],
+      "reports_per_drone": [
+        534.70375,
+        531.817125,
+        537.55628125
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget1_loss00",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01413987495470792,
+      "recall": [
+        0.999375,
+        0.9990178571428571,
+        0.9996875
+      ],
+      "localization_rmse_m": [
+        1.7225998875865531,
+        1.6971177217350861,
+        1.749858163589293
+      ],
+      "false_per_true": [
+        0.05790178571428571,
+        0.04941964285714285,
+        0.06669754464285714
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0006249999999999977,
+        0.00031249999999999887,
+        0.0009821428571428537
+      ],
+      "operational_recall_gap": [
+        0.005637755102040817,
+        0.005267803996598641,
+        0.006028911564625849
+      ],
+      "max_operational_recall_gap": [
+        0.029330357142857158,
+        0.02718638392857144,
+        0.03156361607142858
+      ],
+      "operational_capture_ratio": [
+        0.9797545224222091,
+        0.9773999097187812,
+        0.9817399070056368
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7836160714285715,
+        0.7815178571428573,
+        0.7856261160714288
+      ],
+      "reports_per_drone": [
+        534.70375,
+        531.817125,
+        537.55628125
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget1_loss00",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014192250091582537,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6253882759581748,
+        1.599157297504172,
+        1.6524100458965225
+      ],
+      "false_per_true": [
+        0.06183035714285714,
+        0.052544642857142845,
+        0.07147321428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0022831632653061216,
+        0.0020322597789115635,
+        0.002546768707482992
+      ],
+      "max_operational_recall_gap": [
+        0.02165178571428572,
+        0.019508928571428576,
+        0.02401785714285715
+      ],
+      "operational_capture_ratio": [
+        0.9904150933969224,
+        0.988927929813022,
+        0.9918345892142701
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.3675,
+        561.20084375,
+        567.681875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget2_loss00",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014397624996490777,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget2_loss00",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01429824996739626,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget2_loss00",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014250167063437402,
+      "recall": [
+        0.9983482142857143,
+        0.9977678571428572,
+        0.9988392857142857
+      ],
+      "localization_rmse_m": [
+        1.7347345272388282,
+        1.7092828464955283,
+        1.761700662347993
+      ],
+      "false_per_true": [
+        0.05816964285714285,
+        0.049506696428571424,
+        0.06714285714285713
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0016517857142857085,
+        0.0011607142857142816,
+        0.002232142857142849
+      ],
+      "operational_recall_gap": [
+        0.009323979591836735,
+        0.008826371173469388,
+        0.009872608418367347
+      ],
+      "max_operational_recall_gap": [
+        0.03540178571428572,
+        0.033348214285714294,
+        0.03754464285714285
+      ],
+      "operational_capture_ratio": [
+        0.9670852409676307,
+        0.9639209656970443,
+        0.9699181022838296
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7825892857142857,
+        0.7804888392857144,
+        0.7846875
+      ],
+      "reports_per_drone": [
+        533.455,
+        530.5583750000001,
+        536.29346875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range075_budget2_loss00",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014235417009331286,
+      "recall": [
+        0.9983482142857143,
+        0.9977678571428572,
+        0.9988392857142857
+      ],
+      "localization_rmse_m": [
+        1.7347345272388282,
+        1.7092828464955283,
+        1.761700662347993
+      ],
+      "false_per_true": [
+        0.05816964285714285,
+        0.049506696428571424,
+        0.06714285714285713
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0016517857142857085,
+        0.0011607142857142816,
+        0.002232142857142849
+      ],
+      "operational_recall_gap": [
+        0.009323979591836735,
+        0.008826371173469388,
+        0.009872608418367347
+      ],
+      "max_operational_recall_gap": [
+        0.03540178571428572,
+        0.033348214285714294,
+        0.03754464285714285
+      ],
+      "operational_capture_ratio": [
+        0.9670852409676307,
+        0.9639209656970443,
+        0.9699181022838296
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7825892857142857,
+        0.7804888392857144,
+        0.7846875
+      ],
+      "reports_per_drone": [
+        533.455,
+        530.5583750000001,
+        536.29346875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range090_budget2_loss00",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01423112500924617,
+      "recall": [
+        0.9983482142857143,
+        0.9977678571428572,
+        0.9988392857142857
+      ],
+      "localization_rmse_m": [
+        1.7347345272388282,
+        1.7092828464955283,
+        1.761700662347993
+      ],
+      "false_per_true": [
+        0.05816964285714285,
+        0.049506696428571424,
+        0.06714285714285713
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0016517857142857085,
+        0.0011607142857142816,
+        0.002232142857142849
+      ],
+      "operational_recall_gap": [
+        0.009323979591836735,
+        0.008826371173469388,
+        0.009872608418367347
+      ],
+      "max_operational_recall_gap": [
+        0.03540178571428572,
+        0.033348214285714294,
+        0.03754464285714285
+      ],
+      "operational_capture_ratio": [
+        0.9670852409676307,
+        0.9639209656970443,
+        0.9699181022838296
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7825892857142857,
+        0.7804888392857144,
+        0.7846875
+      ],
+      "reports_per_drone": [
+        533.455,
+        530.5583750000001,
+        536.29346875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range120_budget2_loss00",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.0141802909784019,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.624857133841424,
+        1.5987695639499004,
+        1.6520211567742824
+      ],
+      "false_per_true": [
+        0.0619642857142857,
+        0.052678571428571415,
+        0.07156249999999999
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0025297619047619053,
+        0.002304315476190476,
+        0.002744472789115646
+      ],
+      "max_operational_recall_gap": [
+        0.01875000000000001,
+        0.017544642857142866,
+        0.020044642857142865
+      ],
+      "operational_capture_ratio": [
+        0.9873605232947803,
+        0.985241347232204,
+        0.9891714325506291
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.565,
+        561.3446250000001,
+        567.8728125
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget2_loss00",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014320583897642791,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.624857133841424,
+        1.5987695639499004,
+        1.6520211567742824
+      ],
+      "false_per_true": [
+        0.0619642857142857,
+        0.052678571428571415,
+        0.07156249999999999
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0025297619047619053,
+        0.002304315476190476,
+        0.002744472789115646
+      ],
+      "max_operational_recall_gap": [
+        0.01875000000000001,
+        0.017544642857142866,
+        0.020044642857142865
+      ],
+      "operational_capture_ratio": [
+        0.9873605232947803,
+        0.985241347232204,
+        0.9891714325506291
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.565,
+        561.3446250000001,
+        567.8728125
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget2_loss00",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014165083062835038,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6249128985138799,
+        1.5988067163601516,
+        1.6521079217931491
+      ],
+      "false_per_true": [
+        0.06209821428571427,
+        0.05272321428571427,
+        0.07160825892857141
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0012074829931972785,
+        0.0010778061224489793,
+        0.0013435905612244892
+      ],
+      "max_operational_recall_gap": [
+        0.012187499999999997,
+        0.011205357142857147,
+        0.01308035714285714
+      ],
+      "operational_capture_ratio": [
+        0.9930405212121275,
+        0.9917379136361374,
+        0.9942520974586335
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.6875,
+        561.479375,
+        567.97609375
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget4_loss00",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014144916087388992,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget4_loss00",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014219040982425213,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget4_loss00",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014163583982735872,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6253723954374593,
+        1.59937589131332,
+        1.6525970806015302
+      ],
+      "false_per_true": [
+        0.06169642857142856,
+        0.052453124999999996,
+        0.07134263392857142
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0058949829931972805,
+        0.005531462585034015,
+        0.00623947704081633
+      ],
+      "max_operational_recall_gap": [
+        0.03026785714285716,
+        0.028347098214285726,
+        0.0320982142857143
+      ],
+      "operational_capture_ratio": [
+        0.9747453973287624,
+        0.9717055809440224,
+        0.9775124830559716
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.0225,
+        560.8315625,
+        567.35665625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range075_budget4_loss00",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014241750002838671,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6253723954374593,
+        1.59937589131332,
+        1.6525970806015302
+      ],
+      "false_per_true": [
+        0.06169642857142856,
+        0.052453124999999996,
+        0.07134263392857142
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0058949829931972805,
+        0.005531462585034015,
+        0.00623947704081633
+      ],
+      "max_operational_recall_gap": [
+        0.03026785714285716,
+        0.028347098214285726,
+        0.0320982142857143
+      ],
+      "operational_capture_ratio": [
+        0.9747453973287624,
+        0.9717055809440224,
+        0.9775124830559716
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.0225,
+        560.8315625,
+        567.35665625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range090_budget4_loss00",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014106416027061641,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6253723954374593,
+        1.59937589131332,
+        1.6525970806015302
+      ],
+      "false_per_true": [
+        0.06169642857142856,
+        0.052453124999999996,
+        0.07134263392857142
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0058949829931972805,
+        0.005531462585034015,
+        0.00623947704081633
+      ],
+      "max_operational_recall_gap": [
+        0.03026785714285716,
+        0.028347098214285726,
+        0.0320982142857143
+      ],
+      "operational_capture_ratio": [
+        0.9747453973287624,
+        0.9717055809440224,
+        0.9775124830559716
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.0225,
+        560.8315625,
+        567.35665625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range120_budget4_loss00",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014238583971746266,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6248823850564418,
+        1.598837802460058,
+        1.65205920022524
+      ],
+      "false_per_true": [
+        0.0619642857142857,
+        0.052678571428571415,
+        0.07156249999999999
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.002359693877551021,
+        0.0021364264455782313,
+        0.002572278911564626
+      ],
+      "max_operational_recall_gap": [
+        0.018392857142857152,
+        0.017187500000000005,
+        0.01973214285714286
+      ],
+      "operational_capture_ratio": [
+        0.9877384080895553,
+        0.9856255505442427,
+        0.9895643137828771
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.56875,
+        561.34834375,
+        567.8729687499999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget4_loss00",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014096790924668312,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6248823850564418,
+        1.598837802460058,
+        1.65205920022524
+      ],
+      "false_per_true": [
+        0.0619642857142857,
+        0.052678571428571415,
+        0.07156249999999999
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.002359693877551021,
+        0.0021364264455782313,
+        0.002572278911564626
+      ],
+      "max_operational_recall_gap": [
+        0.018392857142857152,
+        0.017187500000000005,
+        0.01973214285714286
+      ],
+      "operational_capture_ratio": [
+        0.9877384080895553,
+        0.9856255505442427,
+        0.9895643137828771
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.56875,
+        561.34834375,
+        567.8729687499999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget4_loss00",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.0,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014001999981701374,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6249235869582055,
+        1.598817404804477,
+        1.652139185492801
+      ],
+      "false_per_true": [
+        0.06209821428571427,
+        0.05272321428571427,
+        0.07160825892857141
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0011713435374149656,
+        0.0010352891156462582,
+        0.001303146258503401
+      ],
+      "max_operational_recall_gap": [
+        0.012098214285714282,
+        0.011116071428571428,
+        0.013035714285714277
+      ],
+      "operational_capture_ratio": [
+        0.9931235586520453,
+        0.9918437434400953,
+        0.9943280588097392
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "reports_per_drone": [
+        564.68875,
+        561.48059375,
+        567.976125
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget1_loss30",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014230708009563386,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget1_loss30",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014028915902599692,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget1_loss30",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014352665981277823,
+      "recall": [
+        0.8859375,
+        0.8812946428571429,
+        0.89
+      ],
+      "localization_rmse_m": [
+        2.9900146968609964,
+        2.921777883429458,
+        3.0602321313912095
+      ],
+      "false_per_true": [
+        0.03941964285714286,
+        0.03401339285714285,
+        0.04504464285714285
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.11406249999999998,
+        0.10999999999999999,
+        0.11870535714285711
+      ],
+      "operational_recall_gap": [
+        0.07772534013605442,
+        0.07502450042517006,
+        0.08053900935374149
+      ],
+      "max_operational_recall_gap": [
+        0.14415178571428572,
+        0.13964285714285712,
+        0.14933147321428575
+      ],
+      "operational_capture_ratio": [
+        0.8433236153636494,
+        0.8375621654188984,
+        0.8490117024337429
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6704464285714284,
+        0.6651763392857143,
+        0.6749129464285714
+      ],
+      "reports_per_drone": [
+        298.01875,
+        296.23440625,
+        299.84421875
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range075_budget1_loss30",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014180083060637116,
+      "recall": [
+        0.8859375,
+        0.8812946428571429,
+        0.89
+      ],
+      "localization_rmse_m": [
+        2.9900146968609964,
+        2.921777883429458,
+        3.0602321313912095
+      ],
+      "false_per_true": [
+        0.03941964285714286,
+        0.03401339285714285,
+        0.04504464285714285
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.11406249999999998,
+        0.10999999999999999,
+        0.11870535714285711
+      ],
+      "operational_recall_gap": [
+        0.07772534013605442,
+        0.07502450042517006,
+        0.08053900935374149
+      ],
+      "max_operational_recall_gap": [
+        0.14415178571428572,
+        0.13964285714285712,
+        0.14933147321428575
+      ],
+      "operational_capture_ratio": [
+        0.8433236153636494,
+        0.8375621654188984,
+        0.8490117024337429
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6704464285714284,
+        0.6651763392857143,
+        0.6749129464285714
+      ],
+      "reports_per_drone": [
+        298.01875,
+        296.23440625,
+        299.84421875
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range090_budget1_loss30",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014216375071555376,
+      "recall": [
+        0.8859375,
+        0.8812946428571429,
+        0.89
+      ],
+      "localization_rmse_m": [
+        2.9900146968609964,
+        2.921777883429458,
+        3.0602321313912095
+      ],
+      "false_per_true": [
+        0.03941964285714286,
+        0.03401339285714285,
+        0.04504464285714285
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.11406249999999998,
+        0.10999999999999999,
+        0.11870535714285711
+      ],
+      "operational_recall_gap": [
+        0.07772534013605442,
+        0.07502450042517006,
+        0.08053900935374149
+      ],
+      "max_operational_recall_gap": [
+        0.14415178571428572,
+        0.13964285714285712,
+        0.14933147321428575
+      ],
+      "operational_capture_ratio": [
+        0.8433236153636494,
+        0.8375621654188984,
+        0.8490117024337429
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6704464285714284,
+        0.6651763392857143,
+        0.6749129464285714
+      ],
+      "reports_per_drone": [
+        298.01875,
+        296.23440625,
+        299.84421875
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range120_budget1_loss30",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014247208018787205,
+      "recall": [
+        0.9929910714285712,
+        0.991830357142857,
+        0.9941517857142855
+      ],
+      "localization_rmse_m": [
+        2.016243297377624,
+        1.9873395481867497,
+        2.0444633956721376
+      ],
+      "false_per_true": [
+        0.05602678571428571,
+        0.048257812500000004,
+        0.06415513392857143
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.007008928571428553,
+        0.005848214285714275,
+        0.008169642857142839
+      ],
+      "operational_recall_gap": [
+        0.012419217687074833,
+        0.011670599489795923,
+        0.013239849064625853
+      ],
+      "max_operational_recall_gap": [
+        0.041026785714285724,
+        0.03892857142857144,
+        0.04334933035714287
+      ],
+      "operational_capture_ratio": [
+        0.9627697373746587,
+        0.9595825985316654,
+        0.9655066706345754
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7769642857142859,
+        0.7746874999999999,
+        0.7791529017857146
+      ],
+      "reports_per_drone": [
+        464.11125,
+        461.64,
+        466.44631250000003
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget1_loss30",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014335709041915834,
+      "recall": [
+        0.9929910714285712,
+        0.991830357142857,
+        0.9941517857142855
+      ],
+      "localization_rmse_m": [
+        2.016243297377624,
+        1.9873395481867497,
+        2.0444633956721376
+      ],
+      "false_per_true": [
+        0.05602678571428571,
+        0.048257812500000004,
+        0.06415513392857143
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.007008928571428553,
+        0.005848214285714275,
+        0.008169642857142839
+      ],
+      "operational_recall_gap": [
+        0.012419217687074833,
+        0.011670599489795923,
+        0.013239849064625853
+      ],
+      "max_operational_recall_gap": [
+        0.041026785714285724,
+        0.03892857142857144,
+        0.04334933035714287
+      ],
+      "operational_capture_ratio": [
+        0.9627697373746587,
+        0.9595825985316654,
+        0.9655066706345754
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7769642857142859,
+        0.7746874999999999,
+        0.7791529017857146
+      ],
+      "reports_per_drone": [
+        464.11125,
+        461.64,
+        466.44631250000003
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget1_loss30",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014412290998734534,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6496962398924089,
+        1.626570815725132,
+        1.6751826509190966
+      ],
+      "false_per_true": [
+        0.07160714285714286,
+        0.06071205357142856,
+        0.08196651785714286
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.004281462585034014,
+        0.003945578231292517,
+        0.0046153273809523805
+      ],
+      "max_operational_recall_gap": [
+        0.02790178571428572,
+        0.02611607142857143,
+        0.02995647321428572
+      ],
+      "operational_capture_ratio": [
+        0.981634044833052,
+        0.9790973290652902,
+        0.9841599864743978
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7822321428571429,
+        0.7862499999999999
+      ],
+      "reports_per_drone": [
+        544.89,
+        541.84440625,
+        548.17578125
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget2_loss30",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014379124972037971,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget2_loss30",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014297749963589013,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget2_loss30",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014414540957659483,
+      "recall": [
+        0.9864285714285714,
+        0.9845078125,
+        0.9881696428571429
+      ],
+      "localization_rmse_m": [
+        2.1518751982641406,
+        2.110760034310472,
+        2.1946627951381306
+      ],
+      "false_per_true": [
+        0.057321428571428565,
+        0.049818080357142844,
+        0.06478013392857143
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.013571428571428545,
+        0.01183035714285712,
+        0.015492187499999976
+      ],
+      "operational_recall_gap": [
+        0.022140731292517014,
+        0.02107137542517007,
+        0.023329453656462586
+      ],
+      "max_operational_recall_gap": [
+        0.05540178571428573,
+        0.05294642857142859,
+        0.05821428571428572
+      ],
+      "operational_capture_ratio": [
+        0.9374141094977949,
+        0.9337434803257542,
+        0.9410265436140807
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7709375000000002,
+        0.7684363839285713,
+        0.7736160714285716
+      ],
+      "reports_per_drone": [
+        451.96125,
+        449.20584375,
+        454.7946875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range075_budget2_loss30",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014355499995872378,
+      "recall": [
+        0.9864285714285714,
+        0.9845078125,
+        0.9881696428571429
+      ],
+      "localization_rmse_m": [
+        2.1518751982641406,
+        2.110760034310472,
+        2.1946627951381306
+      ],
+      "false_per_true": [
+        0.057321428571428565,
+        0.049818080357142844,
+        0.06478013392857143
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.013571428571428545,
+        0.01183035714285712,
+        0.015492187499999976
+      ],
+      "operational_recall_gap": [
+        0.022140731292517014,
+        0.02107137542517007,
+        0.023329453656462586
+      ],
+      "max_operational_recall_gap": [
+        0.05540178571428573,
+        0.05294642857142859,
+        0.05821428571428572
+      ],
+      "operational_capture_ratio": [
+        0.9374141094977949,
+        0.9337434803257542,
+        0.9410265436140807
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7709375000000002,
+        0.7684363839285713,
+        0.7736160714285716
+      ],
+      "reports_per_drone": [
+        451.96125,
+        449.20584375,
+        454.7946875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range090_budget2_loss30",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014199458993971348,
+      "recall": [
+        0.9864285714285714,
+        0.9845078125,
+        0.9881696428571429
+      ],
+      "localization_rmse_m": [
+        2.1518751982641406,
+        2.110760034310472,
+        2.1946627951381306
+      ],
+      "false_per_true": [
+        0.057321428571428565,
+        0.049818080357142844,
+        0.06478013392857143
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.013571428571428545,
+        0.01183035714285712,
+        0.015492187499999976
+      ],
+      "operational_recall_gap": [
+        0.022140731292517014,
+        0.02107137542517007,
+        0.023329453656462586
+      ],
+      "max_operational_recall_gap": [
+        0.05540178571428573,
+        0.05294642857142859,
+        0.05821428571428572
+      ],
+      "operational_capture_ratio": [
+        0.9374141094977949,
+        0.9337434803257542,
+        0.9410265436140807
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7709375000000002,
+        0.7684363839285713,
+        0.7736160714285716
+      ],
+      "reports_per_drone": [
+        451.96125,
+        449.20584375,
+        454.7946875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range120_budget2_loss30",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014288041042163968,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6188687121996168,
+        1.59362835306916,
+        1.6444338564025645
+      ],
+      "false_per_true": [
+        0.06825892857142855,
+        0.058787946428571415,
+        0.07848325892857141
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.004598214285714286,
+        0.004306972789115646,
+        0.0049065688775510215
+      ],
+      "max_operational_recall_gap": [
+        0.027366071428571424,
+        0.02540178571428571,
+        0.029241071428571422
+      ],
+      "operational_capture_ratio": [
+        0.9793401162138822,
+        0.9768990552626777,
+        0.9815991958647707
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7839732142857142,
+        0.7819196428571428,
+        0.7860267857142857
+      ],
+      "reports_per_drone": [
+        563.08375,
+        559.806625,
+        566.4415312499999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget2_loss30",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014469709014520049,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6188687121996168,
+        1.59362835306916,
+        1.6444338564025645
+      ],
+      "false_per_true": [
+        0.06825892857142855,
+        0.058787946428571415,
+        0.07848325892857141
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.004598214285714286,
+        0.004306972789115646,
+        0.0049065688775510215
+      ],
+      "max_operational_recall_gap": [
+        0.027366071428571424,
+        0.02540178571428571,
+        0.029241071428571422
+      ],
+      "operational_capture_ratio": [
+        0.9793401162138822,
+        0.9768990552626777,
+        0.9815991958647707
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7839732142857142,
+        0.7819196428571428,
+        0.7860267857142857
+      ],
+      "reports_per_drone": [
+        563.08375,
+        559.806625,
+        566.4415312499999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget2_loss30",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014394458965398371,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.5990079624030182,
+        1.5754673220204891,
+        1.6236232460983495
+      ],
+      "false_per_true": [
+        0.07535714285714284,
+        0.06392857142857142,
+        0.08607142857142858
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.002597789115646258,
+        0.002329931972789116,
+        0.0028381164965986397
+      ],
+      "max_operational_recall_gap": [
+        0.021741071428571422,
+        0.020133928571428577,
+        0.023526785714285715
+      ],
+      "operational_capture_ratio": [
+        0.9860464578141075,
+        0.9837270381128981,
+        0.988420608079346
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7822321428571429,
+        0.7862499999999999
+      ],
+      "reports_per_drone": [
+        565.13625,
+        561.6848749999999,
+        569.22271875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget4_loss30",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014198292046785355,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget4_loss30",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01420820807106793,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget4_loss30",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014189374982379377,
+      "recall": [
+        0.9999107142857143,
+        0.999732142857143,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6342006853938833,
+        1.6067130045718638,
+        1.6609604823482529
+      ],
+      "false_per_true": [
+        0.06906249999999999,
+        0.05999999999999999,
+        0.07804129464285713
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        8.928571428571397e-05,
+        0.0,
+        0.0002678571428571419
+      ],
+      "operational_recall_gap": [
+        0.010442176870748303,
+        0.010012595663265308,
+        0.010835618622448983
+      ],
+      "max_operational_recall_gap": [
+        0.04107142857142858,
+        0.038794642857142875,
+        0.043127232142857165
+      ],
+      "operational_capture_ratio": [
+        0.9596050664316381,
+        0.9564966599084737,
+        0.9624333500820287
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7844196428571429,
+        0.7823214285714286,
+        0.7863839285714286
+      ],
+      "reports_per_drone": [
+        559.58375,
+        556.0458125,
+        563.34540625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range075_budget4_loss30",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014213417074643075,
+      "recall": [
+        0.9999107142857143,
+        0.999732142857143,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6342006853938833,
+        1.6067130045718638,
+        1.6609604823482529
+      ],
+      "false_per_true": [
+        0.06906249999999999,
+        0.05999999999999999,
+        0.07804129464285713
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        8.928571428571397e-05,
+        0.0,
+        0.0002678571428571419
+      ],
+      "operational_recall_gap": [
+        0.010442176870748303,
+        0.010012595663265308,
+        0.010835618622448983
+      ],
+      "max_operational_recall_gap": [
+        0.04107142857142858,
+        0.038794642857142875,
+        0.043127232142857165
+      ],
+      "operational_capture_ratio": [
+        0.9596050664316381,
+        0.9564966599084737,
+        0.9624333500820287
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7844196428571429,
+        0.7823214285714286,
+        0.7863839285714286
+      ],
+      "reports_per_drone": [
+        559.58375,
+        556.0458125,
+        563.34540625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range090_budget4_loss30",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014308916055597365,
+      "recall": [
+        0.9999107142857143,
+        0.999732142857143,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6342006853938833,
+        1.6067130045718638,
+        1.6609604823482529
+      ],
+      "false_per_true": [
+        0.06906249999999999,
+        0.05999999999999999,
+        0.07804129464285713
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        8.928571428571397e-05,
+        0.0,
+        0.0002678571428571419
+      ],
+      "operational_recall_gap": [
+        0.010442176870748303,
+        0.010012595663265308,
+        0.010835618622448983
+      ],
+      "max_operational_recall_gap": [
+        0.04107142857142858,
+        0.038794642857142875,
+        0.043127232142857165
+      ],
+      "operational_capture_ratio": [
+        0.9596050664316381,
+        0.9564966599084737,
+        0.9624333500820287
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7844196428571429,
+        0.7823214285714286,
+        0.7863839285714286
+      ],
+      "reports_per_drone": [
+        559.58375,
+        556.0458125,
+        563.34540625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range120_budget4_loss30",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014170207898132503,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6149447013474778,
+        1.5895997507808526,
+        1.6405664149879982
+      ],
+      "false_per_true": [
+        0.06839285714285713,
+        0.05879129464285713,
+        0.07866183035714283
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.003760629251700681,
+        0.0034757121598639456,
+        0.004060693027210883
+      ],
+      "max_operational_recall_gap": [
+        0.025982142857142856,
+        0.024016741071428583,
+        0.027812499999999997
+      ],
+      "operational_capture_ratio": [
+        0.9816669902164733,
+        0.979207842879012,
+        0.9838529668043073
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7839732142857142,
+        0.7819196428571428,
+        0.7860267857142857
+      ],
+      "reports_per_drone": [
+        564.9275,
+        561.5825,
+        568.2909374999999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget4_loss30",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014404582907445729,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6149447013474778,
+        1.5895997507808526,
+        1.6405664149879982
+      ],
+      "false_per_true": [
+        0.06839285714285713,
+        0.05879129464285713,
+        0.07866183035714283
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.003760629251700681,
+        0.0034757121598639456,
+        0.004060693027210883
+      ],
+      "max_operational_recall_gap": [
+        0.025982142857142856,
+        0.024016741071428583,
+        0.027812499999999997
+      ],
+      "operational_capture_ratio": [
+        0.9816669902164733,
+        0.979207842879012,
+        0.9838529668043073
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7839732142857142,
+        0.7819196428571428,
+        0.7860267857142857
+      ],
+      "reports_per_drone": [
+        564.9275,
+        561.5825,
+        568.2909374999999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget4_loss30",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.3,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014189791982062161,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.5989262449221602,
+        1.5753570324291293,
+        1.6235951218155737
+      ],
+      "false_per_true": [
+        0.07535714285714284,
+        0.06392857142857142,
+        0.08607142857142858
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0024277210884353743,
+        0.002168314200680272,
+        0.0026658694727891164
+      ],
+      "max_operational_recall_gap": [
+        0.02147321428571428,
+        0.019864955357142857,
+        0.023215401785714296
+      ],
+      "operational_capture_ratio": [
+        0.9864700099259426,
+        0.9841009887001178,
+        0.9888211171960294
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7822321428571429,
+        0.7862499999999999
+      ],
+      "reports_per_drone": [
+        565.1675,
+        561.72359375,
+        569.25071875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget1_loss50",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014127375092357397,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget1_loss50",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014097875100560486,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget1_loss50",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014211291098035872,
+      "recall": [
+        0.8216071428571428,
+        0.8174084821428571,
+        0.8256696428571427
+      ],
+      "localization_rmse_m": [
+        3.275404546930881,
+        3.218990772342733,
+        3.330312582020629
+      ],
+      "false_per_true": [
+        0.03312499999999999,
+        0.02857142857142857,
+        0.038126116071428566
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.17839285714285716,
+        0.1743303571428571,
+        0.18259151785714287
+      ],
+      "operational_recall_gap": [
+        0.11363307823129254,
+        0.11071805909863945,
+        0.11665667517006803
+      ],
+      "max_operational_recall_gap": [
+        0.20464285714285715,
+        0.20084821428571428,
+        0.20870535714285715
+      ],
+      "operational_capture_ratio": [
+        0.7792455891655726,
+        0.7728353205636497,
+        0.7853513285863686
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6061160714285715,
+        0.6014720982142856,
+        0.6104921875
+      ],
+      "reports_per_drone": [
+        239.43,
+        238.0046875,
+        240.97253125
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range075_budget1_loss50",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01461149996612221,
+      "recall": [
+        0.8216071428571428,
+        0.8174084821428571,
+        0.8256696428571427
+      ],
+      "localization_rmse_m": [
+        3.275404546930881,
+        3.218990772342733,
+        3.330312582020629
+      ],
+      "false_per_true": [
+        0.03312499999999999,
+        0.02857142857142857,
+        0.038126116071428566
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.17839285714285716,
+        0.1743303571428571,
+        0.18259151785714287
+      ],
+      "operational_recall_gap": [
+        0.11363307823129254,
+        0.11071805909863945,
+        0.11665667517006803
+      ],
+      "max_operational_recall_gap": [
+        0.20464285714285715,
+        0.20084821428571428,
+        0.20870535714285715
+      ],
+      "operational_capture_ratio": [
+        0.7792455891655726,
+        0.7728353205636497,
+        0.7853513285863686
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6061160714285715,
+        0.6014720982142856,
+        0.6104921875
+      ],
+      "reports_per_drone": [
+        239.43,
+        238.0046875,
+        240.97253125
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range090_budget1_loss50",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01428987504914403,
+      "recall": [
+        0.8216071428571428,
+        0.8174084821428571,
+        0.8256696428571427
+      ],
+      "localization_rmse_m": [
+        3.275404546930881,
+        3.218990772342733,
+        3.330312582020629
+      ],
+      "false_per_true": [
+        0.03312499999999999,
+        0.02857142857142857,
+        0.038126116071428566
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.17839285714285716,
+        0.1743303571428571,
+        0.18259151785714287
+      ],
+      "operational_recall_gap": [
+        0.11363307823129254,
+        0.11071805909863945,
+        0.11665667517006803
+      ],
+      "max_operational_recall_gap": [
+        0.20464285714285715,
+        0.20084821428571428,
+        0.20870535714285715
+      ],
+      "operational_capture_ratio": [
+        0.7792455891655726,
+        0.7728353205636497,
+        0.7853513285863686
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6061160714285715,
+        0.6014720982142856,
+        0.6104921875
+      ],
+      "reports_per_drone": [
+        239.43,
+        238.0046875,
+        240.97253125
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range120_budget1_loss50",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014457207988016307,
+      "recall": [
+        0.9772767857142856,
+        0.9751774553571426,
+        0.9793314732142858
+      ],
+      "localization_rmse_m": [
+        2.369216197726269,
+        2.3360792284899534,
+        2.399879297276319
+      ],
+      "false_per_true": [
+        0.04919642857142856,
+        0.042229910714285716,
+        0.056341517857142843
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.022723214285714263,
+        0.020668526785714268,
+        0.02482254464285712
+      ],
+      "operational_recall_gap": [
+        0.024117772108843534,
+        0.022805750425170062,
+        0.02557196003401361
+      ],
+      "max_operational_recall_gap": [
+        0.057678571428571426,
+        0.05508816964285713,
+        0.06035937500000001
+      ],
+      "operational_capture_ratio": [
+        0.9381069951866964,
+        0.9339911267825193,
+        0.9419336629808289
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7612500000000001,
+        0.7583470982142856,
+        0.7641975446428573
+      ],
+      "reports_per_drone": [
+        387.3625,
+        385.295,
+        389.40134375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range150_budget1_loss50",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01426349999383092,
+      "recall": [
+        0.9772767857142856,
+        0.9751774553571426,
+        0.9793314732142858
+      ],
+      "localization_rmse_m": [
+        2.369216197726269,
+        2.3360792284899534,
+        2.399879297276319
+      ],
+      "false_per_true": [
+        0.04919642857142856,
+        0.042229910714285716,
+        0.056341517857142843
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.022723214285714263,
+        0.020668526785714268,
+        0.02482254464285712
+      ],
+      "operational_recall_gap": [
+        0.024117772108843534,
+        0.022805750425170062,
+        0.02557196003401361
+      ],
+      "max_operational_recall_gap": [
+        0.057678571428571426,
+        0.05508816964285713,
+        0.06035937500000001
+      ],
+      "operational_capture_ratio": [
+        0.9381069951866964,
+        0.9339911267825193,
+        0.9419336629808289
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7612500000000001,
+        0.7583470982142856,
+        0.7641975446428573
+      ],
+      "reports_per_drone": [
+        387.3625,
+        385.295,
+        389.40134375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range180_budget1_loss50",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014431791962124407,
+      "recall": [
+        0.9991517857142856,
+        0.9986607142857143,
+        0.9995535714285714
+      ],
+      "localization_rmse_m": [
+        1.8218198049644763,
+        1.8000271031560042,
+        1.8460789505769757
+      ],
+      "false_per_true": [
+        0.06419642857142857,
+        0.054328125000000005,
+        0.07352790178571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0008482142857142827,
+        0.00044642857142856984,
+        0.0013392857142857095
+      ],
+      "operational_recall_gap": [
+        0.006894132653061226,
+        0.006485916241496598,
+        0.007317176870748299
+      ],
+      "max_operational_recall_gap": [
+        0.034553571428571433,
+        0.0328125,
+        0.03660714285714286
+      ],
+      "operational_capture_ratio": [
+        0.9735520733826452,
+        0.9704944777981606,
+        0.9764367074669774
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7833928571428571,
+        0.7812946428571429,
+        0.7854910714285714
+      ],
+      "reports_per_drone": [
+        489.3725,
+        486.63603125000003,
+        492.18224999999995
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget2_loss50",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01410583290271461,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget2_loss50",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014181624981574714,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget2_loss50",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014129166956990957,
+      "recall": [
+        0.9440625,
+        0.9412488839285714,
+        0.9468303571428571
+      ],
+      "localization_rmse_m": [
+        2.5761828585451174,
+        2.5381951009187547,
+        2.615351348504846
+      ],
+      "false_per_true": [
+        0.04691964285714285,
+        0.040534598214285705,
+        0.05352790178571429
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.05593749999999998,
+        0.053169642857142846,
+        0.058751116071428564
+      ],
+      "operational_recall_gap": [
+        0.05002125850340136,
+        0.048213275935374146,
+        0.05186910076530612
+      ],
+      "max_operational_recall_gap": [
+        0.09633928571428572,
+        0.093125,
+        0.09982254464285716
+      ],
+      "operational_capture_ratio": [
+        0.8841597069910114,
+        0.8794898456911405,
+        0.8887677744198303
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7285714285714284,
+        0.7252678571428571,
+        0.7318314732142857
+      ],
+      "reports_per_drone": [
+        369.775,
+        367.27603125,
+        372.35409375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range075_budget2_loss50",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014339042012579739,
+      "recall": [
+        0.9440625,
+        0.9412488839285714,
+        0.9468303571428571
+      ],
+      "localization_rmse_m": [
+        2.5761828585451174,
+        2.5381951009187547,
+        2.615351348504846
+      ],
+      "false_per_true": [
+        0.04691964285714285,
+        0.040534598214285705,
+        0.05352790178571429
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.05593749999999998,
+        0.053169642857142846,
+        0.058751116071428564
+      ],
+      "operational_recall_gap": [
+        0.05002125850340136,
+        0.048213275935374146,
+        0.05186910076530612
+      ],
+      "max_operational_recall_gap": [
+        0.09633928571428572,
+        0.093125,
+        0.09982254464285716
+      ],
+      "operational_capture_ratio": [
+        0.8841597069910114,
+        0.8794898456911405,
+        0.8887677744198303
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7285714285714284,
+        0.7252678571428571,
+        0.7318314732142857
+      ],
+      "reports_per_drone": [
+        369.775,
+        367.27603125,
+        372.35409375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range090_budget2_loss50",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014354875078424811,
+      "recall": [
+        0.9440625,
+        0.9412488839285714,
+        0.9468303571428571
+      ],
+      "localization_rmse_m": [
+        2.5761828585451174,
+        2.5381951009187547,
+        2.615351348504846
+      ],
+      "false_per_true": [
+        0.04691964285714285,
+        0.040534598214285705,
+        0.05352790178571429
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.05593749999999998,
+        0.053169642857142846,
+        0.058751116071428564
+      ],
+      "operational_recall_gap": [
+        0.05002125850340136,
+        0.048213275935374146,
+        0.05186910076530612
+      ],
+      "max_operational_recall_gap": [
+        0.09633928571428572,
+        0.093125,
+        0.09982254464285716
+      ],
+      "operational_capture_ratio": [
+        0.8841597069910114,
+        0.8794898456911405,
+        0.8887677744198303
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7285714285714284,
+        0.7252678571428571,
+        0.7318314732142857
+      ],
+      "reports_per_drone": [
+        369.775,
+        367.27603125,
+        372.35409375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range120_budget2_loss50",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014265709090977907,
+      "recall": [
+        0.9995535714285715,
+        0.9992857142857143,
+        0.9997779017857145
+      ],
+      "localization_rmse_m": [
+        1.7040433909750332,
+        1.6793504265150478,
+        1.7287738198924816
+      ],
+      "false_per_true": [
+        0.06544642857142857,
+        0.05620535714285713,
+        0.07508928571428569
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.00044642857142856984,
+        0.00022209821428571355,
+        0.0007142857142857118
+      ],
+      "operational_recall_gap": [
+        0.007833758503401362,
+        0.0074211309523809525,
+        0.008229379251700683
+      ],
+      "max_operational_recall_gap": [
+        0.03558035714285714,
+        0.033570312500000005,
+        0.03767857142857143
+      ],
+      "operational_capture_ratio": [
+        0.9685510906177526,
+        0.9656212463624219,
+        0.9714934211746877
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7835267857142857,
+        0.7814285714285716,
+        0.785625
+      ],
+      "reports_per_drone": [
+        534.9125,
+        531.96990625,
+        537.7953124999999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget2_loss50",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014185582986101508,
+      "recall": [
+        0.9995535714285715,
+        0.9992857142857143,
+        0.9997779017857145
+      ],
+      "localization_rmse_m": [
+        1.7040433909750332,
+        1.6793504265150478,
+        1.7287738198924816
+      ],
+      "false_per_true": [
+        0.06544642857142857,
+        0.05620535714285713,
+        0.07508928571428569
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.00044642857142856984,
+        0.00022209821428571355,
+        0.0007142857142857118
+      ],
+      "operational_recall_gap": [
+        0.007833758503401362,
+        0.0074211309523809525,
+        0.008229379251700683
+      ],
+      "max_operational_recall_gap": [
+        0.03558035714285714,
+        0.033570312500000005,
+        0.03767857142857143
+      ],
+      "operational_capture_ratio": [
+        0.9685510906177526,
+        0.9656212463624219,
+        0.9714934211746877
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7835267857142857,
+        0.7814285714285716,
+        0.785625
+      ],
+      "reports_per_drone": [
+        534.9125,
+        531.96990625,
+        537.7953124999999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget2_loss50",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014158292091451585,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6015606008019352,
+        1.5792844320370047,
+        1.6260124027006178
+      ],
+      "false_per_true": [
+        0.07526785714285714,
+        0.06392633928571426,
+        0.0860279017857143
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0040391156462585035,
+        0.0037180590986394565,
+        0.004351615646258504
+      ],
+      "max_operational_recall_gap": [
+        0.02767857142857143,
+        0.025936383928571425,
+        0.029688616071428576
+      ],
+      "operational_capture_ratio": [
+        0.9802181569819901,
+        0.9772874547152577,
+        0.9830092569505354
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7822321428571429,
+        0.7862499999999999
+      ],
+      "reports_per_drone": [
+        564.2125,
+        560.85209375,
+        568.10334375
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget4_loss50",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014212499954737723,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget4_loss50",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014177916920743883,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget4_loss50",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014425667002797127,
+      "recall": [
+        0.9972767857142857,
+        0.9965625,
+        0.9979464285714285
+      ],
+      "localization_rmse_m": [
+        1.8034350402917345,
+        1.7723630824685759,
+        1.8344192331264344
+      ],
+      "false_per_true": [
+        0.06455357142857142,
+        0.05620535714285713,
+        0.07290290178571426
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.002723214285714276,
+        0.002053571428571421,
+        0.003437499999999988
+      ],
+      "operational_recall_gap": [
+        0.018414115646258507,
+        0.017765359268707485,
+        0.019109375
+      ],
+      "max_operational_recall_gap": [
+        0.05401785714285715,
+        0.051607142857142865,
+        0.05629575892857145
+      ],
+      "operational_capture_ratio": [
+        0.9383991777107092,
+        0.9345874967241925,
+        0.9418214617665979
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7817857142857143,
+        0.7796875000000001,
+        0.7838392857142858
+      ],
+      "reports_per_drone": [
+        520.6225,
+        517.17625,
+        523.9814062500001
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range075_budget4_loss50",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014366165967658162,
+      "recall": [
+        0.9972767857142857,
+        0.9965625,
+        0.9979464285714285
+      ],
+      "localization_rmse_m": [
+        1.8034350402917345,
+        1.7723630824685759,
+        1.8344192331264344
+      ],
+      "false_per_true": [
+        0.06455357142857142,
+        0.05620535714285713,
+        0.07290290178571426
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.002723214285714276,
+        0.002053571428571421,
+        0.003437499999999988
+      ],
+      "operational_recall_gap": [
+        0.018414115646258507,
+        0.017765359268707485,
+        0.019109375
+      ],
+      "max_operational_recall_gap": [
+        0.05401785714285715,
+        0.051607142857142865,
+        0.05629575892857145
+      ],
+      "operational_capture_ratio": [
+        0.9383991777107092,
+        0.9345874967241925,
+        0.9418214617665979
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7817857142857143,
+        0.7796875000000001,
+        0.7838392857142858
+      ],
+      "reports_per_drone": [
+        520.6225,
+        517.17625,
+        523.9814062500001
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range090_budget4_loss50",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014166749897412956,
+      "recall": [
+        0.9972767857142857,
+        0.9965625,
+        0.9979464285714285
+      ],
+      "localization_rmse_m": [
+        1.8034350402917345,
+        1.7723630824685759,
+        1.8344192331264344
+      ],
+      "false_per_true": [
+        0.06455357142857142,
+        0.05620535714285713,
+        0.07290290178571426
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.002723214285714276,
+        0.002053571428571421,
+        0.003437499999999988
+      ],
+      "operational_recall_gap": [
+        0.018414115646258507,
+        0.017765359268707485,
+        0.019109375
+      ],
+      "max_operational_recall_gap": [
+        0.05401785714285715,
+        0.051607142857142865,
+        0.05629575892857145
+      ],
+      "operational_capture_ratio": [
+        0.9383991777107092,
+        0.9345874967241925,
+        0.9418214617665979
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7817857142857143,
+        0.7796875000000001,
+        0.7838392857142858
+      ],
+      "reports_per_drone": [
+        520.6225,
+        517.17625,
+        523.9814062500001
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range120_budget4_loss50",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01410270796623081,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.616264996315525,
+        1.590795734784486,
+        1.6418632209937674
+      ],
+      "false_per_true": [
+        0.06803571428571428,
+        0.05852343749999999,
+        0.07803794642857141
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.005833333333333334,
+        0.0054676339285714285,
+        0.006228954081632654
+      ],
+      "max_operational_recall_gap": [
+        0.03276785714285714,
+        0.030491071428571426,
+        0.03508928571428571
+      ],
+      "operational_capture_ratio": [
+        0.9735244490026373,
+        0.9706192828876529,
+        0.9763312147737194
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7839732142857142,
+        0.7819196428571428,
+        0.7860267857142857
+      ],
+      "reports_per_drone": [
+        564.36875,
+        561.04228125,
+        567.76696875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget4_loss50",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014206792111508548,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.616264996315525,
+        1.590795734784486,
+        1.6418632209937674
+      ],
+      "false_per_true": [
+        0.06803571428571428,
+        0.05852343749999999,
+        0.07803794642857141
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.005833333333333334,
+        0.0054676339285714285,
+        0.006228954081632654
+      ],
+      "max_operational_recall_gap": [
+        0.03276785714285714,
+        0.030491071428571426,
+        0.03508928571428571
+      ],
+      "operational_capture_ratio": [
+        0.9735244490026373,
+        0.9706192828876529,
+        0.9763312147737194
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7839732142857142,
+        0.7819196428571428,
+        0.7860267857142857
+      ],
+      "reports_per_drone": [
+        564.36875,
+        561.04228125,
+        567.76696875
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget4_loss50",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.5,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01408333401195705,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.5994247729055515,
+        1.575961911788423,
+        1.6240840808844843
+      ],
+      "false_per_true": [
+        0.07535714285714284,
+        0.06392857142857142,
+        0.08607142857142858
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.0035969387755102043,
+        0.0032971407312925166,
+        0.00389030612244898
+      ],
+      "max_operational_recall_gap": [
+        0.026964285714285722,
+        0.025178571428571432,
+        0.02901897321428571
+      ],
+      "operational_capture_ratio": [
+        0.9813367590017833,
+        0.9783754016170717,
+        0.9841099719440581
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7822321428571429,
+        0.7862499999999999
+      ],
+      "reports_per_drone": [
+        564.98625,
+        561.571875,
+        569.0778437499999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget1_loss70",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014132541022263467,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget1_loss70",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.016366417054086924,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget1_loss70",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.017183333984576166,
+      "recall": [
+        0.7270982142857143,
+        0.7229453124999998,
+        0.7308928571428569
+      ],
+      "localization_rmse_m": [
+        3.6684043739853753,
+        3.5968334813026286,
+        3.7377529782884724
+      ],
+      "false_per_true": [
+        0.027410714285714285,
+        0.02375,
+        0.031517857142857146
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.2729017857142857,
+        0.2691071428571429,
+        0.2770546875
+      ],
+      "operational_recall_gap": [
+        0.164593962585034,
+        0.16056526360544218,
+        0.168507918792517
+      ],
+      "max_operational_recall_gap": [
+        0.2952678571428572,
+        0.29107031250000004,
+        0.2995089285714285
+      ],
+      "operational_capture_ratio": [
+        0.6852788685648039,
+        0.67757591905844,
+        0.6926968815055815
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.5116071428571428,
+        0.5070970982142856,
+        0.5158058035714286
+      ],
+      "reports_per_drone": [
+        175.14375,
+        174.029875,
+        176.33640625
+      ],
+      "class": "mission_cliff"
+    },
+    {
+      "name": "C_range075_budget1_loss70",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.0168443750590086,
+      "recall": [
+        0.7270982142857143,
+        0.7229453124999998,
+        0.7308928571428569
+      ],
+      "localization_rmse_m": [
+        3.6684043739853753,
+        3.5968334813026286,
+        3.7377529782884724
+      ],
+      "false_per_true": [
+        0.027410714285714285,
+        0.02375,
+        0.031517857142857146
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.2729017857142857,
+        0.2691071428571429,
+        0.2770546875
+      ],
+      "operational_recall_gap": [
+        0.164593962585034,
+        0.16056526360544218,
+        0.168507918792517
+      ],
+      "max_operational_recall_gap": [
+        0.2952678571428572,
+        0.29107031250000004,
+        0.2995089285714285
+      ],
+      "operational_capture_ratio": [
+        0.6852788685648039,
+        0.67757591905844,
+        0.6926968815055815
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.5116071428571428,
+        0.5070970982142856,
+        0.5158058035714286
+      ],
+      "reports_per_drone": [
+        175.14375,
+        174.029875,
+        176.33640625
+      ],
+      "class": "mission_cliff"
+    },
+    {
+      "name": "C_range090_budget1_loss70",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014433791977353394,
+      "recall": [
+        0.7270982142857143,
+        0.7229453124999998,
+        0.7308928571428569
+      ],
+      "localization_rmse_m": [
+        3.6684043739853753,
+        3.5968334813026286,
+        3.7377529782884724
+      ],
+      "false_per_true": [
+        0.027410714285714285,
+        0.02375,
+        0.031517857142857146
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.2729017857142857,
+        0.2691071428571429,
+        0.2770546875
+      ],
+      "operational_recall_gap": [
+        0.164593962585034,
+        0.16056526360544218,
+        0.168507918792517
+      ],
+      "max_operational_recall_gap": [
+        0.2952678571428572,
+        0.29107031250000004,
+        0.2995089285714285
+      ],
+      "operational_capture_ratio": [
+        0.6852788685648039,
+        0.67757591905844,
+        0.6926968815055815
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.5116071428571428,
+        0.5070970982142856,
+        0.5158058035714286
+      ],
+      "reports_per_drone": [
+        175.14375,
+        174.029875,
+        176.33640625
+      ],
+      "class": "mission_cliff"
+    },
+    {
+      "name": "C_range120_budget1_loss70",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.01443016598932445,
+      "recall": [
+        0.9367857142857143,
+        0.9336149553571428,
+        0.9396875
+      ],
+      "localization_rmse_m": [
+        2.9735416106411865,
+        2.933366695162146,
+        3.017674398129469
+      ],
+      "false_per_true": [
+        0.03875,
+        0.033034598214285706,
+        0.04468861607142857
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0632142857142857,
+        0.060312499999999984,
+        0.06638504464285712
+      ],
+      "operational_recall_gap": [
+        0.049946853741496586,
+        0.04788254676870747,
+        0.05225563350340136
+      ],
+      "max_operational_recall_gap": [
+        0.0965625,
+        0.09299107142857141,
+        0.10031361607142857
+      ],
+      "operational_capture_ratio": [
+        0.8882358589539817,
+        0.8825937813285963,
+        0.8937046518277122
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7207589285714286,
+        0.7170524553571427,
+        0.7245535714285716
+      ],
+      "reports_per_drone": [
+        275.8925,
+        274.31581250000005,
+        277.55375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range150_budget1_loss70",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014175749965943396,
+      "recall": [
+        0.9367857142857143,
+        0.9336149553571428,
+        0.9396875
+      ],
+      "localization_rmse_m": [
+        2.9735416106411865,
+        2.933366695162146,
+        3.017674398129469
+      ],
+      "false_per_true": [
+        0.03875,
+        0.033034598214285706,
+        0.04468861607142857
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0632142857142857,
+        0.060312499999999984,
+        0.06638504464285712
+      ],
+      "operational_recall_gap": [
+        0.049946853741496586,
+        0.04788254676870747,
+        0.05225563350340136
+      ],
+      "max_operational_recall_gap": [
+        0.0965625,
+        0.09299107142857141,
+        0.10031361607142857
+      ],
+      "operational_capture_ratio": [
+        0.8882358589539817,
+        0.8825937813285963,
+        0.8937046518277122
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7207589285714286,
+        0.7170524553571427,
+        0.7245535714285716
+      ],
+      "reports_per_drone": [
+        275.8925,
+        274.31581250000005,
+        277.55375
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range180_budget1_loss70",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 1,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014180541969835758,
+      "recall": [
+        0.9934821428571426,
+        0.9921874999999999,
+        0.9945089285714284
+      ],
+      "localization_rmse_m": [
+        2.322096049544927,
+        2.2899768300576326,
+        2.3531509064088865
+      ],
+      "false_per_true": [
+        0.050892857142857136,
+        0.042901785714285705,
+        0.05821651785714285
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.00651785714285713,
+        0.0054910714285714155,
+        0.007812499999999985
+      ],
+      "operational_recall_gap": [
+        0.014298469387755103,
+        0.013547884778911563,
+        0.015153167517006808
+      ],
+      "max_operational_recall_gap": [
+        0.04794642857142857,
+        0.04553459821428572,
+        0.050626116071428584
+      ],
+      "operational_capture_ratio": [
+        0.9548665831368891,
+        0.9510452621865565,
+        0.9583402788715684
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7777232142857141,
+        0.7755357142857143,
+        0.7800446428571428
+      ],
+      "reports_per_drone": [
+        364.145,
+        362.12240625,
+        366.3425625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget2_loss70",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014383958070538938,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget2_loss70",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014103790977969766,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget2_loss70",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014361249981448054,
+      "recall": [
+        0.8367857142857141,
+        0.832275669642857,
+        0.8410714285714285
+      ],
+      "localization_rmse_m": [
+        3.0950920223736516,
+        3.0455344270617815,
+        3.146231238904733
+      ],
+      "false_per_true": [
+        0.03714285714285714,
+        0.032051339285714284,
+        0.042724330357142855
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.16321428571428573,
+        0.15892857142857145,
+        0.16772433035714288
+      ],
+      "operational_recall_gap": [
+        0.10907312925170068,
+        0.1059374468537415,
+        0.11219855442176872
+      ],
+      "max_operational_recall_gap": [
+        0.1941071428571429,
+        0.19031250000000002,
+        0.19825892857142854
+      ],
+      "operational_capture_ratio": [
+        0.7760255777303173,
+        0.7691571621056807,
+        0.7833180291379418
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6212946428571429,
+        0.616650669642857,
+        0.6260267857142857
+      ],
+      "reports_per_drone": [
+        265.65875,
+        263.90228125,
+        267.690125
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range075_budget2_loss70",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014151166076771915,
+      "recall": [
+        0.8367857142857141,
+        0.832275669642857,
+        0.8410714285714285
+      ],
+      "localization_rmse_m": [
+        3.0950920223736516,
+        3.0455344270617815,
+        3.146231238904733
+      ],
+      "false_per_true": [
+        0.03714285714285714,
+        0.032051339285714284,
+        0.042724330357142855
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.16321428571428573,
+        0.15892857142857145,
+        0.16772433035714288
+      ],
+      "operational_recall_gap": [
+        0.10907312925170068,
+        0.1059374468537415,
+        0.11219855442176872
+      ],
+      "max_operational_recall_gap": [
+        0.1941071428571429,
+        0.19031250000000002,
+        0.19825892857142854
+      ],
+      "operational_capture_ratio": [
+        0.7760255777303173,
+        0.7691571621056807,
+        0.7833180291379418
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6212946428571429,
+        0.616650669642857,
+        0.6260267857142857
+      ],
+      "reports_per_drone": [
+        265.65875,
+        263.90228125,
+        267.690125
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range090_budget2_loss70",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014097958919592202,
+      "recall": [
+        0.8367857142857141,
+        0.832275669642857,
+        0.8410714285714285
+      ],
+      "localization_rmse_m": [
+        3.0950920223736516,
+        3.0455344270617815,
+        3.146231238904733
+      ],
+      "false_per_true": [
+        0.03714285714285714,
+        0.032051339285714284,
+        0.042724330357142855
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.16321428571428573,
+        0.15892857142857145,
+        0.16772433035714288
+      ],
+      "operational_recall_gap": [
+        0.10907312925170068,
+        0.1059374468537415,
+        0.11219855442176872
+      ],
+      "max_operational_recall_gap": [
+        0.1941071428571429,
+        0.19031250000000002,
+        0.19825892857142854
+      ],
+      "operational_capture_ratio": [
+        0.7760255777303173,
+        0.7691571621056807,
+        0.7833180291379418
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.6212946428571429,
+        0.616650669642857,
+        0.6260267857142857
+      ],
+      "reports_per_drone": [
+        265.65875,
+        263.90228125,
+        267.690125
+      ],
+      "class": "bounded_distributed"
+    },
+    {
+      "name": "C_range120_budget2_loss70",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014250500011257827,
+      "recall": [
+        0.9895982142857143,
+        0.9882578124999999,
+        0.9909375
+      ],
+      "localization_rmse_m": [
+        2.1667494426373137,
+        2.1326569925878203,
+        2.2017781901564715
+      ],
+      "false_per_true": [
+        0.05428571428571429,
+        0.04673995535714285,
+        0.0620546875
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.010401785714285692,
+        0.00906249999999998,
+        0.011742187499999977
+      ],
+      "operational_recall_gap": [
+        0.019164540816326535,
+        0.01809507865646259,
+        0.020304049744897964
+      ],
+      "max_operational_recall_gap": [
+        0.05267857142857142,
+        0.05013392857142858,
+        0.055268973214285706
+      ],
+      "operational_capture_ratio": [
+        0.9413781391475479,
+        0.9373592100870095,
+        0.9453323153449866
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7735714285714286,
+        0.7712053571428571,
+        0.775892857142857
+      ],
+      "reports_per_drone": [
+        429.58625,
+        427.01278125,
+        432.2168125
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget2_loss70",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014389874995686114,
+      "recall": [
+        0.9895982142857143,
+        0.9882578124999999,
+        0.9909375
+      ],
+      "localization_rmse_m": [
+        2.1667494426373137,
+        2.1326569925878203,
+        2.2017781901564715
+      ],
+      "false_per_true": [
+        0.05428571428571429,
+        0.04673995535714285,
+        0.0620546875
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.010401785714285692,
+        0.00906249999999998,
+        0.011742187499999977
+      ],
+      "operational_recall_gap": [
+        0.019164540816326535,
+        0.01809507865646259,
+        0.020304049744897964
+      ],
+      "max_operational_recall_gap": [
+        0.05267857142857142,
+        0.05013392857142858,
+        0.055268973214285706
+      ],
+      "operational_capture_ratio": [
+        0.9413781391475479,
+        0.9373592100870095,
+        0.9453323153449866
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7735714285714286,
+        0.7712053571428571,
+        0.775892857142857
+      ],
+      "reports_per_drone": [
+        429.58625,
+        427.01278125,
+        432.2168125
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget2_loss70",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 2,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014206084073521197,
+      "recall": [
+        0.9998660714285714,
+        0.9996875,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.7162274593844722,
+        1.69319512087118,
+        1.7411178451500282
+      ],
+      "false_per_true": [
+        0.06986607142857143,
+        0.05914508928571426,
+        0.079734375
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.00013392857142857095,
+        0.0,
+        0.00031249999999999887
+      ],
+      "operational_recall_gap": [
+        0.007699829931972791,
+        0.007246758078231294,
+        0.008137861394557825
+      ],
+      "max_operational_recall_gap": [
+        0.03785714285714287,
+        0.03571316964285714,
+        0.040447544642857144
+      ],
+      "operational_capture_ratio": [
+        0.9684223170160935,
+        0.9647399644680857,
+        0.9719152869459651
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7841071428571428,
+        0.7820524553571426,
+        0.7861171875000001
+      ],
+      "reports_per_drone": [
+        521.81375,
+        518.91821875,
+        525.0503437499999
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range030_budget4_loss70",
+      "range_m": 30.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014276458998210728,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range045_budget4_loss70",
+      "range_m": 45.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014115375000983477,
+      "recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "localization_rmse_m": [
+        25.730291306496873,
+        17.267431758270348,
+        35.35644049830766
+      ],
+      "false_per_true": [
+        0.007410714285714285,
+        0.006293526785714285,
+        0.008616071428571426
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21366071428571431,
+        0.2179017857142857
+      ],
+      "single_drone_recall": [
+        0.07107142857142855,
+        0.06285714285714283,
+        0.07928571428571426
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.7842410714285712,
+        0.7820982142857141,
+        0.7863392857142856
+      ],
+      "operational_recall_gap": [
+        0.42520195578231296,
+        0.42030383715986397,
+        0.42954544005102047
+      ],
+      "max_operational_recall_gap": [
+        0.7855357142857143,
+        0.783525669642857,
+        0.7875892857142857
+      ],
+      "operational_capture_ratio": [
+        0.23724563664130277,
+        0.2328092134200066,
+        0.24161174048271933
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reports_per_drone": [
+        70.60125,
+        70.2,
+        71.00818749999999
+      ],
+      "class": "local_collapse"
+    },
+    {
+      "name": "C_range060_budget4_loss70",
+      "range_m": 60.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014300333918072283,
+      "recall": [
+        0.9516964285714284,
+        0.9483013392857143,
+        0.9548214285714286
+      ],
+      "localization_rmse_m": [
+        2.394678513191243,
+        2.354183506589154,
+        2.4348359934904362
+      ],
+      "false_per_true": [
+        0.050892857142857136,
+        0.043616071428571435,
+        0.05799330357142855
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.048303571428571425,
+        0.045178571428571415,
+        0.05169866071428571
+      ],
+      "operational_recall_gap": [
+        0.05341411564625851,
+        0.05150930059523809,
+        0.05538265306122448
+      ],
+      "max_operational_recall_gap": [
+        0.10330357142857143,
+        0.09986495535714288,
+        0.10705357142857143
+      ],
+      "operational_capture_ratio": [
+        0.864492551060464,
+        0.8593710366685994,
+        0.8695576605646372
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.736205357142857,
+        0.7323203124999998,
+        0.7401339285714286
+      ],
+      "reports_per_drone": [
+        401.83875,
+        398.84840625,
+        404.8505
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range075_budget4_loss70",
+      "range_m": 75.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014236749964766204,
+      "recall": [
+        0.9516964285714284,
+        0.9483013392857143,
+        0.9548214285714286
+      ],
+      "localization_rmse_m": [
+        2.394678513191243,
+        2.354183506589154,
+        2.4348359934904362
+      ],
+      "false_per_true": [
+        0.050892857142857136,
+        0.043616071428571435,
+        0.05799330357142855
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.048303571428571425,
+        0.045178571428571415,
+        0.05169866071428571
+      ],
+      "operational_recall_gap": [
+        0.05341411564625851,
+        0.05150930059523809,
+        0.05538265306122448
+      ],
+      "max_operational_recall_gap": [
+        0.10330357142857143,
+        0.09986495535714288,
+        0.10705357142857143
+      ],
+      "operational_capture_ratio": [
+        0.864492551060464,
+        0.8593710366685994,
+        0.8695576605646372
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.736205357142857,
+        0.7323203124999998,
+        0.7401339285714286
+      ],
+      "reports_per_drone": [
+        401.83875,
+        398.84840625,
+        404.8505
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range090_budget4_loss70",
+      "range_m": 90.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014214666094630957,
+      "recall": [
+        0.9516964285714284,
+        0.9483013392857143,
+        0.9548214285714286
+      ],
+      "localization_rmse_m": [
+        2.394678513191243,
+        2.354183506589154,
+        2.4348359934904362
+      ],
+      "false_per_true": [
+        0.050892857142857136,
+        0.043616071428571435,
+        0.05799330357142855
+      ],
+      "local_only_recall": [
+        0.21549107142857143,
+        0.21352678571428568,
+        0.21759040178571432
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07822321428571427
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.048303571428571425,
+        0.045178571428571415,
+        0.05169866071428571
+      ],
+      "operational_recall_gap": [
+        0.05341411564625851,
+        0.05150930059523809,
+        0.05538265306122448
+      ],
+      "max_operational_recall_gap": [
+        0.10330357142857143,
+        0.09986495535714288,
+        0.10705357142857143
+      ],
+      "operational_capture_ratio": [
+        0.864492551060464,
+        0.8593710366685994,
+        0.8695576605646372
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.736205357142857,
+        0.7323203124999998,
+        0.7401339285714286
+      ],
+      "reports_per_drone": [
+        401.83875,
+        398.84840625,
+        404.8505
+      ],
+      "class": "near_central"
+    },
+    {
+      "name": "C_range120_budget4_loss70",
+      "range_m": 120.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014300541020929813,
+      "recall": [
+        0.9999553571428572,
+        0.9998660714285714,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6549418018827502,
+        1.6289841010287622,
+        1.6800165284922728
+      ],
+      "false_per_true": [
+        0.06660714285714285,
+        0.05714285714285713,
+        0.07621093749999998
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        4.464285714285699e-05,
+        0.0,
+        0.00013392857142857095
+      ],
+      "operational_recall_gap": [
+        0.010508078231292517,
+        0.010036033163265309,
+        0.010997289540816326
+      ],
+      "max_operational_recall_gap": [
+        0.04294642857142856,
+        0.04057924107142856,
+        0.04544642857142856
+      ],
+      "operational_capture_ratio": [
+        0.9583198823916268,
+        0.9550792539475302,
+        0.961724072430217
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7839285714285714,
+        0.7818750000000001,
+        0.7859386160714286
+      ],
+      "reports_per_drone": [
+        551.1225,
+        547.82975,
+        554.413625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range150_budget4_loss70",
+      "range_m": 150.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014503583079203963,
+      "recall": [
+        0.9999553571428572,
+        0.9998660714285714,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.6549418018827502,
+        1.6289841010287622,
+        1.6800165284922728
+      ],
+      "false_per_true": [
+        0.06660714285714285,
+        0.05714285714285713,
+        0.07621093749999998
+      ],
+      "local_only_recall": [
+        0.21602678571428574,
+        0.2139732142857143,
+        0.21808035714285715
+      ],
+      "single_drone_recall": [
+        0.06999999999999998,
+        0.061428571428571416,
+        0.07858035714285712
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        4.464285714285699e-05,
+        0.0,
+        0.00013392857142857095
+      ],
+      "operational_recall_gap": [
+        0.010508078231292517,
+        0.010036033163265309,
+        0.010997289540816326
+      ],
+      "max_operational_recall_gap": [
+        0.04294642857142856,
+        0.04057924107142856,
+        0.04544642857142856
+      ],
+      "operational_capture_ratio": [
+        0.9583198823916268,
+        0.9550792539475302,
+        0.961724072430217
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7839285714285714,
+        0.7818750000000001,
+        0.7859386160714286
+      ],
+      "reports_per_drone": [
+        551.1225,
+        547.82975,
+        554.413625
+      ],
+      "class": "central_equivalent"
+    },
+    {
+      "name": "C_range180_budget4_loss70",
+      "range_m": 180.0,
+      "max_reports_per_exchange": 4,
+      "loss_rate": 0.7,
+      "n_seeds": 100,
+      "passed": false,
+      "wall_time_s": 0.014158291043713689,
+      "recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "localization_rmse_m": [
+        1.600281702548453,
+        1.5769974449014932,
+        1.624812276630408
+      ],
+      "false_per_true": [
+        0.075,
+        0.06361495535714284,
+        0.08571540178571428
+      ],
+      "local_only_recall": [
+        0.2157589285714286,
+        0.21375,
+        0.21776785714285715
+      ],
+      "single_drone_recall": [
+        0.06964285714285713,
+        0.06106249999999998,
+        0.07857142857142856
+      ],
+      "centralized_recall": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "centralized_recall_delta_vs_distributed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "operational_recall_gap": [
+        0.006332908163265306,
+        0.005917835884353741,
+        0.006736926020408165
+      ],
+      "max_operational_recall_gap": [
+        0.035803571428571435,
+        0.033571428571428565,
+        0.03825892857142857
+      ],
+      "operational_capture_ratio": [
+        0.9717580646738323,
+        0.9681826375180443,
+        0.9751190903305436
+      ],
+      "gossip_recall_gain_vs_local": [
+        0.7842410714285712,
+        0.7822321428571429,
+        0.7862499999999999
+      ],
+      "reports_per_drone": [
+        564.0725,
+        560.6850625,
+        568.0332500000001
+      ],
+      "class": "central_equivalent"
+    }
+  ],
+  "cliff_summary": [
+    {
+      "loss_rate": 0.0,
+      "max_reports_per_exchange": 1,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 120.0,
+      "best_range_m": 180.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.7284375000000001
+      }
+    },
+    {
+      "loss_rate": 0.0,
+      "max_reports_per_exchange": 2,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 60.0,
+      "best_range_m": 120.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.7825892857142858
+      }
+    },
+    {
+      "loss_rate": 0.0,
+      "max_reports_per_exchange": 4,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 60.0,
+      "best_range_m": 60.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.7842410714285715
+      }
+    },
+    {
+      "loss_rate": 0.3,
+      "max_reports_per_exchange": 1,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": 60.0,
+      "first_central_equivalent_range_m": 120.0,
+      "best_range_m": 180.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.6701785714285715
+      }
+    },
+    {
+      "loss_rate": 0.3,
+      "max_reports_per_exchange": 2,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 60.0,
+      "best_range_m": 120.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.7706696428571429
+      }
+    },
+    {
+      "loss_rate": 0.3,
+      "max_reports_per_exchange": 4,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 60.0,
+      "best_range_m": 120.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.7841517857142857
+      }
+    },
+    {
+      "loss_rate": 0.5,
+      "max_reports_per_exchange": 1,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": 60.0,
+      "first_central_equivalent_range_m": 180.0,
+      "best_range_m": 180.0,
+      "best_recall": 0.9991517857142856,
+      "best_central_delta": 0.0008482142857142827,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.6058482142857142
+      }
+    },
+    {
+      "loss_rate": 0.5,
+      "max_reports_per_exchange": 2,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 120.0,
+      "best_range_m": 180.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.7283035714285715
+      }
+    },
+    {
+      "loss_rate": 0.5,
+      "max_reports_per_exchange": 4,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 60.0,
+      "best_range_m": 120.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.7815178571428572
+      }
+    },
+    {
+      "loss_rate": 0.7,
+      "max_reports_per_exchange": 1,
+      "first_viable_range_m": 120.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 180.0,
+      "best_range_m": 180.0,
+      "best_recall": 0.9934821428571426,
+      "best_central_delta": 0.00651785714285713,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.5113392857142858
+      }
+    },
+    {
+      "loss_rate": 0.7,
+      "max_reports_per_exchange": 2,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": 60.0,
+      "first_central_equivalent_range_m": 120.0,
+      "best_range_m": 180.0,
+      "best_recall": 0.9998660714285714,
+      "best_central_delta": 0.00013392857142857095,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.6210267857142855
+      }
+    },
+    {
+      "loss_rate": 0.7,
+      "max_reports_per_exchange": 4,
+      "first_viable_range_m": 60.0,
+      "first_bounded_distributed_range_m": null,
+      "first_central_equivalent_range_m": 120.0,
+      "best_range_m": 180.0,
+      "best_recall": 1.0,
+      "best_central_delta": 0.0,
+      "cliff": {
+        "from_range_m": 45.0,
+        "to_range_m": 60.0,
+        "recall_gain": 0.7359374999999999
+      }
+    }
+  ],
+  "wall_time_s": 1.390295583056286,
+  "full_run_wall_time_s": 719.4004715420306,
+  "timing_note": "wall_time_s is the current invocation elapsed time. When checkpoints are replayed, per-row wall_time_s values measure checkpoint load/reduce time, not the original simulation cost. full_run_wall_time_s preserves the original non-replay local run when provided."
+}
