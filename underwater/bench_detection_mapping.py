@@ -26,6 +26,10 @@ The simulation is intentionally compact:
   - anchor fixes reduce localization bias and uncertainty
   - reports are gossiped through a range-limited lossy acoustic substrate
   - the map fuses reports into contact hypotheses with confidence/staleness
+
+Primary metrics score the distributed map available to an operational drone
+after acoustic gossip. Baselines score local-only maps, one single-drone map,
+and delayed centralized fusion of recovered local logs.
 """
 
 from __future__ import annotations
@@ -49,6 +53,17 @@ for _thread_env in (
     os.environ.setdefault(_thread_env, "1")
 
 import numpy as np
+
+
+SCORE_KEYS = [
+    "recall",
+    "localization_rmse_m",
+    "false_hypotheses",
+    "false_per_true",
+    "mean_confidence",
+    "n_hypotheses",
+    "n_reports",
+]
 
 
 @dataclass(frozen=True)
@@ -348,12 +363,42 @@ def _score_map(hypotheses: list[dict[str, Any]], contacts: np.ndarray) -> dict[s
     }
 
 
+def _report_key(report: ContactReport) -> tuple[Any, ...]:
+    return (report.observer, report.observed_t, report.contact_id, report.position)
+
+
+def _dedupe_reports(reports: list[ContactReport]) -> list[ContactReport]:
+    return list({_report_key(r): r for r in reports}.values())
+
+
+def _score_reports(spec: Scenario, reports: list[ContactReport], contacts: np.ndarray) -> dict[str, float]:
+    unique_reports = _dedupe_reports(reports)
+    hypotheses = _fuse_map(unique_reports, spec.duration_s, spec.stale_after_s)
+    score = _score_map(hypotheses, contacts)
+    if not np.isfinite(score["localization_rmse_m"]):
+        score["localization_rmse_m"] = float(
+            np.linalg.norm([spec.area_length_m, spec.area_width_m, spec.depth_m])
+        )
+    score["n_hypotheses"] = float(len(hypotheses))
+    score["n_reports"] = float(len(unique_reports))
+    return score
+
+
+def _mean_scores(scores: list[dict[str, float]]) -> dict[str, float]:
+    return {k: float(np.mean([s[k] for s in scores])) for k in SCORE_KEYS}
+
+
+def _prefixed(prefix: str, score: dict[str, float]) -> dict[str, float]:
+    return {f"{prefix}_{k}": float(score[k]) for k in SCORE_KEYS}
+
+
 def run_seed(spec: Scenario, seed: int, control_without_anchors: bool = False) -> dict[str, Any]:
     rng = np.random.default_rng(seed)
     contacts = _initial_contacts(spec, rng)
     bias = np.zeros((spec.n_drones, 3), dtype=np.float64)
     bias_sigma = np.zeros(spec.n_drones, dtype=np.float64)
     knowledge: list[list[ContactReport]] = [[] for _ in range(spec.n_drones)]
+    local_raw: list[list[ContactReport]] = [[] for _ in range(spec.n_drones)]
     max_uncertainty = 0.0
     calloff_t: float | None = None
     first_bad_t: float | None = None
@@ -401,17 +446,36 @@ def run_seed(spec: Scenario, seed: int, control_without_anchors: bool = False) -
         tick_reports = _detect_contacts(spec, contacts, true_pos, est_pos, bias_sigma, t, rng)
         for i, rs in enumerate(tick_reports):
             knowledge[i].extend(rs)
+            local_raw[i].extend(rs)
         neighbors = _neighbors(true_pos, spec.comms_range_m)
         knowledge = _gossip_reports(
             knowledge, neighbors, spec.report_loss_rate, spec.gossip_rounds_per_tick, rng
         )
 
-    all_reports: dict[tuple[Any, ...], ContactReport] = {}
-    for ks in knowledge:
-        for r in ks:
-            all_reports[(r.observer, r.observed_t, r.contact_id, r.position)] = r
-    hypotheses = _fuse_map(list(all_reports.values()), spec.duration_s, spec.stale_after_s)
-    score = _score_map(hypotheses, contacts)
+    distributed_scores = [_score_reports(spec, ks, contacts) for ks in knowledge]
+    local_scores = [_score_reports(spec, rs, contacts) for rs in local_raw]
+    centralized_reports = [r for rs in local_raw for r in rs]
+    centralized_score = _score_reports(spec, centralized_reports, contacts)
+    single_score = _score_reports(spec, local_raw[0], contacts)
+    local_score = _mean_scores(local_scores)
+    score = _mean_scores(distributed_scores)
+
+    score.update(_prefixed("distributed", score))
+    score.update(_prefixed("local_only", local_score))
+    score.update(_prefixed("single_drone", single_score))
+    score.update(_prefixed("centralized", centralized_score))
+    score["gossip_recall_gain_vs_local"] = score["recall"] - local_score["recall"]
+    score["gossip_rmse_gain_vs_local"] = (
+        (local_score["localization_rmse_m"] - score["localization_rmse_m"])
+        / local_score["localization_rmse_m"]
+        if local_score["localization_rmse_m"] > 1e-9
+        else 0.0
+    )
+    score["swarm_recall_gain_vs_single"] = score["recall"] - single_score["recall"]
+    score["centralized_recall_delta_vs_distributed"] = centralized_score["recall"] - score["recall"]
+    score["centralized_rmse_delta_vs_distributed"] = (
+        centralized_score["localization_rmse_m"] - score["localization_rmse_m"]
+    )
     calloff_delay = (
         0.0 if first_bad_t is not None and calloff_t is not None and calloff_t <= first_bad_t
         else float("inf") if first_bad_t is not None
@@ -419,8 +483,6 @@ def run_seed(spec: Scenario, seed: int, control_without_anchors: bool = False) -
     )
     score.update({
         "seed": seed,
-        "n_hypotheses": float(len(hypotheses)),
-        "n_reports": float(len(all_reports)),
         "max_uncertainty_m": max_uncertainty,
         "calloff_triggered": calloff_t is not None,
         "calloff_t": calloff_t,
@@ -447,17 +509,29 @@ def _passes(spec: Scenario, metrics: dict[str, tuple[float, float, float]]) -> b
     return False
 
 
-def aggregate(spec: Scenario, runs: list[dict[str, Any]]) -> dict[str, Any]:
+def aggregate(
+    spec: Scenario,
+    runs: list[dict[str, Any]],
+    control_runs: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     keys = [
         "recall", "localization_rmse_m", "false_hypotheses", "false_per_true",
         "mean_confidence", "n_hypotheses", "n_reports", "max_uncertainty_m",
-        "calloff_delay_s",
+        "calloff_delay_s", "gossip_recall_gain_vs_local", "gossip_rmse_gain_vs_local",
+        "swarm_recall_gain_vs_single", "centralized_recall_delta_vs_distributed",
+        "centralized_rmse_delta_vs_distributed",
     ]
+    for prefix in ("distributed", "local_only", "single_drone", "centralized"):
+        keys.extend(f"{prefix}_{k}" for k in SCORE_KEYS)
     metrics = {k: _bootstrap_ci([float(r[k]) for r in runs]) for k in keys}
     metrics["calloff_triggered"] = _wilson(sum(1 for r in runs if r["calloff_triggered"]), len(runs))
     if spec.name == "D5_anchor_reorientation":
-        controls = [run_seed(replace(spec, anchor_interval_s=None), int(r["seed"]), control_without_anchors=True) for r in runs]
-        control_rmse = [float(r["localization_rmse_m"]) for r in controls]
+        if control_runs is None:
+            control_runs = [
+                run_seed(replace(spec, anchor_interval_s=None), int(r["seed"]), control_without_anchors=True)
+                for r in runs
+            ]
+        control_rmse = [float(r["localization_rmse_m"]) for r in control_runs]
         aided_rmse = [float(r["localization_rmse_m"]) for r in runs]
         improvements = [
             max(0.0, (c - a) / c) if np.isfinite(c) and c > 1e-9 else 0.0
@@ -484,13 +558,20 @@ def _run_seed_task(args: tuple[Scenario, int]) -> tuple[int, dict[str, Any], flo
     return seed, run_seed(spec, seed), time.perf_counter() - t0
 
 
-def run_scenario(spec: Scenario, n_seeds: int, jobs: int = 1, checkpoint_dir: str | None = None) -> dict[str, Any]:
+def _load_or_run_seeds(
+    spec: Scenario,
+    n_seeds: int,
+    jobs: int,
+    checkpoint_dir: str | None,
+    label: str | None = None,
+) -> list[dict[str, Any]]:
     runs_by_seed: dict[int, dict[str, Any]] = {}
     pending = []
+    checkpoint_name = label or spec.name
     if checkpoint_dir:
-        (Path(checkpoint_dir) / spec.name).mkdir(parents=True, exist_ok=True)
+        (Path(checkpoint_dir) / checkpoint_name).mkdir(parents=True, exist_ok=True)
     for seed in range(n_seeds):
-        cp = _checkpoint_path(checkpoint_dir, spec.name, seed) if checkpoint_dir else None
+        cp = _checkpoint_path(checkpoint_dir, checkpoint_name, seed) if checkpoint_dir else None
         if cp and cp.exists():
             with open(cp) as f:
                 runs_by_seed[seed] = json.load(f)
@@ -503,12 +584,12 @@ def run_scenario(spec: Scenario, n_seeds: int, jobs: int = 1, checkpoint_dir: st
             _, run, dt = _run_seed_task((spec, seed))
             runs_by_seed[seed] = run
             if checkpoint_dir:
-                cp = _checkpoint_path(checkpoint_dir, spec.name, seed)
+                cp = _checkpoint_path(checkpoint_dir, checkpoint_name, seed)
                 tmp = cp.with_suffix(".json.tmp")
                 with open(tmp, "w") as f:
                     json.dump(run, f, indent=2)
                 os.replace(tmp, cp)
-            print(f"  [{spec.name}] seed {seed+1}/{n_seeds} done dt={dt:.2f}s cum={time.perf_counter()-t_s:.2f}s", flush=True)
+            print(f"  [{checkpoint_name}] seed {seed+1}/{n_seeds} done dt={dt:.2f}s cum={time.perf_counter()-t_s:.2f}s", flush=True)
     else:
         with concurrent.futures.ProcessPoolExecutor(max_workers=jobs) as ex:
             futs = {ex.submit(_run_seed_task, (spec, seed)): seed for seed in pending}
@@ -516,13 +597,29 @@ def run_scenario(spec: Scenario, n_seeds: int, jobs: int = 1, checkpoint_dir: st
                 seed, run, dt = fut.result()
                 runs_by_seed[seed] = run
                 if checkpoint_dir:
-                    cp = _checkpoint_path(checkpoint_dir, spec.name, seed)
+                    cp = _checkpoint_path(checkpoint_dir, checkpoint_name, seed)
                     tmp = cp.with_suffix(".json.tmp")
                     with open(tmp, "w") as f:
                         json.dump(run, f, indent=2)
                     os.replace(tmp, cp)
-                print(f"  [{spec.name}] seed {seed+1}/{n_seeds} done dt={dt:.2f}s cum={time.perf_counter()-t_s:.2f}s jobs={jobs}", flush=True)
-    return aggregate(spec, [runs_by_seed[s] for s in range(n_seeds)])
+                print(f"  [{checkpoint_name}] seed {seed+1}/{n_seeds} done dt={dt:.2f}s cum={time.perf_counter()-t_s:.2f}s jobs={jobs}", flush=True)
+    return [runs_by_seed[s] for s in range(n_seeds)]
+
+
+def run_scenario(spec: Scenario, n_seeds: int, jobs: int = 1, checkpoint_dir: str | None = None) -> dict[str, Any]:
+    runs = _load_or_run_seeds(spec, n_seeds, jobs, checkpoint_dir)
+    controls = None
+    if spec.name == "D5_anchor_reorientation":
+        control_spec = replace(spec, anchor_interval_s=None)
+        print(f"  [{spec.name}] running no-anchor control ({n_seeds} seeds, jobs={jobs})...", flush=True)
+        controls = _load_or_run_seeds(
+            control_spec,
+            n_seeds,
+            jobs,
+            checkpoint_dir,
+            label=f"{spec.name}_no_anchor_control",
+        )
+    return aggregate(spec, runs, controls)
 
 
 def print_report(results: list[dict[str, Any]]) -> None:
@@ -537,10 +634,14 @@ def print_report(results: list[dict[str, Any]]) -> None:
         print(f"  Falsifier:  {s['falsifying']}")
         print(f"  Mechanism:  {s['mechanism']}")
         print(f"  Criterion:  {s['pass_criterion']}")
-        print(f"  Recall:     {m['recall'][0]:.3f} [{m['recall'][1]:.3f}, {m['recall'][2]:.3f}]")
-        print(f"  RMSE:       {m['localization_rmse_m'][0]:.2f}m [{m['localization_rmse_m'][1]:.2f}, {m['localization_rmse_m'][2]:.2f}]")
-        print(f"  False/true: {m['false_per_true'][0]:.3f} [{m['false_per_true'][1]:.3f}, {m['false_per_true'][2]:.3f}]")
-        print(f"  Reports:    {m['n_reports'][0]:.1f}")
+        print(f"  Distributed recall: {m['recall'][0]:.3f} [{m['recall'][1]:.3f}, {m['recall'][2]:.3f}]")
+        print(f"  Distributed RMSE:   {m['localization_rmse_m'][0]:.2f}m [{m['localization_rmse_m'][1]:.2f}, {m['localization_rmse_m'][2]:.2f}]")
+        print(f"  Distributed false:  {m['false_per_true'][0]:.3f} [{m['false_per_true'][1]:.3f}, {m['false_per_true'][2]:.3f}]")
+        print(f"  Local-only:         recall {m['local_only_recall'][0]:.3f}; RMSE {m['local_only_localization_rmse_m'][0]:.2f}m")
+        print(f"  Single-drone:       recall {m['single_drone_recall'][0]:.3f}; RMSE {m['single_drone_localization_rmse_m'][0]:.2f}m")
+        print(f"  Centralized logs:   recall {m['centralized_recall'][0]:.3f}; RMSE {m['centralized_localization_rmse_m'][0]:.2f}m")
+        print(f"  Gossip lift:        recall +{m['gossip_recall_gain_vs_local'][0]:.3f}; RMSE gain {m['gossip_rmse_gain_vs_local'][0]:.3f}")
+        print(f"  Reports/drone:      {m['n_reports'][0]:.1f}")
         print(f"  Max unc:    {m['max_uncertainty_m'][0]:.1f}m")
         if "rmse_improvement_vs_control" in m:
             print(f"  Anchor gain:{m['rmse_improvement_vs_control'][0]:.3f} [{m['rmse_improvement_vs_control'][1]:.3f}, {m['rmse_improvement_vs_control'][2]:.3f}]")
