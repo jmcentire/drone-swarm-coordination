@@ -41,7 +41,7 @@ four-phase demo - Source: \texttt{simulator.py}, \texttt{bench\_*.py},
 \textbf{Code and data availability.} All source, simulator, benchmark
 scripts, figures, and the rendered four-phase demo are archived at
 Zenodo under DOI
-\href{https://doi.org/10.5281/zenodo.19954678}{10.5281/zenodo.19954678}
+\href{https://doi.org/10.5281/zenodo.20385946}{10.5281/zenodo.20385946}
 and mirrored at the GitHub repository
 \href{https://github.com/jmcentire/drone-swarm-coordination}{github.com/jmcentire/drone-swarm-coordination}.
 The Zenodo deposition is the citable, version-pinned snapshot; the
@@ -55,13 +55,18 @@ shadow nodes (Kim \& Welch 1989, DRB framework), GPS-denied operation
 via improved per-drone state estimation (Allan-variance fusion, RNN-EKF
 replacement), and assignment stability via centralized hysteresis-aware
 reinforcement learning. We present a unified architecture that addresses
-these concerns through a single decentralized primitive:
-broadcast-shared state with locally-deterministic computation. The
-architecture's four mechanisms --- hierarchical bisection assignment,
-local patch recovery, sub-manifold shadow allocation, and confidence-
-thresholded fiducial selection --- share a common substrate and are
-independently provable, with empirical validation across N=10 to
-N=10,000.
+these concerns through a single decentralized primitive in the
+four-layer regime: broadcast-shared state with locally- deterministic
+computation. The architecture's four mechanisms --- hierarchical
+bisection assignment, local patch recovery, sub-manifold shadow
+allocation, and confidence-thresholded fiducial selection --- share a
+common substrate and are independently provable, with empirical
+validation across N=10 to N=10,000. The v1.2 supplemental (§9.4)
+characterizes the substrate's empirical envelope on three operational
+mission classes (drift handling, online replanning, Bayesian search-
+and-rescue) where degraded-comms regimes additionally require a
+majority-vote aggregation primitive whose contribution is characterized
+empirically rather than claimed as architectural novelty.
 
 Headline empirical results: assignment within 1.4--3\% of the Hungarian
 optimum (gap empirically fits \texttt{a\ +\ b/√N} better than
@@ -77,6 +82,16 @@ patterns --- is empirically validated by the composition of all four
 mechanisms in working simulations (\texttt{simulator.py} for Layers
 1--3, \texttt{bench\_layer4.py} for Layer 4), with formal properties
 established in a companion proofs document.
+
+The v1.3 supplemental adds a bounded underwater feasibility track. It
+does \textbf{not} claim that the full underwater mission protocol is
+solved: earlier underwater mission-loop benches that used
+centralized/oracle state are excluded from the evidentiary base. The
+valid underwater results reported here are narrower: range-limited
+detection-map gossip, acoustic link-budget and throughput accounting,
+and vertical acoustic relay localization. These results establish
+physically-grounded modeling targets and mechanisms for a future
+per-drone adaptive underwater mission loop.
 
 \subsection{1. Introduction}\label{introduction}
 
@@ -1790,13 +1805,49 @@ existing broadcast substrate. Detailed companion notes:
 \texttt{NOTE\_SEARCH.md}. Phase A literature audit at
 \texttt{audit/00\_synthesis.md}.
 
-Across all three mission classes, the architecture is treated as a
-\emph{composition} of three load-bearing components: broadcast as shared
-state (information distribution), deterministic per-drone compute (local
-reasoning), and majority-vote tie-break under degraded comms (decision
-aggregation). All three are required; removing any one breaks the
-architecture. The empirical work below establishes each component's
-load-bearing role.
+\paragraph{9.4.0 Mapping the v1.1 substrate onto the v1.2
+regimes}\label{mapping-the-v1.1-substrate-onto-the-v1.2-regimes}
+
+The v1.1 architecture's substrate primitive (§§2 and 7) has two
+components: broadcast as shared state, and deterministic per-drone
+compute. Under reliable broadcast, these alone produce byte-identical
+decisions across drones --- consensus-by-determinism, formalized in
+PROOFS Theorem 1 and Theorem 2.5. The v1.2 supplemental retains this
+mechanism unchanged for the reliable-comms regime.
+
+Under degraded comms, drones receive different broadcast subsets and
+develop divergent posteriors. The substrate's ``consensus by
+determinism'' property no longer holds because the inputs to the
+deterministic function differ across drones. The v1.2 supplemental
+documents that the architecture handles this regime with a third
+component --- \emph{majority-vote aggregation on the diverged decisions}
+--- and characterizes the resulting envelope empirically. This third
+component is not a substrate-level architectural primitive in the v1.1
+sense (it is a textbook voting protocol), and its load-bearing role
+under loss is what the v1.2 bench measures rather than asserts.
+
+Three components, two regimes:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Reliable broadcast (iid\_0\%):} broadcast + deterministic
+  compute, consensus by determinism (PROOFS Theorem 1 / 2.5). Decisions
+  byte-identical by construction.
+\item
+  \textbf{Degraded broadcast (iid loss, GE bursts, asymmetric deaf):}
+  broadcast + deterministic compute + majority-vote aggregation,
+  consensus by majority of informed drones. Decisions diverge per drone;
+  the swarm's motion is determined by the vote. Architecture fails when
+  the voting protocol's structural threshold (n/2 for asymmetric-deaf,
+  all-zero for iid\_100\%) is reached.
+\end{itemize}
+
+The empirical work below characterizes the boundary between these two
+regimes and shows that all three components are operationally required
+under the degraded-comms regimes that real deployments will encounter.
+We do not claim the third component is a novel substrate primitive ---
+it is a known voting protocol applied at the architectural seam.
 
 \paragraph{9.4.1 Drift handling}\label{drift-handling}
 
@@ -1882,11 +1933,21 @@ dense\_field & 20.49 {[}16.67, 24.58{]} & 8.46 & 31.87 & 140.5\% &
 
 The gap-vs-oracle grows with cost-field complexity (28\% → 39\% →
 140\%); this is the information-asymmetry penalty for discovering the
-cost field rather than being told it. The architecture's contribution is
-algorithm-agnostic: a state-of-the-art partially-known-terrain planner
-(D* Lite, frontier-based exploration, value-of-information-driven
-manifold selection) would close the gap further; the architecture itself
-is unchanged.
+cost field rather than being told it. The bench uses a simple greedy
+A*-on-partial-map planner (recompute the path each manifold using the
+accumulating sensor data, take one STEP\_CELLS step). This is
+intentionally a baseline, not a state-of-the-art partially-known-
+terrain planner: the question §9.4.2 is answering is \emph{whether the
+broadcast substrate supports a deterministic replanner with byte-
+identical decisions per tick}, not \emph{whether our planner beats D*
+Lite}. The 100\% byte-identical-decisions result and the 60/60 reach-
+goal result establish the substrate property; the dense\_field 140\%
+gap-vs-oracle is real and is a planner gap, not a substrate gap. A SOTA
+partially-known-terrain planner (D* Lite, frontier- based exploration,
+value-of-information-driven manifold selection) substituted for the
+greedy A* would close the gap further while running on the same
+broadcast substrate without modification. The substrate-level claim is
+the contribution; the planner-quality comparison is left to future work.
 
 \paragraph{9.4.3 Distributed Bayesian
 search-and-rescue}\label{distributed-bayesian-search-and-rescue}
@@ -1898,6 +1959,17 @@ broadcast → Bayesian update → deterministic decision → next manifold.
 thirteen channel models with detection criterion harmonized at KCELLS=1
 (MAP cell within 1 Chebyshev cell of target). Detailed in
 \texttt{NOTE\_SEARCH.md}.
+
+The bench is structured around two methodological moves: a
+\emph{falsification battery} against each load-bearing component
+(iid\_100\% removes the broadcast and reduces the architecture to ``each
+drone updates from own observation, swarm coordinates motion via
+majority vote on local decisions''; asym\_deaf=50\% reaches the n/2
+voting threshold; B-C T-sweep stress-tests the consensus-round strawman)
+and a \emph{fairness audit} of the comparator (KCELLS=1 harmonizes the
+detection criterion across grid and particle-filter posteriors, removing
+a v1 bench artifact that previously disadvantaged PF). Headline findings
+are read against this methodological frame.
 
 \textbf{Algorithm comparators} include centralized SAROPS-class particle
 filter (5000-particle filter with per-particle Allen Leeway slopes,
@@ -1920,14 +1992,20 @@ contribution from the voting-rescue mechanism).
   Without broadcasts, drones cannot coordinate motion well enough to
   find the target. Broadcast is empirically load-bearing.
 \item
-  \textbf{Bandyopadhyay-Chung consensus filter is dominated across T ∈
-  \{1, 5, 20, 50\}.} B-C performance is essentially flat across
-  consensus-round count: T=1 produces 12/20 finds on lost\_at\_sea at
-  62.6 mean iters; T=50 produces 12/20 at 61.2 mean iters. The
-  broadcast-substrate's per-tick decision aggregation dominates B-C's
-  T-round consensus loop in the operational SAR regime, regardless of T.
-  The dominance is structural to the engineering composition, not an
-  artifact of T-tuning.
+  \textbf{Bandyopadhyay-Chung consensus filter is dominated under the
+  fixed consensus-weight matrix and broadcast-topology assumptions
+  tested, across T ∈ \{1, 5, 20, 50\}.} B-C performance is essentially
+  flat across consensus-round count: T=1 produces 12/20 finds on
+  lost\_at\_sea at 62.6 mean iters; T=50 produces 12/20 at 61.2 mean
+  iters. T-flatness refutes the ``T=5 is a strawman'' objection ---
+  varying T from 1 to 50 produces no consistent improvement. We tested
+  the Hare-Bandyopadhyay-Chung 2018 log-opinion-pool variant on a
+  broadcast topology (every drone hears every other) with uniform-mean
+  consensus weights. Whether better-tuned B-C (non-uniform weight
+  matrix, sparse-graph topology, or alternative consensus-on-likelihood
+  variants) could close the gap is left to future work. The current
+  claim is bounded: B-C-as-tested is dominated in this regime;
+  B-C-as-a-class may not be.
 \item
   \textbf{SAROPS-class particle filter wins on all four drift scenarios}
   (Leeway PIW, liferaft, skiff, simple drift) at 12--18 mean iters,
@@ -1942,19 +2020,29 @@ contribution from the voting-rescue mechanism).
   operational find-rate where any broadcast information reaches drones;
   it fails when no broadcast information reaches them.
 \item
-  \textbf{The asymmetric-deaf cliff confirms the n/2 majority-vote
-  threshold:} 10\% deaf, 20/20; 25\% deaf, 18-20/20; 50\% deaf, 0/20;
-  100\% deaf, 0/20. We \emph{confirm empirically} that the
-  architecture's deaf-tolerance boundary matches the structural n/2
-  threshold of majority vote, validating that the protocol behaves as
-  predicted by voting theory in the SAR setting.
+  \textbf{The asymmetric-deaf cliff is consistent with the n/2 majority-
+  vote threshold:} 10\% deaf, 20/20; 25\% deaf, 18-20/20; 50\% deaf,
+  0/20; 100\% deaf, 0/20. At N=20 drones, deaf=0.5 is the
+  integer-quantized 10/10 tie --- the trivially-pathological case for
+  any majority-vote protocol. The data is consistent with the n/2
+  threshold of textbook voting theory; sharper localization of the
+  boundary would require larger N (e.g., 40 or 100 drones) where the
+  integer-quantization cliff becomes informative rather than
+  tautological. We report this as confirmation that the composition's
+  failure mode under asymmetric loss is the failure mode predicted by
+  voting protocol theory applied at the architectural seam.
 \item
   \textbf{Gilbert-Elliott burst loss is not worse than IID at the same
   stationary rate:} 20/20 found across short, medium, and long burst
   durations at P\_stationary=0.3, indistinguishable from IID-30\%. The
   architecture's per-iteration majority vote treats each broadcast set
   independently; burst-correlated losses do not accumulate
-  decision-divergence.
+  decision-divergence beyond what equivalent-rate IID produces, at the
+  P\_stationary=0.3 operating point tested. (This parallels the
+  bench\_comms.py Sweep A finding in §9.1.5: the inverted EN\_ROUTE+ETA
+  protocol shows the same robustness to GE bursts at matched stationary
+  loss; the property is a substrate- level result, demonstrated
+  independently in two operational regimes.)
 \end{enumerate}
 
 \paragraph{9.4.4 Position relative to operational
@@ -1974,12 +2062,25 @@ ICRA; Tateo et al.~2018; Hollinger et al.~2015), and the
 connectivity-preservation-with-fault-injection lineage (Minelli,
 Panerati, Kaufmann, Ghedini, Beltrame, Sabattini 2020 RAS --- closest
 operational neighbor, \emph{stacked-not-competing} relative to our
-work). The SAROPS centralized comparator is grounded in Kratzke, Stone,
-Frost (2010); Stone (1975, 2007); Stone-Royset-Washburn (2016); Allen \&
-Plourde (1999); Allen (2005); Breivik \& Allen (2008), with all 85
-object-class Leeway parameters extracted from OpenDrift's
-\texttt{OBJECTPROP.DAT} (the Art Allen → Breivik transcription of the
-operational SAROPS table).
+work). Minelli's group solves connectivity preservation under hardware
+faults; we solve byte-identical decision agreement under reliable
+broadcast plus graceful degradation under loss. The two address
+different layers of the deployment stack and could be composed: a
+fault-tolerant connected mesh (Minelli) plus a broadcast-emulation layer
+atop the mesh (e.g., flooding with deduplication or epoch-based
+gossip-to-quiescence) plus our deterministic-decision substrate. The
+composition pays an emulation cost --- broadcast over a mesh is not
+free; it costs O(graph-diameter) per snapshot --- but this is the price
+of running on a fallible substrate rather than assuming reliable
+broadcast. Our contribution in the composition frame is the
+deterministic-decision agreement layer; Minelli's contribution is the
+connectivity-preservation layer below it. Empirical characterization of
+the composed system on a fallible mesh is future work. The SAROPS
+centralized comparator is grounded in Kratzke, Stone, Frost (2010);
+Stone (1975, 2007); Stone-Royset-Washburn (2016); Allen \& Plourde
+(1999); Allen (2005); Breivik \& Allen (2008), with all 85 object-class
+Leeway parameters extracted from OpenDrift's \texttt{OBJECTPROP.DAT}
+(the Art Allen → Breivik transcription of the operational SAROPS table).
 
 \paragraph{9.4.5 What this work does not
 establish}\label{what-this-work-does-not-establish}
@@ -2002,8 +2103,34 @@ future extension. We have not characterized the GE-not-worse-than-IID
 result at stationary loss rates outside \textasciitilde30\%. The
 asymmetric-deaf boundary characterization at 50\% is exactly the
 integer-quantized 10/10 tie of N=20 drones; sharper localization
-requires larger N. The bench is a simulation; real-platform sensor and
-comms calibration require deployment data we do not have.
+requires larger N. The B-C T-sweep varies the consensus-round count but
+holds the consensus weight matrix and broadcast-topology assumption
+fixed; the conclusion that B-C is dominated \emph{as run here} does not
+generalize to other consensus configurations or to B-C's native
+sparse-graph regime. The voting-baseline experiment (iid\_100\% = 0/20)
+removes broadcast delivery between drones and is consistent with two
+interpretations: (a) broadcast carries information that majority-vote on
+local-only decisions cannot recover (our framing) and (b) any
+architecture stripped of cross-drone information sharing fails on a
+5-cell-radius footprint search (the simpler reading). The two
+interpretations agree on the bench result; distinguishing them would
+require an intermediate-information baseline (e.g., pairwise sync
+without full broadcast) which we have not run. SAROPS-class results rest
+on 20 documented OPERATIONAL-UNKNOWN choices
+(\texttt{audit/07\_sarops\_class\_config.yaml}); sensitivity sweeps over
+the highest-leverage choices (LRC proxies, crosswind sign-flip rate,
+resampling cadence) remain future work. KCELLS=1 detection criterion is
+a single-point harmonization choice; KCELLS ∈ \{0, 1, 2\} sensitivity is
+documented but not run. The bench is a simulation; real-platform sensor
+and comms calibration require deployment data we do not have. N=20 seeds
+gives roughly ±10 percentage-point resolution on find-rate proportions
+(Wilson 95\% CI on 20/20 is \texttt{{[}0.84,\ 1.0{]}}); marginal
+distinctions like 18/20 vs 20/20 are within seed noise and should be
+read accordingly. Reproducing the bench exactly requires pinning BLAS
+thread counts
+(\texttt{OMP\_NUM\_THREADS=1\ OPENBLAS\_NUM\_THREADS=1\ MKL\_NUM\_THREADS=1})
+and fetching OpenDrift's \texttt{OBJECTPROP.DAT} to \texttt{/tmp/}; the
+repository documents both.
 
 The market for distributed-Bayesian-SAR architectures operating beyond
 reliable command-and-control (autonomous submersible swarms in
@@ -2011,6 +2138,362 @@ acoustic-comms-limited environments, AUV cooperative survey beyond
 satellite range, polar autonomous SAR, contested-environment ISR) is
 speculative-near-future. This work is architectural characterization
 ahead of operational demand, not product validation.
+
+\paragraph{9.4.6 Evidentiary hierarchy of v1.2
+claims}\label{evidentiary-hierarchy-of-v1.2-claims}
+
+The v1.2 supplemental's epistemic profile, with each major claim tagged
+for its evidentiary tier:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Claim
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Tier
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Source
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Determinism, byte-identical per-tick decision under reliable broadcast &
+Formal theorem & PROOFS Lemma 1 / Theorem 1 / Theorem 2.5 \\
+Quiescence-detection / mid-flight reconfig under packet loss &
+Computational validation & bench\_comms.py, 200 seeds (Sweep B 30
+seeds) \\
+Drift error tracks σ·√T·1.6 within 1\% of analytical & Computational
+validation & bench\_drift.py, 200 seeds \\
+Inter-drone ranging caps shape error regardless of σ\_drift &
+Computational validation & bench\_drift.py Sweep G \\
+Internal coherence exactly zero across 27-cell drift grid &
+Computational validation supporting formal determinism &
+bench\_drift.py \\
+60/60 reached goal under partially-known cost fields with 100\%
+byte-identical decisions & Computational validation + formal determinism
+& bench\_astar.py \\
+Cost-gap vs oracle (28\% / 39\% / 140\%) & Computational validation &
+bench\_astar.py, bootstrap CIs \\
+Voting baseline (iid\_100\%) → 0/20: broadcast is load-bearing &
+Controlled experiment (component leave-out) & bench\_search.py
+iid\_100\% cell \\
+Bandyopadhyay-Chung dominated across T ∈ \{1, 5, 20, 50\} on bench's
+regime & Controlled experiment (head-to-head, four T values) &
+bench\_search.py B-C T-sweep \\
+SAROPS-class wins on Leeway-drifted scenarios & Controlled experiment
+against SAROPS-class comparator with documented OPERATIONAL-UNKNOWNs &
+bench\_search.py + audit/07 \\
+IID-loss find rate gradual to 90\%, catastrophic at 100\% &
+Computational validation & bench\_search.py \\
+Asymmetric-deaf cliff is consistent with n/2 majority-vote threshold &
+Computational validation of textbook voting-theory bound &
+bench\_search.py asym\_deaf cells \\
+Gilbert-Elliott bursts indistinguishable from IID at matched stationary
+rate & Computational validation at P\_stationary=0.3 & bench\_search.py
++ parallel result in bench\_comms.py §9.1.5 \\
+Algorithm-agnosticism of the substrate & Structural analogy & §9.4
+framing; multi-algorithm bench coverage is supportive \\
+Position relative to centralized SAROPS / decentralized lineages &
+Natural experiment (literature audit) & audit/00\_synthesis.md \\
+``SOTA-planner-would-close-the-gap'' / B-C generalization beyond regime
+/ bursts at other P\_stationary & Motivated conjecture & §9.4.5
+disclosed gaps \\
+\end{longtable}
+}
+
+The profile is appropriate for a systems / engineering-composition
+venue: a formal-theorem core (PROOFS), a thick layer of seeded
+computational validation with bootstrap CIs, three controlled
+experiments against literature comparators, with motivated conjectures
+and disclosed gaps explicitly named.
+
+\subsubsection{9.5 v1.3 supplemental: underwater detection, acoustic
+capacity, and relay
+localization}\label{v1.3-supplemental-underwater-detection-acoustic-capacity-and-relay-localization}
+
+The v1.3 supplemental asks a different question from §§1--9.4: which
+parts of the architecture remain meaningful when the substrate is
+underwater acoustic communication rather than reliable RF-style
+broadcast? The answer is deliberately bounded. We do not reuse the
+centralized underwater mission-loop benches as evidence for distributed
+mission execution. Those benches measured scripted global-state
+behavior, not per-drone decisions under local acoustic knowledge. The
+valid underwater evidence here is narrower and compositional:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  range-limited detection-map gossip
+  (\texttt{underwater/bench\_detection\_mapping.py});
+\item
+  acoustic range / report-capacity / loss spectrum
+  (\texttt{underwater/bench\_comms\_spectrum.py});
+\item
+  physical link-budget and message-throughput accounting
+  (\texttt{underwater/bench\_link\_budget.py});
+\item
+  vertical GPS/acoustic relay localization
+  (\texttt{underwater/bench\_vertical\_relay.py}).
+\end{enumerate}
+
+Together these establish feasibility constraints for the next system
+rather than declaring the next system complete. The full adaptive
+underwater mission loop -- edge-quality-aware planning, formation
+tightening, relay insertion, local recovery, and calloff under partial
+knowledge -- remains future work (§10.7).
+
+\paragraph{9.5.1 Detection mapping under range-limited acoustic
+gossip}\label{detection-mapping-under-range-limited-acoustic-gossip}
+
+\texttt{underwater/bench\_detection\_mapping.py} models eight AUVs
+sweeping parallel lanes through a 900m × 360m × 80m field with fixed
+mine-like contacts. Detections produce noisy contact reports in each
+drone's estimated frame. Reports are exchanged through a range-limited,
+lossy acoustic gossip substrate and then fused into local contact maps.
+The bench scores the distributed map available to each operational drone
+against local-only maps and delayed centralized log fusion.
+
+Seven scenarios were run in the current artifact. The nominal map, 30\%
+report-loss case, random-walk drift, directed-current case, and
+anchor-reorientation case all pass their declared gates. Representative
+means:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}lrrrr@{}}
+\toprule\noalign{}
+Scenario & Recall & RMSE & False/true & Centralized recall delta \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+D1 nominal map & 1.000 & 1.62m & 0.072 & 0.000 \\
+D2 30\% report loss & 1.000 & 1.60m & 0.072 & 0.000 \\
+D3 random-walk drift & 1.000 & 3.24m & 0.072 & 0.000 \\
+D4 directed current & 0.994 & 20.49m & 0.075 & 0.000 \\
+D5 anchor reorientation & 1.000 & 8.07m & 0.069 & 0.000 \\
+D7 bounded acoustic bottleneck & 0.884 & 2.97m & 0.039 & 0.116 \\
+\end{longtable}
+}
+
+D7 is the load-bearing comms check. With 90m range, one report per
+neighbor exchange, and 30\% acoustic exchange loss, distributed recall
+does not collapse to local-only behavior, but it also no longer equals
+centralized post-mission fusion: the centralized recall delta is 0.116.
+This is the desired regime for a meaningful distributed claim. The swarm
+is not pretending that perfect comms makes it centralized, but it still
+beats local-only mapping.
+
+D6 is a calloff scenario, not a mapping-success scenario. Under high
+random drift without anchors, recall falls to 0.510 and false/true rises
+to 1.364, but the run passes because the system marks the map unsafe
+instead of treating a stale map as reliable.
+
+\paragraph{9.5.2 Communication spectrum and connectivity
+cliffs}\label{communication-spectrum-and-connectivity-cliffs}
+
+\texttt{underwater/bench\_comms\_spectrum.py} sweeps three abstract
+acoustic axes over 96 cells and 100 seeds per cell:
+
+\begin{itemize}
+\tightlist
+\item
+  neighbor exchange range: 30--180m;
+\item
+  per-exchange report capacity: 1, 2, or 4 contact reports per 5s tick;
+\item
+  independent exchange loss: 0\%, 30\%, 50\%, or 70\%.
+\end{itemize}
+
+The artifact records both the axes and what they are \textbf{not}: no
+bit-level corruption, explicit modem bytes/s, half-duplex MAC schedule,
+propagation delay, asymmetric links, Doppler, multipath, or
+environment-derived SNR. It is a coordination-envelope sweep, not a
+physical channel model.
+
+The current geometry has a sharp connectivity cliff between 45m and 60m.
+At 30m and 45m, all report budgets and loss rates collapse to local-only
+recall (\textasciitilde0.216). At 60m:
+
+\begin{itemize}
+\tightlist
+\item
+  budget=1, loss=30\% gives bounded-distributed behavior (recall 0.886,
+  centralized delta 0.114);
+\item
+  budget=1, loss=50\% remains bounded-distributed (recall 0.822, delta
+  0.178);
+\item
+  budget=1, loss=70\% is a mission cliff (recall 0.727);
+\item
+  budget=2, loss=70\% recovers bounded-distributed behavior at 60--90m
+  and becomes central-equivalent at 120m;
+\item
+  budget=4, loss=70\% is near-central at 60--90m and central-equivalent
+  at 120m.
+\end{itemize}
+
+The result distinguishes three regimes: local collapse, bounded
+distributed operation, and central-equivalent operation. If comms are
+complete and reliable enough, the distributed map becomes effectively
+centralized; if comms are too narrow, the swarm falls back to local-only
+maps; the interesting operational envelope is between those limits.
+
+\paragraph{9.5.3 Acoustic link budget and data-rate
+sufficiency}\label{acoustic-link-budget-and-data-rate-sufficiency}
+
+The spectrum sweep is abstract, so
+\texttt{underwater/acoustic\_channel.py} and
+\texttt{underwater/bench\_link\_budget.py} add a physical accounting
+layer. The default channel is a calibrated 28kHz acoustic reference with
+4096Hz bandwidth, practical spreading factor 1.5, source level 190dB re
+1µPa at 1m, noise PSD 60dB re 1µPa/√Hz, 16-byte packet overhead, 35\%
+MAC efficiency, and 1500m/s sound speed. The model uses Urick/Thorp
+transmission loss, noise-over-bandwidth, BPSK Rayleigh BER,
+packet-delivery probability from packet length, Shannon-style capacity,
+retry burden, one-way delay, and channel-occupancy classification.
+
+This is still a model, not a modem datasheet. It is anchored to public
+underwater-acoustic modeling practice: Stojanovic and Preisig's channel
+survey, Preisig's propagation considerations, the Lucani--Medard--
+Stojanovic distance/capacity framing, UnetStack's BasicAcousticChannel
+conventions, and packet-error models that combine Urick/Thorp path loss
+with ambient noise and fading. A companion OCEANS admin-channel paper
+supplied locally reports a 28kHz admin channel, 32-byte uplink payload,
+1Hz telemetry, 2km simulated viability, and 15s retry penalty; we use
+those values as an admin-channel target, not as validation of our
+peer-gossip layer.
+
+Default strong-band results:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}lrrr@{}}
+\toprule\noalign{}
+Profile & Strong to & Marginal to & First failed \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+OCEANS-style admin uplink & 1750m & 2500m & 3000m \\
+Peer contact report & 1750m & 2500m & 3000m \\
+Peer edge-quality report & 1750m & 2500m & 3000m \\
+Peer map bundle & 1250m & 2000m & 2250m \\
+Shared 8-drone map bundle & 1250m & 2000m & 2250m \\
+Recovery alert & 1750m & 2500m & 3000m \\
+\end{longtable}
+}
+
+Thus a 1500m inter-drone spacing is not toy geometry under this model.
+It is a physically meaningful, delay-bearing acoustic regime:
+approximately one second one-way propagation and low-rate half-duplex
+scheduling, but enough link budget for map bundles in the
+strong-to-marginal band. The planner should treat links near the margin
+as triggers for tightening, message thinning, relay insertion, or
+calloff rather than assuming infinite broadcast.
+
+\paragraph{9.5.4 Vertical acoustic relay
+localization}\label{vertical-acoustic-relay-localization}
+
+\texttt{underwater/bench\_vertical\_relay.py} evaluates a
+surface-to-depth GPS/acoustic relay: a GPS-known surface triad seeds an
+acoustic coordinate frame; relay drones propagate that frame down the
+water column using two-way ranging. The benchmark compares two
+geometries:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{triad\_hops:} three relay drones every 1500m;
+\item
+  \textbf{dense\_chain:} one relay drone every 500m on a helical path,
+  so any 1500m section can see multiple non-collinear relays.
+\end{itemize}
+
+Depths are 1000m, 3000m, and 6000m; regimes are nominal, noisy/drift,
+and one failed relay. Two solvers are reported: sequential downstream
+trilateration, which compounds hop error, and a global least-squares
+pose-graph solve with depth and weak dead-reckoning priors. The
+success-rate metric requires every bottom-depth node to be estimated;
+bottom RMSE is computed only over bottom nodes that were estimated, so
+failure cases must be read with success rate.
+
+Global-solve results are mixed rather than one-sided:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2143}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2857}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2857}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Depth/regime
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Better strategy by global solve
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Triad success / RMSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Dense success / RMSE
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1000m nominal & triad\_hops & 1.00 / 7.0m & 1.00 / 9.2m \\
+1000m noisy drift & triad\_hops & 1.00 / 19.8m & 1.00 / 20.6m \\
+1000m one failed relay & dense\_chain & 0.00 / 12.8m & 0.53 / 18.1m \\
+3000m nominal & dense\_chain & 1.00 / 16.3m & 1.00 / 14.7m \\
+3000m noisy drift & triad\_hops & 1.00 / 40.7m & 1.00 / 51.8m \\
+3000m one failed relay & dense\_chain & 0.54 / 31.8m & 0.86 / 48.5m \\
+6000m nominal & triad\_hops & 1.00 / 24.1m & 1.00 / 24.9m \\
+6000m noisy drift & triad\_hops & 1.00 / 116.9m & 1.00 / 117.6m \\
+6000m one failed relay & dense\_chain & 0.78 / 40.6m & 0.88 / 78.2m \\
+\end{longtable}
+}
+
+The interpretation is a design tradeoff. Dense chains often help
+sequential propagation because shorter links reduce per-hop error and
+they retain connectivity when a relay is lost. Triad hops are more
+efficient in drone count and, with global smoothing, often achieve lower
+bottom error. The result is not ``dense is better'' or ``triads are
+better''; the correct planner should choose based on acceptable failure
+probability, channel traffic, drone budget, and whether a global
+pose-graph solve is available.
+
+\paragraph{9.5.5 What the underwater supplemental does not
+establish}\label{what-the-underwater-supplemental-does-not-establish}
+
+The v1.3 underwater supplemental is a feasibility and modeling layer. It
+does not establish:
+
+\begin{itemize}
+\tightlist
+\item
+  a full per-drone adaptive underwater mission loop;
+\item
+  distributed leader/phase agreement under range-limited acoustic
+  gossip;
+\item
+  recovery from partitions without a centralized MissionState;
+\item
+  hardware-calibrated acoustic modem performance;
+\item
+  site-specific bathymetry, sound-speed profile, multipath, or Doppler;
+\item
+  classification or neutralization of detected contacts.
+\end{itemize}
+
+These exclusions are load-bearing. The underwater results show that
+detection mapping, physical data-rate accounting, and vertical acoustic
+relay localization are plausible and bounded. They do not yet prove the
+complete underwater swarm architecture. The next step is to wire
+link-quality edges into the shared map and let each drone plan over both
+mission value and communication/localization viability.
 
 \subsection{10. Future work}\label{future-work}
 
@@ -2095,6 +2578,22 @@ victims to maximize reassignment cascade. Bounds on the reassignment
 count under such an adversary, and surplus-allocation strategies that
 minimize worst-case disruption.
 
+\subsubsection{10.7 Underwater adaptive mission
+loop}\label{underwater-adaptive-mission-loop}
+
+The v1.3 underwater benches establish detection-map gossip, acoustic
+capacity bands, and vertical relay localization as bounded mechanisms.
+The missing system is the per-drone adaptive mission loop that composes
+them. The next simulator should represent communication quality as
+first-class map edges -- packet-delivery rate, retry burden, channel
+occupancy, SNR, and confidence -- and let each drone plan over both
+mission value and information viability. Marginal links should trigger
+formation tightening, message thinning, relay insertion, or
+recovery/rally behavior. Failed links should remove direct exchange from
+the plan rather than silently degrading the map. This is where the
+underwater work becomes a full distributed protocol rather than a set of
+validated submechanisms.
+
 \subsection{11. Reproducing}\label{reproducing}
 
 All experiments are reproducible from this repository:
@@ -2146,6 +2645,12 @@ All experiments are reproducible from this repository:
 
 \CommentTok{\# Generate paper figures}
 \ExtensionTok{python3}\NormalTok{ make\_figures.py}
+
+\CommentTok{\# v1.3 underwater feasibility supplemental}
+\ExtensionTok{python3}\NormalTok{ underwater/bench\_detection\_mapping.py }\AttributeTok{{-}{-}seeds}\NormalTok{ 500 }\AttributeTok{{-}{-}jobs}\NormalTok{ 8}
+\ExtensionTok{python3}\NormalTok{ underwater/bench\_comms\_spectrum.py }\AttributeTok{{-}{-}seeds}\NormalTok{ 100 }\AttributeTok{{-}{-}jobs}\NormalTok{ 8}
+\ExtensionTok{python3}\NormalTok{ underwater/bench\_link\_budget.py}
+\ExtensionTok{python3}\NormalTok{ underwater/bench\_vertical\_relay.py }\AttributeTok{{-}{-}seeds}\NormalTok{ 100 }\AttributeTok{{-}{-}jobs}\NormalTok{ 8}
 
 \CommentTok{\# Live simulation: 100 drones, sphere → torus → cube → star}
 \ExtensionTok{python3}\NormalTok{ simulator.py}
@@ -2200,6 +2705,16 @@ outlier-rejection mitigation \\
 attack sweep \\
 \texttt{bench\_streaming.py} & Streaming/mocap-style time-varying
 manifolds \\
+\texttt{underwater/bench\_detection\_mapping.py} & v1.3 underwater
+detection-map gossip \\
+\texttt{underwater/bench\_comms\_spectrum.py} & v1.3 acoustic
+range/capacity/loss sweep \\
+\texttt{underwater/acoustic\_channel.py} & v1.3 acoustic link-budget
+model \\
+\texttt{underwater/bench\_link\_budget.py} & v1.3 throughput sufficiency
+bands \\
+\texttt{underwater/bench\_vertical\_relay.py} & v1.3 vertical acoustic
+relay localization \\
 \texttt{make\_figures.py} & Generates the five paper figures \\
 \texttt{PROOFS.md} & Formal lemmas, theorems, proofs \\
 \texttt{WRITEUP.md} & This document \\
@@ -2207,955 +2722,3 @@ manifolds \\
 \texttt{swarm.mp4} & Rendered four-phase demo \\
 \end{longtable}
 }
-
-\section{Formal Properties of the Decentralized Swarm Coordination
-Architecture}\label{formal-properties-of-the-decentralized-swarm-coordination-architecture}
-
-This document establishes the theoretical properties of the four-layer
-coordination architecture: assignment, recovery, priority allocation,
-and localization. Each result corresponds to an empirically measured
-claim in the experimental sections.
-
-The proofs are organized so that claims about determinism and
-bijectivity support the assignment layer, claims about local-patching
-support the recovery layer, claims about sub-manifold composition
-support priority allocation, and the architectural theorems unify them
-all on the same broadcast-as-shared-state primitive.
-
-\subsection{1. Notation}\label{notation}
-
-Let M = \{m₁, \ldots, m\_N\} ⊂ ℝ³ denote the \textbf{target manifold},
-an ordered set of N points the swarm is to occupy.
-
-Let T = T(M) denote the \textbf{PCA-tree} of M, defined recursively: - A
-leaf node v has \textbar L\_v\textbar{} = 1, where L\_v ⊆ M is its
-associated point set. - An internal node v has L\_v with
-\textbar L\_v\textbar{} \textgreater{} 1, a centroid c\_v =
-(1/\textbar L\_v\textbar) Σ\_\{m ∈ L\_v\} m, and a split direction Π\_v
-∈ ℝ³ defined as the leading right-singular vector of the centered matrix
-{[}L\_v - c\_v{]}. Children v\_L, v\_R partition L\_v: the points with
-the ⌊\textbar L\_v\textbar/2⌋ smallest projections (m - c\_v) · Π\_v go
-to v\_L, the rest to v\_R. Hence \textbar L\_\{v\_L\}\textbar{} =
-⌊\textbar L\_v\textbar/2⌋ and \textbar L\_\{v\_R\}\textbar{} =
-⌈\textbar L\_v\textbar/2⌉.
-
-Let D = \{d₁, \ldots, d\_n\} denote a set of n drones with positions
-p(d\_i) ∈ ℝ³.
-
-The \textbf{strict-mode hierarchical assignment} ASSIGN(D, T) is defined
-recursively. At node v with assigned drone subset D\_v (initially
-D\_root = D):
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  Compute d\_left = round(\textbar D\_v\textbar{} ·
-  \textbar L\_\{v\_L\}\textbar{} / \textbar L\_v\textbar) and d\_right =
-  \textbar D\_v\textbar{} − d\_left.
-\item
-  Sort D\_v by projection rank along Π\_v.
-\item
-  Send the d\_left drones with smallest projection to v\_L; the rest to
-  v\_R.
-\item
-  Recurse on each child.
-\item
-  Terminal case: when D\_v reaches a leaf v with \textbar L\_v\textbar{}
-  = 1, every drone in D\_v is associated with the single target m\_v ∈
-  L\_v. The drone with the smallest distance ‖p(d) − m\_v‖ is the
-  \textbf{primary} for m\_v; remaining drones are \textbf{surplus} and
-  target the centroid c\_\{parent(v)\} of v's parent. (Tie-break primary
-  by drone ID.)
-\end{enumerate}
-
-This is the algorithm implemented in \texttt{compute\_target} in
-\texttt{simulator.py} and the benchmark scripts.
-
-We write n = N for the \textbf{bijective regime} (one drone per target)
-and n = N + S for the \textbf{surplus regime} (S extra drones beyond
-targets).
-
-\subsection{2. Lemmas}\label{lemmas}
-
-\subsubsection{Lemma 1 (Determinism)}\label{lemma-1-determinism}
-
-For any drone d\_i ∈ D, the result of ASSIGN(D, T) restricted to d\_i
---- i.e., d\_i's tree-path and assigned target --- is a deterministic
-function of (D, T) and the position vector p(·). It does not depend on
-which drone ``runs'' the algorithm.
-
-\textbf{Proof.} At every internal node v, the partition of D\_v into
-D\_\{v\_L\} and D\_\{v\_R\} is induced by the projection ranks of \{p(d)
-: d ∈ D\_v\} onto Π\_v, and the cut at d\_left depends only on
-\textbar D\_v\textbar, \textbar L\_\{v\_L\}\textbar,
-\textbar L\_v\textbar. None of these values depend on the identity of
-the drone running ASSIGN; they depend only on the set D and the tree T.
-Therefore each drone d\_i ∈ D descends through the same sequence of
-partitions to the same leaf; its primary/surplus designation at the leaf
-is determined by the deterministic distance comparison and ID tie-break.
-∎
-
-This is the basis of the \emph{consensus-by-determinism} claim: every
-drone running the algorithm against the same broadcast input arrives at
-the same global assignment without exchanging messages.
-
-\textbf{Preconditions for determinism in deployment.} The proof above
-assumes (i) bit-identical floating-point arithmetic across drones, (ii)
-a globally-consistent drone ID ordering for tie-breaks. (i) is not
-automatically guaranteed by IEEE-754: the SVD computation and
-projection-rank sort can produce different orderings on heterogeneous
-hardware (different SIMD widths, fused-multiply-add availability,
-compiler optimizations). For deployment-grade consensus, use either
-deterministic-SVD libraries with strict floating-point modes, or
-fixed-point arithmetic for the projection-rank computation. (ii) is
-typically trivial --- manufacturer serial numbers or launch-order
-indices give the global ordering --- but it is a precondition that must
-be established at swarm initialization rather than discovered at
-runtime.
-
-\subsubsection{Lemma 2 (Bijectivity in the bijective
-regime)}\label{lemma-2-bijectivity-in-the-bijective-regime}
-
-When \textbar D\textbar{} = \textbar M\textbar{} = N, ASSIGN(D, T) is a
-bijection between D and M.
-
-\textbf{Proof.} We show by induction on the tree depth at which D\_v is
-computed that \textbar D\_v\textbar{} = \textbar L\_v\textbar{} at every
-node.
-
-\emph{Base.} At the root, \textbar D\_root\textbar{} =
-\textbar D\textbar{} = N = \textbar M\textbar{} =
-\textbar L\_root\textbar.
-
-\emph{Inductive step.} Let v be an internal node with
-\textbar D\_v\textbar{} = \textbar L\_v\textbar{} = m. Then d\_left =
-round(m · \textbar L\_\{v\_L\}\textbar/m) =
-round(\textbar L\_\{v\_L\}\textbar) = \textbar L\_\{v\_L\}\textbar,
-since \textbar L\_\{v\_L\}\textbar{} is integer-valued. Likewise
-d\_right = m − \textbar L\_\{v\_L\}\textbar{} =
-\textbar L\_\{v\_R\}\textbar. So \textbar D\_\{v\_L\}\textbar{} =
-\textbar L\_\{v\_L\}\textbar{} and \textbar D\_\{v\_R\}\textbar{} =
-\textbar L\_\{v\_R\}\textbar, preserving the invariant.
-
-By induction, every leaf v has \textbar D\_v\textbar{} =
-\textbar L\_v\textbar{} = 1. The single drone in D\_v is assigned to the
-single target in L\_v, giving a bijection. ∎
-
-\subsubsection{Lemma 3 (Reachability in the surplus
-regime)}\label{lemma-3-reachability-in-the-surplus-regime}
-
-When \textbar D\textbar{} = N + S with S ≥ 0, every leaf of T receives
-at least one drone in ASSIGN(D, T).
-
-\textbf{Proof.} We show by induction that \textbar D\_v\textbar{} ≥
-\textbar L\_v\textbar{} at every node.
-
-\emph{Base.} \textbar D\_root\textbar{} = N + S ≥ N =
-\textbar L\_root\textbar.
-
-\emph{Inductive step.} Let v be an internal node with
-\textbar D\_v\textbar{} = \textbar L\_v\textbar{} + s\_v for some s\_v ≥
-0, and let m = \textbar L\_v\textbar, m\_L =
-\textbar L\_\{v\_L\}\textbar, m\_R = \textbar L\_\{v\_R\}\textbar. Then
-d\_left = round((m + s\_v) · m\_L / m) = round(m\_L + s\_v · m\_L / m).
-Since 0 ≤ s\_v · m\_L / m ≤ s\_v, the rounded value lies in {[}m\_L,
-m\_L + s\_v{]} (after accounting for banker's rounding's worst case of
-0.5 displacement --- see remark below). Therefore d\_left ≥ m\_L, i.e.,
-\textbar D\_\{v\_L\}\textbar{} ≥ \textbar L\_\{v\_L\}\textbar.
-Symmetrically \textbar D\_\{v\_R\}\textbar{} ≥
-\textbar L\_\{v\_R\}\textbar. The invariant \textbar D\_v\textbar{} ≥
-\textbar L\_v\textbar{} is preserved at both children.
-
-By induction, every leaf v has \textbar D\_v\textbar{} ≥
-\textbar L\_v\textbar{} = 1, so every leaf receives at least one drone.
-∎
-
-\emph{Remark on rounding.} Banker's rounding (round-half-to-even, the
-Python 3 default) maps half-integers to the nearest even integer. In the
-worst case round(x + 0.5) = x for even x, so rounding can decrease a
-value by 0.5 from its real-valued counterpart. The proof above uses
-round(y) ≥ y − 0.5 for all real y, which is the tight bound. For y =
-m\_L + s\_v · m\_L / m ≥ m\_L, we have round(y) ≥ y − 0.5 ≥ m\_L − 0.5,
-and since round(y) is integer, round(y) ≥ ⌈m\_L − 0.5⌉ = m\_L. The
-inductive invariant therefore holds.
-
-\subsubsection{Lemma 4 (Primary designation is deterministic across
-drones)}\label{lemma-4-primary-designation-is-deterministic-across-drones}
-
-When multiple drones reach the same leaf v (\textbar D\_v\textbar{}
-\textgreater{} 1), every drone in D\_v computes the same primary
-designation: the drone d* ∈ D\_v minimizing ‖p(d) − m\_v‖ (with ID-based
-tie-break) is primary, and all others are surplus.
-
-\textbf{Proof.} The set D\_v is determined by Lemma 1 --- the same set
-is identified by every drone in D\_v running the algorithm. Each drone
-computes ‖p(d) − m\_v‖ for every d ∈ D\_v using broadcast positions,
-which all drones see identically. The minimum is unique up to ties;
-ID-based tie-break gives a deterministic resolution. ∎
-
-\subsubsection{Theorem 1 (Consensus by
-determinism)}\label{theorem-1-consensus-by-determinism}
-
-Given a broadcast B in which every drone reports its position p(d),
-every drone independently running ASSIGN(D, T) against B derives the
-same global assignment a: D → M (with one-to-one correspondence on
-primary drones in the bijective regime, with multi-occupant primary
-designation and surplus assignment in the surplus regime).
-
-\textbf{Proof.} Direct corollary of Lemmas 1, 2 (or 3), and 4. The
-assignment is a deterministic function of (D, T, B) common to all
-drones. ∎
-
-This formalizes the \emph{no-coordination consensus} property of the
-assignment layer. There is no message passing, no auction round, no
-leader election; the consensus is a property of the algorithm's
-determinism on shared input.
-
-\subsubsection{Lemma 5 (Patch protocol is Hamming-optimal for single
-death)}\label{lemma-5-patch-protocol-is-hamming-optimal-for-single-death}
-
-Given a death of one primary drone d ∈ D in the surplus regime (S ≥ 1),
-the patch protocol --- promoting the live surplus drone s* ∈ D ~\{d\}
-minimizing ‖p(s*) − a(d)‖ to target a(d), with all other targets
-unchanged --- produces the post-death assignment a' with minimum Hamming
-distance H(a, a') = \textbar\{d' ∈ D : a(d') ≠ a'(d')\}\textbar{} from
-a, subject to the constraint that the empty leaf a(d) is filled by some
-live drone.
-
-\textbf{Proof.} The patch produces a' that differs from a on exactly one
-drone (namely s*, whose target changed from c\_\{parent(leaf)\} to a(d))
-and removes d from the assignment domain. Therefore H(a, a') = 1
-(counting only live drones).
-
-Any valid post-death assignment a' must fill a(d) with some live drone
-d* ≠ d.~Since d* was assigned a(d*) ≠ a(d) in a, its assignment must
-change in a'. Therefore H(a, a') ≥ 1.
-
-Equality holds for the patch protocol; it achieves the minimum. ∎
-
-\subsubsection{Lemma 6 (Patch correctness for single
-death)}\label{lemma-6-patch-correctness-for-single-death}
-
-The patch protocol, when applied to the death of one primary drone d in
-the surplus regime (S ≥ 1), produces a post-death assignment a' that is
-a valid bijection between the N − 1 surviving primaries plus the
-promoted surplus s* on one side, and the N original target leaves on the
-other.
-
-\textbf{Proof.} Pre-death, a is a bijection between primaries in D and
-the N leaves M. The death removes d from primary assignment, freeing
-leaf a(d); the N − 1 other primaries retain their assignments. The
-promotion of s* changes s\emph{'s target from a parent centroid
-(interior, not in M) to a(d) ∈ M, making s} a primary at a(d). The set
-of primaries is now \{primaries ∖ \{d\}\} ∪ \{s*\} of size N, mapped
-one-to-one onto M. The N + S − 1 surviving drones partition into N
-primaries and S − 1 surplus. ∎
-
-\subsubsection{Lemma 7 (Sequential cluster patch
-correctness)}\label{lemma-7-sequential-cluster-patch-correctness}
-
-Given a cluster of K simultaneous primary deaths, sequential patch
-(applying single-patch to each death in some order, each promotion
-consuming one surplus) produces a valid bijection between the N + S − K
-surviving drones and the N target leaves if and only if S ≥ K. If S
-\textless{} K, exactly K − S leaves remain unfilled.
-
-\textbf{Proof.} By induction on K.
-
-\emph{K = 1.} Lemma 6.
-
-\emph{Inductive step.} After patching the first death, S' = S − 1
-surplus drones remain. Apply the inductive hypothesis to the remaining K
-− 1 deaths with surplus pool S'. The condition S' ≥ K − 1 is equivalent
-to S ≥ K. If S ≥ K throughout, every death's patch succeeds; total
-reassignments = K, total leaves filled = N (bijection on primaries).
-
-If S \textless{} K, after S patches the surplus pool is exhausted. The
-remaining K − S deaths cannot be filled and leave K − S leaves empty.
-The remaining N − (K − S) leaves are filled bijectively by surviving
-primaries plus promoted surplus. ∎
-
-\subsubsection{Lemma 8 (Greedy patch is locally optimal but not globally
-optimal)}\label{lemma-8-greedy-patch-is-locally-optimal-but-not-globally-optimal}
-
-Sequential greedy patch --- at each step, promoting the live surplus
-closest to the current dead leaf --- minimizes per-step flight cost but
-can be arbitrarily worse than the globally optimal cluster recovery
-(Hungarian assignment between dead leaves and live surplus).
-
-\textbf{Proof.} Per-step optimality is by definition: each step picks
-the minimum-distance surplus.
-
-For global suboptimality, consider K = 2 deaths at leaves A, B with S =
-2 surplus drones at positions S₁, S₂. Suppose: - ‖A − S₁‖ = 1, ‖A − S₂‖
-= 2, - ‖B − S₁‖ = 1, ‖B − S₂‖ = 100.
-
-Greedy processes deaths in some order. If A is patched first, S₁ is
-chosen (cost 1); then B must use S₂ (cost 100); total 101. If B is
-patched first, S₁ is chosen (cost 1); then A must use S₂ (cost 2); total
-3. The Hungarian-optimal pairing is (A → S₂, B → S₁), total cost 3.
-
-Greedy's worst case (A first) is 33× the optimum. Therefore greedy is
-not globally optimal. ∎
-
-This motivates the \emph{Hungarian-fixup} variant evaluated empirically
-in § Greedy vs Hungarian Cluster Patch.
-
-\subsubsection{Lemma 9 (Quiescent broadcast
-consistency)}\label{lemma-9-quiescent-broadcast-consistency}
-
-If at tick T every drone d ∈ D is locked (d.locked = True), then for any
-T' \textgreater{} T such that no drone has unlocked between T and T'
-inclusive, every drone reading the broadcast at any tick in {[}T, T'{]}
-observes identical positions for all drones.
-
-\textbf{Proof.} A locked drone publishes its position to the broadcast
-every tick but does not change its position (the navigation step is
-skipped when self.locked = True). Therefore for each drone d, the
-position broadcast at tick T equals the position broadcast at tick T+1,
-\ldots, T'. A read at any tick t ∈ {[}T, T'{]} returns these constant
-positions for every drone. ∎
-
-\subsubsection{Theorem 2 (Phase-transition
-consensus)}\label{theorem-2-phase-transition-consensus}
-
-If every drone observes the all-locked condition at some tick during its
-quiescent window and snapshots the broadcast at that observation time,
-all drones derive identical phase-transition assignments --- even though
-each drone observes the all-locked condition at a slightly different
-tick.
-
-\textbf{Proof.} Let T\_min and T\_max be the earliest and latest ticks
-at which any drone observes all-locked. By Lemma 9, the broadcast
-positions are constant on {[}T\_min, T\_max{]} provided no drone unlocks
-in this interval.
-
-A drone d unlocks at tick T\_d + h\_d, where T\_d is its observation
-tick and h\_d is its hold duration. The hold duration is set
-deterministically by each drone (typically the formation time of the
-current phase), and is independent across drones up to small clock
-jitter, so h\_d ≥ h\_min ≫ T\_max − T\_min in practice. Therefore no
-drone unlocks before T\_max, and the broadcast remains quiescent on
-{[}T\_min, T\_max{]}.
-
-Each drone snapshots an identical broadcast (Lemma 9) and runs ASSIGN
-deterministically (Theorem 1). The snapshots agree, so the assignments
-agree. ∎
-
-This formalizes the \emph{phase-quiescence} trick that enables
-multi-manifold demos to transition without coordination machinery.
-
-\subsubsection{Lemma 9.5 (ETA-deadline quiescence under packet
-loss)}\label{lemma-9.5-eta-deadline-quiescence-under-packet-loss}
-
-Suppose every en-route drone d ∈ D broadcasts
-\texttt{STATE\ =\ EN\_ROUTE} with current ETA estimate ETA\_d at
-intervals τ\_d \textgreater{} 0, and arrived drones broadcast no
-transit-state messages. Let ETA\_max = max\_d ETA\_d over the en-route
-set, δ \textgreater{} 0 a tolerance margin, and T\_max = ETA\_max + δ.
-Assume an independent per-message delivery failure probability p
-\textless{} 1 between any sender-receiver pair. Then for every drone d'
-that survives to T\_max:
-
-\begin{enumerate}
-\def\labelenumi{(\alph{enumi})}
-\item
-  the probability that d' fails to receive \emph{any} report containing
-  ETA\_max during the interval {[}t\_0, ETA\_max{]} decays as p\^{}k
-  where k is the number of reports broadcast by the slowest drone in
-  that interval; and
-\item
-  at time T\_max, every surviving d' that has not received any EN\_ROUTE
-  broadcast in the window (T\_max − τ\emph{, T\_max{]}, where τ} is the
-  minimum broadcast interval over the en-route set, deterministically
-  transitions to the next phase.
-\end{enumerate}
-
-\textbf{Proof.} (a) The slowest drone broadcasts ⌈(ETA\_max − t\_0)/τ⌉
-times in the interval. Independent loss with probability p makes total
-failure probability ≤ p\^{}k, which is exponentially small for modest k
-regardless of any single recipient's per-message loss rate. The
-aggregation over the entire en-route set (each drone broadcasts its own
-ETA estimate, recipients keep the maximum observed) only strengthens
-this, since recipients can also infer ETA\_max from any drone whose own
-ETA estimate equals or exceeds it.
-
-\begin{enumerate}
-\def\labelenumi{(\alph{enumi})}
-\setcounter{enumi}{1}
-\tightlist
-\item
-  The transition trigger is \emph{negative evidence}: absence of
-  EN\_ROUTE traffic in the deadline window. A perfectly silent window on
-  the broadcast channel is observationally identical to ``all drones
-  arrived and ceased to broadcast'' --- but this is the desired
-  behavior, since the alternative (waiting for an explicit ``all
-  arrived'' message that may have been dropped) is precisely what made
-  the naïve protocol fragile. The trigger is invariant under loss
-  because the loss outcome and the success outcome are observationally
-  equivalent at the recipient. ∎
-\end{enumerate}
-
-\textbf{Remark (channel-denial residual).} Lemma 9.5's transition
-trigger cannot distinguish ``everyone arrived'' from ``the channel
-itself went silent for non-arrival reasons (jamming, fade).'' This is a
-property of the substrate, not the protocol. In any operational
-deployment the broadcast carries non-transition traffic (position
-telemetry, sensor data, command/control); a drone observing total
-channel silence --- \emph{no} broadcasts of any kind for the prior N
-seconds --- can defer the phase transition pending channel recovery.
-This adds no protocol messages and is a sanity check on the substrate
-itself.
-
-\subsubsection{Theorem 2.5 (Mid-flight reconfiguration
-consensus)}\label{theorem-2.5-mid-flight-reconfiguration-consensus}
-
-Let M, M' be two manifolds with M' arriving at the swarm before the
-transit toward M has completed. Let \texttt{prior\_end\_state(D,\ M)}
-denote the leaf coordinates each drone would occupy under ASSIGN(D,
-T(M)) upon completion. If every drone d ∈ D runs ASSIGN(D, T(M')) using
-input positions either (i) prior\_end\_state(D, M) or (ii) a
-broadcast-snapshot of live positions latched at a common logical tick
-t*, then all drones derive identical assignments to M'.
-
-\textbf{Proof.} Both inputs are byte-identical across drones. For (i),
-prior\_end\_state(D, M) is the output of ASSIGN(D, T(M)), which is
-deterministic across drones by Theorem 1; therefore every drone computes
-the same leaf-coordinate input. For (ii), Lemma 9 gives broadcast
-consistency at any read on a quiescent window; for a non-quiescent
-window, common consensus on t* is required (the same machinery as
-Theorem 2 supplies, applied to a snapshot tick rather than an all-locked
-tick). In both cases ASSIGN's determinism (Theorem 1) maps the
-byte-identical input to a byte-identical output; the swarm reaches
-consensus on the M' assignment without any global drone-to-leaf mapping
-ever being computed by any single drone. ∎
-
-\textbf{Remark (option choice).} Option (i) is preferred in deployment
-because it requires no snapshot-latching coordination --- the prior
-end-state is implicit in the prior assignment that every drone has
-already computed locally. Option (ii) is more path-efficient (drones
-recompute against where they actually are, not where they would have
-ended up) but pays the snapshot-coordination cost.
-
-\subsection{3. Theorems and supporting
-results}\label{theorems-and-supporting-results}
-
-\subsubsection{Lemma 10 (Sub-manifold
-composition)}\label{lemma-10-sub-manifold-composition}
-
-The strict-mode hierarchical assignment ASSIGN(D, T(M')) where M' ⊆ M is
-a sub-manifold of M, run on a drone subset D' ⊆ D, satisfies all the
-properties of Lemmas 1-4 with M' replacing M and D' replacing D.
-
-\textbf{Proof.} ASSIGN's properties (Lemmas 1-4) are stated in terms of
-input (D, T) without dependence on M's structure beyond what enters T's
-construction. The PCA-tree construction is well-defined on any finite
-point set; the projection-rank partition is well-defined for any drone
-set; the closest-by-distance primary designation is well-defined on any
-leaf-vs-drone configuration. Therefore Lemmas 1-4 apply verbatim with M'
-and D' in place of M and D. ∎
-
-This lemma supports the priority-allocation layer: surplus drones
-running ASSIGN against the key sub-manifold M\_key (offset by safety
-distance δ) form a shadow fleet, with consensus, bijectivity (or
-reachability), and primary designation all preserved. The same proofs
-apply to the shadow fleet's algorithm as to the primary fleet's, because
-the algorithm is identical and only the input changes.
-
-\subsubsection{Theorem 3 (Layer
-composition)}\label{theorem-3-layer-composition}
-
-We formalize the four-layer composition as a theorem with three parts:
-parallel non-interference for layers with disjoint write footprints,
-pipeline composition for the localization layer producing inputs the
-other layers consume, and sequential override for the recovery layer
-that conditionally amends the assignment.
-
-\paragraph{Formal model}\label{formal-model}
-
-Let the \textbf{broadcast} B be a function from slot-IDs to values:
-
-\begin{verbatim}
-B: Slot → Value
-\end{verbatim}
-
-Slots are typed and partitioned:
-
-\begin{verbatim}
-Slot = positions[1..n] ⊔ target_idx[1..n] ⊔ primary_flag[1..n]
-     ⊔ dead_flag[1..n] ⊔ est_pos[1..n] ⊔ confidence[1..n]
-     ⊔ key_list ⊔ alarms[1..n]
-\end{verbatim}
-
-where n = N + S is the total number of drone slots and ⊔ denotes
-disjoint union. Each layer is a transition \texttt{f:\ B\ →\ B}
-characterized by a read set R(f) ⊆ Slot and a write set W(f) ⊆ Slot:
-
-\begin{itemize}
-\tightlist
-\item
-  For all s ∈ Slot ~W(f), \href{s}{f(B)} = B(s) (slots not in W are
-  unchanged).
-\item
-  For all s ∈ W(f), \href{s}{f(B)} is a function only of \{B(s′) : s′ ∈
-  R(f)\} (writes depend only on reads).
-\end{itemize}
-
-\paragraph{Layer footprints}\label{layer-footprints}
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.1944}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3889}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4167}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Layer
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-R(f) (reads)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-W(f) (writes)
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-L₁ Assignment & positions{[}1..N{]} & target\_idx{[}1..N{]},
-primary\_flag{[}1..N{]} \\
-L₂ Recovery & positions{[}1..n{]}, dead\_flag{[}1..n{]}, target\_idx,
-primary\_flag & target\_idx{[}i where dead\_flag{[}i{]} set{]},
-primary\_flag \\
-L₃ Priority & positions{[}1..n{]}, key\_list & target\_idx{[}N..n{]},
-primary\_flag{[}N..n{]} \\
-L₄ Localization & est\_pos{[}1..n{]}, confidence{[}1..n{]}, alarms &
-est\_pos{[}1..n{]}, confidence{[}1..n{]} \\
-\end{longtable}
-}
-
-(In deployment, the \texttt{positions} slots that L₁, L₂, L₃ read are
-filled by L₄'s \texttt{est\_pos} outputs --- i.e., positions ≡ est\_pos
-as input to the upper layers.)
-
-\paragraph{Non-interference lemma}\label{non-interference-lemma}
-
-\textbf{Lemma (slot-disjointness implies commutativity).} Let f, g be
-two transitions with R(f) ∩ W(g) = ∅, R(g) ∩ W(f) = ∅, and W(f) ∩ W(g) =
-∅. Then for all B, f(g(B)) = g(f(B)).
-
-\textbf{Proof.} We show f(g(B)) and g(f(B)) agree on every slot.
-
-For s ∉ W(f) ∪ W(g): \href{s}{f(g(B))} = \href{s}{g(B)} = B(s) =
-\href{s}{f(B)} = \href{s}{g(f(B))}. Both transitions leave s unchanged.
-
-For s ∈ W(f) (and s ∉ W(g) by disjointness): \href{s}{f(g(B))} depends
-only on \{\href{s′}{g(B)} : s′ ∈ R(f)\}. By R(f) ∩ W(g) = ∅,
-\href{s′}{g(B)} = B(s′) for s′ ∈ R(f), so \href{s}{f(g(B))} =
-\href{s}{f(B)}. Likewise \href{s}{g(f(B))} = \href{s}{f(B)} since g
-doesn't touch s. So \href{s}{f(g(B))} = \href{s}{g(f(B))}.
-
-For s ∈ W(g) (and s ∉ W(f)): by symmetric argument, \href{s}{f(g(B))} =
-\href{s}{g(B)} and \href{s}{g(f(B))} = \href{s}{g(B)}. Equal.
-
-Therefore f(g(B)) = g(f(B)) on every slot. ∎
-
-\paragraph{Theorem 3 (decomposed)}\label{theorem-3-decomposed}
-
-\textbf{Theorem 3a (Parallel non-interference for L₁ and L₃).} Layer 1
-and Layer 3 are non-interfering in the sense of the lemma above.
-Therefore L₁(L₃(B)) = L₃(L₁(B)) for all B, and parallel composition is
-well-defined.
-
-\textbf{Proof.} L₁ writes only target\_idx{[}1..N{]} and
-primary\_flag{[}1..N{]}; L₃ writes only target\_idx{[}N..n{]} and
-primary\_flag{[}N..n{]}. These slot ranges are disjoint, so W(L₁) ∩
-W(L₃) = ∅. L₁ reads only positions{[}1..N{]}, which is not in W(L₃) (L₃
-writes target\_idx and primary\_flag, not positions). Similarly L₃'s
-reads (positions and key\_list) are disjoint from W(L₁). Apply the
-lemma. ∎
-
-\textbf{Theorem 3b (Pipeline composition for L₄).} Layer 4 is
-non-interfering with L₁, L₂, L₃ in the slot sense. L₄ writes est\_pos
-and confidence; L₁, L₂, L₃ read est\_pos (as positions) and write
-target\_idx, primary\_flag, dead\_flag --- all disjoint from W(L₄). The
-standard ordering L₄ → \{L₁, L₃\} → L₂ is therefore a choice of
-computational schedule, not a correctness requirement; any topological
-ordering that respects the data dependencies (L₄ before its consumers)
-produces the same final state.
-
-\textbf{Proof.} R(L₄) = \{est\_pos, confidence, alarms\}, W(L₄) =
-\{est\_pos, confidence\}. R(L\_\{1,2,3\}) ⊆ \{positions, target\_idx,
-primary\_flag, dead\_flag, key\_list\}. R(L\_\{1,2,3\}) ∩ W(L₄) = ∅ (no
-upstream layer reads est\_pos as it appears in W(L₄) --- they read it as
-the input ``positions''). W(L\_\{1,2,3\}) ∩ W(L₄) = ∅ (different slot
-families). W(L\_\{1,2,3\}) ∩ R(L₄) = ∅ (L₄ doesn't read target\_idx,
-primary\_flag, or dead\_flag). Apply the lemma. ∎
-
-\textbf{Theorem 3c (Sequential override of L₂ on L₁).} L₂ writes
-target\_idx{[}i{]} only for indices i where dead\_flag{[}i{]} is set;
-for i with dead\_flag{[}i{]} = 0, L₂ leaves target\_idx{[}i{]}
-unchanged. The composition L₂ ∘ L₁ produces a state where:
-
-\begin{verbatim}
-target_idx[i] = ⎧ L₂'s promotion if dead_flag[i] is set
-               ⎨
-                ⎩ L₁'s assignment otherwise
-\end{verbatim}
-
-This composition is deterministic given the dead\_flag pattern at the
-time of L₂'s execution.
-
-\textbf{Proof.} L₂'s write to target\_idx{[}i{]} is conditional:
-f\_\{L₂\} includes a guard
-\texttt{if\ dead\_flag{[}i{]}\ then\ promote\ else\ identity}. For
-indices with dead\_flag{[}i{]} = 0, L₂ is the identity, so L₁'s output
-is preserved. For indices with dead\_flag{[}i{]} = 1, L₂'s promotion
-function (Lemma 5) overrides. The result is well-defined for any
-dead\_flag pattern. ∎
-
-\paragraph{Architectural consequence}\label{architectural-consequence}
-
-Theorem 3a, 3b, 3c together establish that the four-layer composition
-has a deterministic final state for any input broadcast. The empirical
-validation in \texttt{simulator.py} (Layers 1, 2, 3 in composition) and
-\texttt{bench\_layer4.py} (Layer 4 implementation and validation)
-confirms that the formal composition matches the implementation. The
-substrate generalization claim --- that one broadcast primitive supports
-four distinct coordination patterns --- is therefore both empirically
-demonstrated and formally characterized by the read/write footprint
-algebra above.
-
-The earlier ``substrate generalization'' phrasing was an architectural
-observation; the version above is a theorem with a formal model and
-proof. The two are equivalent in claim but the formal version is what
-reviewers expect for a publishable result.
-
-\subsubsection{Conjecture 4 (Optimality gap of hierarchical
-bisection)}\label{conjecture-4-optimality-gap-of-hierarchical-bisection}
-
-We characterize the gap empirically and present partial theoretical
-analysis. The full asymptotic bound is open.
-
-\textbf{Empirical fit comparison.} We tested five candidate functional
-forms for the gap-vs-N data on the sphere manifold with starts
-\textasciitilde{} U{[}−40, 40{]}³, using weighted least-squares with
-seed-derived weights and AIC/BIC for model selection.
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1321}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1132}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3585}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2075}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0943}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0943}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Model
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Form
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Fitted parameters
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-RMSE (pp)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-AIC
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-BIC
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-M1 & a / ln(N) & a = 12.25 & 0.573 & 8.97 & 8.92 \\
-M2 & a / ln(N) + b & a=8.81, b=0.443 & 0.939 & 7.15 & 7.05 \\
-M3 & a / N\^{}p & a=3.21, p=0.090 & 1.549 & 9.82 & 9.71 \\
-M4 & a · ln(N) / N & a = 213.96 & 18.259 & 1311 & 1311 \\
-\textbf{M5} & \textbf{a + b / √N} & \textbf{a=1.27, b=14.12} &
-\textbf{0.480} & \textbf{5.00} & \textbf{4.89} \\
-\end{longtable}
-}
-
-Model M5 (\texttt{a\ +\ b/√N}) gives the best fit by both AIC and BIC.
-M4 (rounding-error scaling, log N / N) fits dramatically worse --- the
-data is incompatible with the rounding term being dominant. M1
-(originally conjectured 1/log N) fits adequately but is bested by M5.
-(See \texttt{bench\_conjecture4.py} for the comparison.)
-
-\textbf{Predicted vs measured under M5:}
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-N & Predicted M5 & Measured & Δ (pp) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-10 & 5.74 & 5.54 & +0.20 \\
-30 & 3.85 & 5.05 & -1.20 \\
-100 & 2.68 & 3.02 & -0.34 \\
-300 & 2.08 & 2.20 & -0.12 \\
-1000 & 1.72 & 1.70 & +0.02 \\
-3000 & 1.53 & 1.52 & +0.01 \\
-10000 & 1.41 & 1.43 & -0.02 \\
-\end{longtable}
-}
-
-M5 fits to within 0.05 pp for N ≥ 1000 and predicts an asymptote of
-1.27\% at infinite N. Whether the gap actually approaches a positive
-asymptote or eventually decays to zero cannot be distinguished from data
-ending at N = 10,000.
-
-\textbf{Updated conjectured form:}
-
-\begin{verbatim}
-C_HIER ≤ (1 + β + α / √N) · C_OPT
-\end{verbatim}
-
-with α, β depending on manifold geometry and start distribution. On
-sphere with U{[}−40,40{]}³ starts: α ≈ 14.1, β ≈ 1.27\%. The asymptotic
-gap β may equal zero in the limit; the data does not rule that out, but
-neither does it confirm it.
-
-\textbf{Theoretical analysis of the 1/√N contribution.}
-
-We bound the rounding-error contribution rigorously and identify the
-projection-half-cut contribution as the open piece.
-
-\textbf{Bound on rounding error (Proposition 1).} \emph{In the surplus
-regime (n = N + S drones for N target leaves), the total flight cost
-contributed by rounding at all levels is O(D · √(N+S)) where D is the
-manifold diameter, giving a relative gap contribution of O(D / (W · √N))
-= O(1/√N) when starts are drawn from a region of scale W ≈ D.}
-
-\emph{Proof sketch.} At tree level k there are 2\^{}k internal nodes;
-each computes a partition with rounding error at most 0.5 drones,
-mis-routing at most one drone across the partition boundary. Summed over
-level k, at most 2\^{}k drones are mis-routed. Each mis-routed drone is
-committed to the wrong child subtree, ending at a leaf at most
-diam(subtree\_at\_level\_k) away from its ``should- have'' leaf. For a
-2-manifold (sphere surface, cube faces, etc.) with N total points
-uniformly distributed, the subtree at level k has expected diameter O(D
-· √(n\_k/N)) = O(D · 2\^{}(-k/2)). Per- level rounding cost is therefore
-O(2\^{}k · D · 2\^{}(-k/2)) = O(D · 2\^{}(k/2)). Summed over k from 0 to
-log₂ N:
-
-Σ\_\{k=0\}\^{}\{log N\} D · 2\^{}(k/2) = D · (2\^{}((log N)/2 + 1) − 1)
-/ (√2 − 1) = O(D · √N).
-
-Optimal cost C\_OPT scales as O(N · W̄) where W̄ is the average per-drone
-start-to-leaf distance; for random starts in the W-cube, W̄ = Θ(W).
-Therefore relative gap from rounding:
-
-rounding\_gap = O(D · √N) / O(N · W) = O(D / (W · √N)) = O(1/√N) for D =
-Θ(W). ∎
-
-In the bijective regime (n = N), rounding error is exactly zero at every
-level (Lemma 2: dl = round(m · nl/m) = nl exactly when m = nl + nr is
-integer), so the b/√N term in the empirical fit must come entirely from
-the projection-half cut error.
-
-\textbf{On the projection-half cut error (proof attempt).} The
-strict-mode algorithm cuts at the projection median (balanced by drone
-count), not at the cost-optimal cut. We attempt a bound here, mark gaps
-explicitly, and note where the proof remains incomplete.
-
-\emph{Setup.} At tree level k, consider a node v with n\_k = N/2\^{}k
-drones and m\_k = n\_k target leaves (bijective regime). The drones are
-projected onto Π\_v ∈ ℝ³, the principal axis of L\_v. Let the projection
-of drone i be x\_i ∈ ℝ. The strict-mode algorithm cuts at the
-projection-rank median (n\_k/2-th smallest x\_i). The cost-optimal cut
-would partition drones to minimize Σ \textbar\textbar drone\_i -
-assigned\_leaf\_i\textbar\textbar{} under bipartite matching; this cut
-may or may not coincide with the projection-rank median.
-
-\emph{Per-level deviation.} Let the projection-rank median be x\_med and
-the cost-optimal cut threshold be x\_opt. The number of drones that go
-to a different subtree than they would under the cost-optimal partition
-is bounded by:
-
-\begin{verbatim}
-n_swap_k ≤ |{i : x_i ∈ [min(x_med, x_opt), max(x_med, x_opt)]}|
-\end{verbatim}
-
-For drones drawn i.i.d. from a distribution with bounded variance σ\_k²
-on Π\_v, by concentration of measure (e.g., Hoeffding-type bound):
-
-\begin{verbatim}
-|x_med - x_opt| ≤ O(σ_k / √n_k) with high probability
-\end{verbatim}
-
-Each ``swapped'' drone contributes at most diam(subtree\_k) ≈ O(σ\_k) to
-the cost gap. So the level-k contribution to the gap is:
-
-\begin{verbatim}
-gap_k ≤ n_swap_k · σ_k ≤ O(σ_k · σ_k · √n_k) = O(σ_k² √n_k)
-\end{verbatim}
-
-Wait --- this requires bounding n\_swap\_k by O(σ\_k √n\_k), which by
-concentration of measure gives n\_swap\_k ≤ O((σ\_k/√n\_k) · n\_k) =
-O(σ\_k √n\_k).
-
-\emph{The geometry.} For a 2-manifold M of intrinsic dimension d=2
-sampled uniformly, the projection variance σ\_k² scales as the squared
-spatial extent at level k. Subtree spatial extent goes as √(n\_k/N) for
-a 2-manifold, so σ\_k = O(D · √(n\_k/N)) where D is the manifold
-diameter. Plugging in:
-
-\begin{verbatim}
-gap_k ≤ O((D · √(n_k/N))² · √n_k) = O(D² · n_k^(3/2) / N)
-\end{verbatim}
-
-Summed over levels k = 0, 1, \ldots, log₂ N (with n\_k = N/2\^{}k):
-
-\begin{verbatim}
-total_gap ≤ Σ_{k=0}^{log N} D² · (N/2^k)^(3/2) / N
-          = (D² / √N) · Σ_{k=0}^{log N} 2^(-3k/2)
-          = O(D² / √N)
-\end{verbatim}
-
-\emph{Relative gap.} Optimal cost C\_OPT = O(N · W̄) where W̄ is the
-typical start-to-leaf distance. For random starts in U{[}-W, W{]}³, W̄ =
-Θ(W). Therefore:
-
-\begin{verbatim}
-relative_gap = O(D² / √N) / O(N · W) = O(D² / (W · N · √N)) = O(1/N^(3/2))
-\end{verbatim}
-
-Wait --- this would give O(1/N\^{}(3/2)), much faster decay than
-empirical O(1/√N). Something in the geometry argument is too aggressive.
-
-\emph{The gap.} The hand-wavy step is bounding n\_swap\_k by σ\_k ·
-√n\_k via concentration. For random uniform projections, the median is
-unbiased, but the \emph{cost-optimal} cut threshold x\_opt depends on
-the target-distribution structure on Π\_v's projection, and isn't
-necessarily within σ\_k/√n\_k of the median. In particular, when the
-target distribution is highly non-uniform on Π\_v (e.g., clustered near
-tips of a star), x\_opt can be Θ(σ\_k) away from x\_med, giving
-n\_swap\_k = Θ(n\_k), not O(σ\_k √n\_k).
-
-\emph{Where the proof stalls.} The bound depends on a geometric quantity
---- the cost-optimal-cut deviation from projection-median for the
-specific manifold structure --- that has no clean closed form. For
-sphere-like manifolds (uniform on the principal-axis projection), the
-deviation is small and the gap is fast-decaying. For star-like or
-torus-like manifolds with non-uniform projection, the deviation is
-larger.
-
-\emph{Conjectured form.} The empirical fit \texttt{a\ +\ b/√N} with
-manifold- dependent constants α ∈ {[}10, 13{]} is consistent with the
-projection- median deviation being Θ(σ\_k) at each level for typical
-manifolds --- giving total gap O(σ\_root) absolute = O(D) and relative
-gap O(1/N) per level summed over log N levels with geometric decay =
-O(1/√N). The empirical α reflects the manifold's projection-uniformity,
-not just its diameter.
-
-\emph{Open analytical work.} A complete proof requires: (i) bounding the
-projection-median vs cost-optimal-cut deviation as a function of
-manifold-projection-structure parameters; (ii) verifying the
-geometric-decay assumption σ\_k = O(σ\_root · 2\^{}(-k/2)) more
-carefully for non-spherical manifolds; (iii) extending to non-uniform
-start distributions (current proof assumes random-uniform).
-
-We document this attempt and explicitly mark the gap rather than
-claiming a result we have not established. The empirical evidence in
-support of the O(1/√N) form is solid; the rigorous bound on the
-projection-half-cut term remains open.
-
-\textbf{The asymptote β.} The empirical asymptote β ≈ 1.27\% in M5 may
-represent (i) a non-vanishing residual error from manifold- structure
-mismatch with the random-uniform start distribution, (ii) a fitting
-artifact from the limited N range, (iii) a small- sample bias in the PCA
-tree's split-axis estimation that doesn't fully vanish. We cannot
-distinguish among these from data alone; β is observationally bounded
-above by ≈ 1.5\% and below by non-negativity.
-
-\textbf{Status.} Rounding-error contribution to the relative gap is
-provably O(1/√N). Projection-half-cut error is empirically consistent
-with O(1/√N) but the rigorous bound is open. The 1/log(N) form
-previously conjectured is consistent with the data to within
-experimental tolerance but is dominated in fit quality by
-\texttt{a\ +\ b/√N}. The tighter bound (M5 form) is now the primary
-empirical claim; closing the projection-half gap remains future work.
-
-\subsection{4. Computational complexity}\label{computational-complexity}
-
-\subsubsection{PCA tree construction}\label{pca-tree-construction}
-
-Given N points in ℝ³, the tree has 2N − 1 nodes and depth ⌈log₂ N⌉. At
-each level, the SVDs across all nodes operate on a total of N points;
-each SVD on a m-point set in ℝ³ is O(m). Total work per level is O(N),
-summed over O(log N) levels: \textbf{O(N log N)} for tree construction.
-
-\subsubsection{Per-drone target query (ASSIGN
-traversal)}\label{per-drone-target-query-assign-traversal}
-
-A drone descends from root to leaf, log N levels deep. At level k, the
-drone projects all n\_k = N / 2\^{}k drones in its partition onto the
-local Π\_v and finds its rank, costing O(n\_k). Summed:
-Σ\_\{k=0\}\^{}\{log N\} N / 2\^{}k = O(N).
-
-Therefore one drone's target query is \textbf{O(N)}. Computed in
-parallel for all N drones, the total compute across the swarm is
-\textbf{O(N²)}. Per-drone latency is what matters for real-time
-operation, and that is O(N).
-
-\subsubsection{Patch on death}\label{patch-on-death}
-
-Finding the closest live surplus to a dead leaf requires iterating over
-surviving drones to identify live surplus, then computing distances.
-Total: \textbf{O(N + S) = O(N)}.
-
-\subsubsection{Sequential cluster patch}\label{sequential-cluster-patch}
-
-K deaths × O(N) patch = \textbf{O(K · N)}, decentralized.
-
-\subsubsection{Hungarian-optimal cluster
-patch}\label{hungarian-optimal-cluster-patch}
-
-Globally optimal recovery requires bipartite matching between K dead
-leaves and live surplus, O(K³) time, but requires centralized
-computation of all pairwise distances O(K · S). Total: \textbf{O(K³ + K
-· N)} centralized.
-
-\subsubsection{Phase-transition
-recompute}\label{phase-transition-recompute}
-
-Same as initial assignment: \textbf{O(N)} per drone for the full ASSIGN
-traversal, triggered once per phase boundary.
-
-\subsection{5. Architectural
-implications}\label{architectural-implications}
-
-The combination of these results gives a coordination architecture with
-the following operational properties:
-
-\begin{itemize}
-\item
-  \textbf{No-coordination consensus} at the assignment layer (Theorem
-  1): the swarm can re-derive its global allocation from any common
-  broadcast snapshot without leader election or message exchange.
-\item
-  \textbf{Local recovery} (Lemma 6, 7): a drone death triggers exactly K
-  reassignments for a K-cluster loss when surplus is adequate, with each
-  reassignment computed locally and in parallel.
-\item
-  \textbf{Compositionality} (Theorem 3): priority-aware allocation,
-  recovery, and (future) localization can be added as additional layers
-  on the same broadcast primitive without modifying the assignment
-  layer.
-\item
-  \textbf{Empirical near-optimality} (Conjecture 4): the gap from the
-  globally optimal Hungarian assignment shrinks (empirical fit form
-  \texttt{a\ +\ b/√N}, with rounding contribution provably O(1/√N)) and
-  is empirically within 2-3\% at N = 100 and 1.7\% at N = 1000.
-\end{itemize}
-
-The combination of Theorem 3 with the empirical results in the
-experimental sections gives the central architectural claim of the
-paper: \textbf{a single decentralized coordination primitive
-(broadcast-as-shared-state with locally-deterministic computation)
-suffices to support multiple distinct coordination patterns at multiple
-operational layers, with each layer's correctness provable in isolation
-and the layers composable without interference}.

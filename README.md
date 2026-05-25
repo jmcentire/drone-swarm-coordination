@@ -10,8 +10,8 @@ localization — are independently provable, empirically validated across
 N=10 to N=10,000, and compose without interference.
 
 **Citable archives**:
-- Paper: [10.5281/zenodo.19954717](https://doi.org/10.5281/zenodo.19954717)
-- Software (this repository): [10.5281/zenodo.19954678](https://doi.org/10.5281/zenodo.19954678)
+- Paper: [10.5281/zenodo.20385945](https://doi.org/10.5281/zenodo.20385945)
+- Software (this repository): [10.5281/zenodo.20385946](https://doi.org/10.5281/zenodo.20385946)
 
 See `paper.pdf` (compiled from `paper.tex`) for the full writeup, or
 `WRITEUP.md` and `PROOFS.md` for the source.
@@ -115,6 +115,30 @@ companion notes, and `audit/00_synthesis.md` for the Phase A literature
 audit (SAROPS lineage, Allen Leeway tables, decentralized Bayesian
 filtering literature, prior-art negative search).
 
+## v1.3 supplemental: underwater feasibility
+
+WRITEUP §9.5 adds a bounded underwater track. It does not claim that the
+full underwater mission loop is solved; it reports valid submechanisms:
+detection-map gossip, acoustic link-budget/capacity accounting, and
+vertical GPS/acoustic relay localization.
+
+```bash
+python3 underwater/bench_detection_mapping.py --seeds 500 --jobs 8
+python3 underwater/bench_comms_spectrum.py --seeds 100 --jobs 8
+python3 underwater/bench_link_budget.py
+python3 underwater/bench_vertical_relay.py --seeds 100 --jobs 8
+```
+
+Headline bands from the committed artifacts:
+
+| Claim | Number | Source |
+|---|---:|---|
+| D7 bounded acoustic mapping | recall 0.884; central delta 0.116 | `underwater/bench_detection_mapping.py` |
+| Comms connectivity cliff | 45m → 60m in current 8-lane geometry | `underwater/bench_comms_spectrum.py` |
+| Shared 8-drone map bundle | strong to 1250m; marginal to 2000m | `underwater/bench_link_budget.py` |
+| Vertical relay at 3000m nominal | dense global RMSE 14.7m; triad 16.3m | `underwater/bench_vertical_relay.py` |
+| Vertical relay at 6000m nominal | triad global RMSE 24.1m; dense 24.9m | `underwater/bench_vertical_relay.py` |
+
 ## File layout
 
 ```
@@ -137,6 +161,12 @@ drone_swarm/
 ├── bench_astar.py           — v1.2: online replanning (§9.4.2)
 ├── bench_search.py          — v1.2: Bayesian SAR (§9.4.3)
 ├── extract_search_results.py — v1.2: bench_search summary extractor
+├── underwater/              — v1.3 underwater feasibility benches
+│   ├── bench_detection_mapping.py — detection-map gossip
+│   ├── bench_comms_spectrum.py — acoustic range/capacity/loss sweep
+│   ├── acoustic_channel.py — link-budget model
+│   ├── bench_link_budget.py — throughput sufficiency bands
+│   └── bench_vertical_relay.py — vertical acoustic relay localization
 ├── make_figures.py          — generates the five paper figures
 ├── paper.tex / paper.pdf    — compiled paper (single document)
 ├── WRITEUP.md               — paper source (markdown)

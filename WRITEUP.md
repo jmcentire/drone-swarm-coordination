@@ -22,7 +22,7 @@ Companion files:
 
 **Code and data availability.** All source, simulator, benchmark
 scripts, figures, and the rendered four-phase demo are archived at
-Zenodo under DOI [10.5281/zenodo.19954678](https://doi.org/10.5281/zenodo.19954678)
+Zenodo under DOI [10.5281/zenodo.20385946](https://doi.org/10.5281/zenodo.20385946)
 and mirrored at the GitHub repository
 [github.com/jmcentire/drone-swarm-coordination](https://github.com/jmcentire/drone-swarm-coordination).
 The Zenodo deposition is the citable, version-pinned snapshot; the GitHub
@@ -63,6 +63,16 @@ suffices for four distinct coordination patterns — is empirically
 validated by the composition of all four mechanisms in working
 simulations (`simulator.py` for Layers 1–3, `bench_layer4.py` for Layer
 4), with formal properties established in a companion proofs document.
+
+The v1.3 supplemental adds a bounded underwater feasibility track. It
+does **not** claim that the full underwater mission protocol is solved:
+earlier underwater mission-loop benches that used centralized/oracle
+state are excluded from the evidentiary base. The valid underwater
+results reported here are narrower: range-limited detection-map gossip,
+acoustic link-budget and throughput accounting, and vertical acoustic
+relay localization. These results establish physically-grounded
+modeling targets and mechanisms for a future per-drone adaptive
+underwater mission loop.
 
 ## 1. Introduction
 
@@ -1872,6 +1882,203 @@ computational validation with bootstrap CIs, three controlled
 experiments against literature comparators, with motivated
 conjectures and disclosed gaps explicitly named.
 
+### 9.5 v1.3 supplemental: underwater detection, acoustic capacity, and relay localization
+
+The v1.3 supplemental asks a different question from §§1--9.4: which
+parts of the architecture remain meaningful when the substrate is
+underwater acoustic communication rather than reliable RF-style
+broadcast? The answer is deliberately bounded. We do not reuse the
+centralized underwater mission-loop benches as evidence for distributed
+mission execution. Those benches measured scripted global-state
+behavior, not per-drone decisions under local acoustic knowledge. The
+valid underwater evidence here is narrower and compositional:
+
+1. range-limited detection-map gossip (`underwater/bench_detection_mapping.py`);
+2. acoustic range / report-capacity / loss spectrum (`underwater/bench_comms_spectrum.py`);
+3. physical link-budget and message-throughput accounting (`underwater/bench_link_budget.py`);
+4. vertical GPS/acoustic relay localization (`underwater/bench_vertical_relay.py`).
+
+Together these establish feasibility constraints for the next system
+rather than declaring the next system complete. The full adaptive
+underwater mission loop -- edge-quality-aware planning, formation
+tightening, relay insertion, local recovery, and calloff under partial
+knowledge -- remains future work (§10.7).
+
+#### 9.5.1 Detection mapping under range-limited acoustic gossip
+
+`underwater/bench_detection_mapping.py` models eight AUVs sweeping
+parallel lanes through a 900m × 360m × 80m field with fixed mine-like
+contacts. Detections produce noisy contact reports in each drone's
+estimated frame. Reports are exchanged through a range-limited, lossy
+acoustic gossip substrate and then fused into local contact maps. The
+bench scores the distributed map available to each operational drone
+against local-only maps and delayed centralized log fusion.
+
+Seven scenarios were run in the current artifact. The nominal map, 30%
+report-loss case, random-walk drift, directed-current case, and
+anchor-reorientation case all pass their declared gates. Representative
+means:
+
+| Scenario | Recall | RMSE | False/true | Centralized recall delta |
+|---|---:|---:|---:|---:|
+| D1 nominal map | 1.000 | 1.62m | 0.072 | 0.000 |
+| D2 30% report loss | 1.000 | 1.60m | 0.072 | 0.000 |
+| D3 random-walk drift | 1.000 | 3.24m | 0.072 | 0.000 |
+| D4 directed current | 0.994 | 20.49m | 0.075 | 0.000 |
+| D5 anchor reorientation | 1.000 | 8.07m | 0.069 | 0.000 |
+| D7 bounded acoustic bottleneck | 0.884 | 2.97m | 0.039 | 0.116 |
+
+D7 is the load-bearing comms check. With 90m range, one report per
+neighbor exchange, and 30% acoustic exchange loss, distributed recall
+does not collapse to local-only behavior, but it also no longer equals
+centralized post-mission fusion: the centralized recall delta is 0.116.
+This is the desired regime for a meaningful distributed claim. The
+swarm is not pretending that perfect comms makes it centralized, but it
+still beats local-only mapping.
+
+D6 is a calloff scenario, not a mapping-success scenario. Under high
+random drift without anchors, recall falls to 0.510 and false/true rises
+to 1.364, but the run passes because the system marks the map unsafe
+instead of treating a stale map as reliable.
+
+#### 9.5.2 Communication spectrum and connectivity cliffs
+
+`underwater/bench_comms_spectrum.py` sweeps three abstract acoustic axes
+over 96 cells and 100 seeds per cell:
+
+- neighbor exchange range: 30--180m;
+- per-exchange report capacity: 1, 2, or 4 contact reports per 5s tick;
+- independent exchange loss: 0%, 30%, 50%, or 70%.
+
+The artifact records both the axes and what they are **not**: no
+bit-level corruption, explicit modem bytes/s, half-duplex MAC schedule,
+propagation delay, asymmetric links, Doppler, multipath, or
+environment-derived SNR. It is a coordination-envelope sweep, not a
+physical channel model.
+
+The current geometry has a sharp connectivity cliff between 45m and
+60m. At 30m and 45m, all report budgets and loss rates collapse to
+local-only recall (~0.216). At 60m:
+
+- budget=1, loss=30% gives bounded-distributed behavior (recall 0.886,
+  centralized delta 0.114);
+- budget=1, loss=50% remains bounded-distributed (recall 0.822,
+  delta 0.178);
+- budget=1, loss=70% is a mission cliff (recall 0.727);
+- budget=2, loss=70% recovers bounded-distributed behavior at 60--90m
+  and becomes central-equivalent at 120m;
+- budget=4, loss=70% is near-central at 60--90m and central-equivalent
+  at 120m.
+
+The result distinguishes three regimes: local collapse, bounded
+distributed operation, and central-equivalent operation. If comms are
+complete and reliable enough, the distributed map becomes effectively
+centralized; if comms are too narrow, the swarm falls back to local-only
+maps; the interesting operational envelope is between those limits.
+
+#### 9.5.3 Acoustic link budget and data-rate sufficiency
+
+The spectrum sweep is abstract, so `underwater/acoustic_channel.py` and
+`underwater/bench_link_budget.py` add a physical accounting layer. The
+default channel is a calibrated 28kHz acoustic reference with 4096Hz
+bandwidth, practical spreading factor 1.5, source level 190dB re 1µPa at
+1m, noise PSD 60dB re 1µPa/√Hz, 16-byte packet overhead, 35% MAC
+efficiency, and 1500m/s sound speed. The model uses Urick/Thorp
+transmission loss, noise-over-bandwidth, BPSK Rayleigh BER,
+packet-delivery probability from packet length, Shannon-style capacity,
+retry burden, one-way delay, and channel-occupancy classification.
+
+This is still a model, not a modem datasheet. It is anchored to public
+underwater-acoustic modeling practice: Stojanovic and Preisig's channel
+survey, Preisig's propagation considerations, the Lucani--Medard--
+Stojanovic distance/capacity framing, UnetStack's BasicAcousticChannel
+conventions, and packet-error models that combine Urick/Thorp path loss
+with ambient noise and fading. A companion OCEANS admin-channel paper
+supplied locally reports a 28kHz admin channel, 32-byte uplink payload,
+1Hz telemetry, 2km simulated viability, and 15s retry penalty; we use
+those values as an admin-channel target, not as validation of our
+peer-gossip layer.
+
+Default strong-band results:
+
+| Profile | Strong to | Marginal to | First failed |
+|---|---:|---:|---:|
+| OCEANS-style admin uplink | 1750m | 2500m | 3000m |
+| Peer contact report | 1750m | 2500m | 3000m |
+| Peer edge-quality report | 1750m | 2500m | 3000m |
+| Peer map bundle | 1250m | 2000m | 2250m |
+| Shared 8-drone map bundle | 1250m | 2000m | 2250m |
+| Recovery alert | 1750m | 2500m | 3000m |
+
+Thus a 1500m inter-drone spacing is not toy geometry under this model.
+It is a physically meaningful, delay-bearing acoustic regime:
+approximately one second one-way propagation and low-rate half-duplex
+scheduling, but enough link budget for map bundles in the
+strong-to-marginal band. The planner should treat links near the margin
+as triggers for tightening, message thinning, relay insertion, or
+calloff rather than assuming infinite broadcast.
+
+#### 9.5.4 Vertical acoustic relay localization
+
+`underwater/bench_vertical_relay.py` evaluates a surface-to-depth
+GPS/acoustic relay: a GPS-known surface triad seeds an acoustic
+coordinate frame; relay drones propagate that frame down the water
+column using two-way ranging. The benchmark compares two geometries:
+
+- **triad_hops:** three relay drones every 1500m;
+- **dense_chain:** one relay drone every 500m on a helical path, so any
+  1500m section can see multiple non-collinear relays.
+
+Depths are 1000m, 3000m, and 6000m; regimes are nominal, noisy/drift,
+and one failed relay. Two solvers are reported: sequential downstream
+trilateration, which compounds hop error, and a global least-squares
+pose-graph solve with depth and weak dead-reckoning priors. The
+success-rate metric requires every bottom-depth node to be estimated;
+bottom RMSE is computed only over bottom nodes that were estimated, so
+failure cases must be read with success rate.
+
+Global-solve results are mixed rather than one-sided:
+
+| Depth/regime | Better strategy by global solve | Triad success / RMSE | Dense success / RMSE |
+|---|---|---:|---:|
+| 1000m nominal | triad_hops | 1.00 / 7.0m | 1.00 / 9.2m |
+| 1000m noisy drift | triad_hops | 1.00 / 19.8m | 1.00 / 20.6m |
+| 1000m one failed relay | dense_chain | 0.00 / 12.8m | 0.53 / 18.1m |
+| 3000m nominal | dense_chain | 1.00 / 16.3m | 1.00 / 14.7m |
+| 3000m noisy drift | triad_hops | 1.00 / 40.7m | 1.00 / 51.8m |
+| 3000m one failed relay | dense_chain | 0.54 / 31.8m | 0.86 / 48.5m |
+| 6000m nominal | triad_hops | 1.00 / 24.1m | 1.00 / 24.9m |
+| 6000m noisy drift | triad_hops | 1.00 / 116.9m | 1.00 / 117.6m |
+| 6000m one failed relay | dense_chain | 0.78 / 40.6m | 0.88 / 78.2m |
+
+The interpretation is a design tradeoff. Dense chains often help
+sequential propagation because shorter links reduce per-hop error and
+they retain connectivity when a relay is lost. Triad hops are more
+efficient in drone count and, with global smoothing, often achieve lower
+bottom error. The result is not "dense is better" or "triads are
+better"; the correct planner should choose based on acceptable failure
+probability, channel traffic, drone budget, and whether a global
+pose-graph solve is available.
+
+#### 9.5.5 What the underwater supplemental does not establish
+
+The v1.3 underwater supplemental is a feasibility and modeling layer.
+It does not establish:
+
+- a full per-drone adaptive underwater mission loop;
+- distributed leader/phase agreement under range-limited acoustic gossip;
+- recovery from partitions without a centralized MissionState;
+- hardware-calibrated acoustic modem performance;
+- site-specific bathymetry, sound-speed profile, multipath, or Doppler;
+- classification or neutralization of detected contacts.
+
+These exclusions are load-bearing. The underwater results show that
+detection mapping, physical data-rate accounting, and vertical acoustic
+relay localization are plausible and bounded. They do not yet prove the
+complete underwater swarm architecture. The next step is to wire
+link-quality edges into the shared map and let each drone plan over both
+mission value and communication/localization viability.
+
 ## 10. Future work
 
 ### 10.1 Tightening the projection-half cut bound
@@ -1951,6 +2158,21 @@ victims to maximize reassignment cascade. Bounds on the
 reassignment count under such an adversary, and surplus-allocation
 strategies that minimize worst-case disruption.
 
+### 10.7 Underwater adaptive mission loop
+
+The v1.3 underwater benches establish detection-map gossip, acoustic
+capacity bands, and vertical relay localization as bounded mechanisms.
+The missing system is the per-drone adaptive mission loop that composes
+them. The next simulator should represent communication quality as
+first-class map edges -- packet-delivery rate, retry burden,
+channel occupancy, SNR, and confidence -- and let each drone plan over
+both mission value and information viability. Marginal links should
+trigger formation tightening, message thinning, relay insertion, or
+recovery/rally behavior. Failed links should remove direct exchange from
+the plan rather than silently degrading the map. This is where the
+underwater work becomes a full distributed protocol rather than a set of
+validated submechanisms.
+
 ## 11. Reproducing
 
 All experiments are reproducible from this repository:
@@ -2002,6 +2224,12 @@ CYCLE=10 python3 bench_streaming.py
 # Generate paper figures
 python3 make_figures.py
 
+# v1.3 underwater feasibility supplemental
+python3 underwater/bench_detection_mapping.py --seeds 500 --jobs 8
+python3 underwater/bench_comms_spectrum.py --seeds 100 --jobs 8
+python3 underwater/bench_link_budget.py
+python3 underwater/bench_vertical_relay.py --seeds 100 --jobs 8
+
 # Live simulation: 100 drones, sphere → torus → cube → star
 python3 simulator.py
 
@@ -2032,6 +2260,11 @@ demonstration referenced in the introduction.
 | `bench_adversarial.py` | k-byzantine drone cascade, outlier-rejection mitigation |
 | `bench_witness.py` | Witness-alarm detection + subthreshold attack sweep |
 | `bench_streaming.py` | Streaming/mocap-style time-varying manifolds |
+| `underwater/bench_detection_mapping.py` | v1.3 underwater detection-map gossip |
+| `underwater/bench_comms_spectrum.py` | v1.3 acoustic range/capacity/loss sweep |
+| `underwater/acoustic_channel.py` | v1.3 acoustic link-budget model |
+| `underwater/bench_link_budget.py` | v1.3 throughput sufficiency bands |
+| `underwater/bench_vertical_relay.py` | v1.3 vertical acoustic relay localization |
 | `make_figures.py` | Generates the five paper figures |
 | `PROOFS.md` | Formal lemmas, theorems, proofs |
 | `WRITEUP.md` | This document |
