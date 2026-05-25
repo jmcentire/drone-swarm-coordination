@@ -1,0 +1,2409 @@
+{
+  "method": {
+    "question": "Compare sparse triad relay hops against a dense 500m relay chain for propagating a surface GPS coordinate frame down a water column.",
+    "channel_config": {
+      "name": "calibrated_28khz_admin_reference",
+      "carrier_frequency_hz": 28000.0,
+      "bandwidth_hz": 4096.0,
+      "spreading_factor": 1.5,
+      "source_level_db_re_upa_at_1m": 190.0,
+      "noise_psd_db_re_upa_per_sqrt_hz": 60.0,
+      "directivity_index_db": 0.0,
+      "coding_gain_db": 3.0,
+      "implementation_loss_db": 3.0,
+      "packet_overhead_bytes": 16,
+      "mac_efficiency": 0.35,
+      "sound_speed_mps": 1500.0,
+      "strong_pdr": 0.9,
+      "marginal_pdr": 0.5,
+      "strong_occupancy": 0.4,
+      "marginal_occupancy": 0.8,
+      "strong_retry_limit": 2.0,
+      "marginal_retry_limit": 5.0
+    },
+    "relay_profile": {
+      "name": "relay_localization_ping",
+      "payload_bytes": 64,
+      "rate_hz": 0.06666666666666667,
+      "description": "Two-way ranging/localization exchange over a 15 s update window.",
+      "fanout": 1,
+      "safety_factor": 2.0
+    },
+    "solvers": {
+      "sequential": "downstream trilateration from already-estimated upstream anchors",
+      "global": "least-squares pose graph over all delivered range constraints with known depth priors"
+    },
+    "metrics": [
+      "bottom_rmse_m",
+      "all_rmse_m",
+      "covariance trace from normal matrix",
+      "rank/conditioning diagnostics",
+      "delivered range-edge ratio",
+      "drone count"
+    ],
+    "metric_notes": "success_rate requires every bottom-depth node to be estimated. bottom_rmse_m is computed over bottom nodes that were estimated, so failure cases must be interpreted with success_rate and failed_bottom_nodes_mean."
+  },
+  "rows": [
+    {
+      "scenario": {
+        "name": "nominal_triad_1000m",
+        "depth_m": 1000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 2.0,
+        "range_noise_ppm": 300.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 8.0,
+        "extra_packet_loss": 0.0,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        6.0,
+        6.0,
+        6.0
+      ],
+      "delivered_edges": [
+        14.86,
+        14.0,
+        15.0
+      ],
+      "edge_delivery_ratio": [
+        0.9906666666666666,
+        0.9333333333333333,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.94,
+        "bottom_rmse_m": [
+          10.234062965346151,
+          3.1718037868251843,
+          17.456837859476753
+        ],
+        "bottom_max_error_m": [
+          13.168651863655832,
+          3.8678837220081514,
+          23.407917439131978
+        ],
+        "all_rmse_m": [
+          7.428124998472757,
+          2.776209729024358,
+          12.501970169746079
+        ],
+        "max_error_m": [
+          13.170196768876941,
+          3.9490660378571985,
+          23.407917439131978
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          5.93,
+          5.0,
+          6.0
+        ],
+        "failed_bottom_nodes_mean": 0.07
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          6.991189167090627,
+          3.222196338148598,
+          12.60681992401151
+        ],
+        "bottom_max_error_m": [
+          9.138590182931367,
+          4.199249901868103,
+          16.75813219463081
+        ],
+        "all_rmse_m": [
+          5.2593624670759525,
+          2.6987102567256156,
+          9.134973625462989
+        ],
+        "max_error_m": [
+          9.140585527648646,
+          4.199249901868103,
+          16.75813219463081
+        ],
+        "mean_cov_trace_m2": [
+          48.95012072004842,
+          46.832747948797994,
+          60.8142869732445
+        ],
+        "max_cov_trace_m2": [
+          50.82687329464976,
+          47.610212246417916,
+          70.2490379673568
+        ],
+        "estimated_nodes": [
+          6.0,
+          6.0,
+          6.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.13211866596248
+    },
+    {
+      "scenario": {
+        "name": "nominal_dense_1000m",
+        "depth_m": 1000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 2.0,
+        "range_noise_ppm": 300.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 8.0,
+        "extra_packet_loss": 0.0,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        5.0,
+        5.0,
+        5.0
+      ],
+      "delivered_edges": [
+        9.92,
+        9.0,
+        10.0
+      ],
+      "edge_delivery_ratio": [
+        0.9920000000000002,
+        0.9,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          9.825577242122836,
+          2.553517064343431,
+          15.365551586358057
+        ],
+        "bottom_max_error_m": [
+          9.825577242122836,
+          2.553517064343431,
+          15.365551586358057
+        ],
+        "all_rmse_m": [
+          5.789038978260141,
+          2.5841916208908735,
+          7.72709631657999
+        ],
+        "max_error_m": [
+          10.645733886853968,
+          3.496418483249672,
+          15.77413803852282
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          9.16059365791292,
+          2.437224845042691,
+          16.941295039670884
+        ],
+        "bottom_max_error_m": [
+          9.16059365791292,
+          2.437224845042691,
+          16.941295039670884
+        ],
+        "all_rmse_m": [
+          5.44725669570954,
+          2.5969934817262987,
+          8.04424295799105
+        ],
+        "max_error_m": [
+          9.908783246268284,
+          3.2538871806758647,
+          16.941295039670884
+        ],
+        "mean_cov_trace_m2": [
+          84.29980739098444,
+          44.22370205547417,
+          46.33221914555553
+        ],
+        "max_cov_trace_m2": [
+          141.6672640680604,
+          61.75019655801362,
+          65.50702514861122
+        ],
+        "estimated_nodes": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.11648583400528878
+    },
+    {
+      "scenario": {
+        "name": "noisy_drift_triad_1000m",
+        "depth_m": 1000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 6.0,
+        "range_noise_ppm": 800.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 35.0,
+        "extra_packet_loss": 0.05,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        6.0,
+        6.0,
+        6.0
+      ],
+      "delivered_edges": [
+        13.98,
+        12.0,
+        15.0
+      ],
+      "edge_delivery_ratio": [
+        0.932,
+        0.8,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.74,
+        "bottom_rmse_m": [
+          30.860603679426305,
+          8.776498224331313,
+          56.264525014315794
+        ],
+        "bottom_max_error_m": [
+          39.53135940914887,
+          10.845095379274088,
+          61.204838091234
+        ],
+        "all_rmse_m": [
+          21.018788763627917,
+          6.155668703275123,
+          34.45882068809333
+        ],
+        "max_error_m": [
+          39.1583758603357,
+          10.518499940822803,
+          60.61501550870485
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          5.66,
+          4.0,
+          6.0
+        ],
+        "failed_bottom_nodes_mean": 0.34
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          19.829859108361827,
+          9.040572016479238,
+          34.36137536540719
+        ],
+        "bottom_max_error_m": [
+          26.717261474079187,
+          10.352134481618343,
+          52.04077613774671
+        ],
+        "all_rmse_m": [
+          14.142370964994527,
+          6.555319742916634,
+          24.35574054911409
+        ],
+        "max_error_m": [
+          26.717261474079187,
+          10.352134481618343,
+          52.04077613774671
+        ],
+        "mean_cov_trace_m2": [
+          504.12879685148357,
+          376.618579589714,
+          1195.731965783598
+        ],
+        "max_cov_trace_m2": [
+          624.7281436927179,
+          394.8670241735214,
+          1845.08630553783
+        ],
+        "estimated_nodes": [
+          6.0,
+          6.0,
+          6.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.12253950000740588
+    },
+    {
+      "scenario": {
+        "name": "noisy_drift_dense_1000m",
+        "depth_m": 1000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 6.0,
+        "range_noise_ppm": 800.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 35.0,
+        "extra_packet_loss": 0.05,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        5.0,
+        5.0,
+        5.0
+      ],
+      "delivered_edges": [
+        9.36,
+        8.0,
+        10.0
+      ],
+      "edge_delivery_ratio": [
+        0.9360000000000003,
+        0.8,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 0.9,
+        "bottom_rmse_m": [
+          23.297570920347475,
+          5.694179348072362,
+          44.502411310069206
+        ],
+        "bottom_max_error_m": [
+          23.297570920347475,
+          5.694179348072362,
+          44.502411310069206
+        ],
+        "all_rmse_m": [
+          12.22567947165768,
+          2.6574529677443706,
+          22.074543540421537
+        ],
+        "max_error_m": [
+          23.72783469710364,
+          3.2306963801895914,
+          43.56957588886917
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          4.71,
+          3.0,
+          5.0
+        ],
+        "failed_bottom_nodes_mean": 0.1
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          20.63003109234199,
+          3.6058839581059905,
+          42.51448477984278
+        ],
+        "bottom_max_error_m": [
+          20.63003109234199,
+          3.6058839581059905,
+          42.51448477984278
+        ],
+        "all_rmse_m": [
+          12.074914194905865,
+          4.513850900162647,
+          21.700883626080223
+        ],
+        "max_error_m": [
+          23.42221780401118,
+          8.06056059230519,
+          43.96010578714613
+        ],
+        "mean_cov_trace_m2": [
+          589.4594474445929,
+          355.4529976957173,
+          2304.9609621773575
+        ],
+        "max_cov_trace_m2": [
+          887.6446512838494,
+          487.6123728243035,
+          4384.284463973166
+        ],
+        "estimated_nodes": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.1174425829667598
+    },
+    {
+      "scenario": {
+        "name": "one_failed_relay_triad_1000m",
+        "depth_m": 1000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 3.0,
+        "range_noise_ppm": 500.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 15.0,
+        "extra_packet_loss": 0.02,
+        "failed_relay_count": 1
+      },
+      "n": 100,
+      "n_drones": [
+        5.0,
+        5.0,
+        5.0
+      ],
+      "delivered_edges": [
+        9.63,
+        8.0,
+        10.0
+      ],
+      "edge_delivery_ratio": [
+        0.9630000000000001,
+        0.8,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.0,
+        "bottom_rmse_m": [
+          13.678916085300264,
+          5.382183057572454,
+          24.268326735262573
+        ],
+        "bottom_max_error_m": [
+          15.971209645600398,
+          5.866437258003047,
+          27.14590866773105
+        ],
+        "all_rmse_m": [
+          8.650773995017863,
+          3.5600380651027055,
+          14.324528158760263
+        ],
+        "max_error_m": [
+          15.860967987756167,
+          5.716820272734283,
+          27.133346090973117
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          4.87,
+          4.0,
+          5.0
+        ],
+        "failed_bottom_nodes_mean": 1.13
+      },
+      "global": {
+        "success_rate": 0.0,
+        "bottom_rmse_m": [
+          12.790352520016215,
+          6.146846811846668,
+          21.547718059954615
+        ],
+        "bottom_max_error_m": [
+          15.52515367987286,
+          7.216472697141131,
+          25.28735581458846
+        ],
+        "all_rmse_m": [
+          8.331998276627829,
+          4.135572814006075,
+          13.77356226022114
+        ],
+        "max_error_m": [
+          15.52515367987286,
+          7.216472697141131,
+          25.28735581458846
+        ],
+        "mean_cov_trace_m2": [
+          199.37291554386238,
+          150.06457941340128,
+          556.1217990843002
+        ],
+        "max_cov_trace_m2": [
+          241.01426687902503,
+          152.51678285815453,
+          958.6366104702004
+        ],
+        "estimated_nodes": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "failed_bottom_nodes_mean": 1.0
+      },
+      "wall_time_s": 0.11704499996267259
+    },
+    {
+      "scenario": {
+        "name": "one_failed_relay_dense_1000m",
+        "depth_m": 1000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 3.0,
+        "range_noise_ppm": 500.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 15.0,
+        "extra_packet_loss": 0.02,
+        "failed_relay_count": 1
+      },
+      "n": 100,
+      "n_drones": [
+        4.0,
+        4.0,
+        4.0
+      ],
+      "delivered_edges": [
+        5.86,
+        5.0,
+        6.0
+      ],
+      "edge_delivery_ratio": [
+        0.9766666666666666,
+        0.8333333333333334,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 0.46,
+        "bottom_rmse_m": [
+          14.177413118879295,
+          3.9270377627933586,
+          26.559983520034677
+        ],
+        "bottom_max_error_m": [
+          14.177413118879295,
+          3.9270377627933586,
+          26.559983520034677
+        ],
+        "all_rmse_m": [
+          5.734260173003754,
+          2.1544242882243725,
+          11.882259967505105
+        ],
+        "max_error_m": [
+          10.468822613914554,
+          2.8992280978534746,
+          23.29218668916474
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          3.91,
+          3.0,
+          4.0
+        ],
+        "failed_bottom_nodes_mean": 0.54
+      },
+      "global": {
+        "success_rate": 0.53,
+        "bottom_rmse_m": [
+          18.08044856190452,
+          3.8333447197545794,
+          36.11310572260574
+        ],
+        "bottom_max_error_m": [
+          18.08044856190452,
+          3.8333447197545794,
+          36.11310572260574
+        ],
+        "all_rmse_m": [
+          7.449705315067851,
+          2.2822434209060463,
+          13.794072024420453
+        ],
+        "max_error_m": [
+          14.012042039277455,
+          3.2884753001554237,
+          27.256259787193986
+        ],
+        "mean_cov_trace_m2": [
+          339.1861460845093,
+          67.06647568378715,
+          835.69369149846
+        ],
+        "max_cov_trace_m2": [
+          339.1861460845093,
+          67.06647568378715,
+          835.69369149846
+        ],
+        "estimated_nodes": [
+          4.0,
+          4.0,
+          4.0
+        ],
+        "failed_bottom_nodes_mean": 0.47
+      },
+      "wall_time_s": 0.11372070794459432
+    },
+    {
+      "scenario": {
+        "name": "nominal_triad_3000m",
+        "depth_m": 3000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 2.0,
+        "range_noise_ppm": 300.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 8.0,
+        "extra_packet_loss": 0.0,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        9.0,
+        9.0,
+        9.0
+      ],
+      "delivered_edges": [
+        26.14,
+        24.95,
+        27.0
+      ],
+      "edge_delivery_ratio": [
+        0.9681481481481481,
+        0.924074074074074,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.76,
+        "bottom_rmse_m": [
+          24.081439385646554,
+          7.426923306791106,
+          40.65912865913821
+        ],
+        "bottom_max_error_m": [
+          29.685241037665445,
+          9.876325901006819,
+          47.99928591855877
+        ],
+        "all_rmse_m": [
+          16.447319835765043,
+          5.830678285040395,
+          26.852597811316098
+        ],
+        "max_error_m": [
+          29.323967438163933,
+          10.604111839879627,
+          46.66508859030296
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          8.34,
+          5.0,
+          9.0
+        ],
+        "failed_bottom_nodes_mean": 0.51
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          16.328898920137984,
+          6.4518917474523025,
+          28.473909270668823
+        ],
+        "bottom_max_error_m": [
+          20.36927172488739,
+          8.826516678918011,
+          34.36024722495908
+        ],
+        "all_rmse_m": [
+          11.709696830579485,
+          5.6714391670324895,
+          19.25003360537385
+        ],
+        "max_error_m": [
+          21.008053576343755,
+          10.33808501774263,
+          34.36024722495908
+        ],
+        "mean_cov_trace_m2": [
+          174.47126271705332,
+          153.7399174426664,
+          208.62552513113187
+        ],
+        "max_cov_trace_m2": [
+          254.5100898699282,
+          213.46456844411435,
+          316.15635236916216
+        ],
+        "estimated_nodes": [
+          9.0,
+          9.0,
+          9.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.12714724999386817
+    },
+    {
+      "scenario": {
+        "name": "nominal_dense_3000m",
+        "depth_m": 3000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 2.0,
+        "range_noise_ppm": 300.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 8.0,
+        "extra_packet_loss": 0.0,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        9.0,
+        9.0,
+        9.0
+      ],
+      "delivered_edges": [
+        23.59,
+        22.0,
+        24.0
+      ],
+      "edge_delivery_ratio": [
+        0.9829166666666667,
+        0.9166666666666666,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 0.81,
+        "bottom_rmse_m": [
+          14.155724752900634,
+          3.3270627496837277,
+          26.158359354559543
+        ],
+        "bottom_max_error_m": [
+          14.155724752900634,
+          3.3270627496837277,
+          26.158359354559543
+        ],
+        "all_rmse_m": [
+          9.462468919471304,
+          4.400244672084168,
+          14.11845465539262
+        ],
+        "max_error_m": [
+          17.838631516776825,
+          8.19496233419798,
+          30.78648076746986
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          8.61,
+          6.0,
+          9.0
+        ],
+        "failed_bottom_nodes_mean": 0.19
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          14.666628122728413,
+          3.937227361326637,
+          28.50026983526404
+        ],
+        "bottom_max_error_m": [
+          14.666628122728413,
+          3.937227361326637,
+          28.50026983526404
+        ],
+        "all_rmse_m": [
+          9.684056971609312,
+          4.847717585508016,
+          14.190660269362574
+        ],
+        "max_error_m": [
+          19.13695302516105,
+          8.760658791488082,
+          31.027827579839407
+        ],
+        "mean_cov_trace_m2": [
+          275.01664785519256,
+          100.04996312616592,
+          1289.9871623278304
+        ],
+        "max_cov_trace_m2": [
+          818.1295445029912,
+          175.00983266504042,
+          4392.2366462700165
+        ],
+        "estimated_nodes": [
+          9.0,
+          9.0,
+          9.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.12701879197265953
+    },
+    {
+      "scenario": {
+        "name": "noisy_drift_triad_3000m",
+        "depth_m": 3000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 6.0,
+        "range_noise_ppm": 800.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 35.0,
+        "extra_packet_loss": 0.05,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        9.0,
+        9.0,
+        9.0
+      ],
+      "delivered_edges": [
+        24.87,
+        22.0,
+        27.0
+      ],
+      "edge_delivery_ratio": [
+        0.9245242165242165,
+        0.8148148148148148,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.5,
+        "bottom_rmse_m": [
+          67.48268671588433,
+          27.479115290560802,
+          124.87175886365561
+        ],
+        "bottom_max_error_m": [
+          85.5892620737087,
+          32.220788324181505,
+          168.88990250465
+        ],
+        "all_rmse_m": [
+          38.65384000534419,
+          8.439757888320283,
+          81.71078984016964
+        ],
+        "max_error_m": [
+          73.35932135974076,
+          17.080821166890438,
+          161.42157899837022
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          7.61,
+          4.0,
+          9.0
+        ],
+        "failed_bottom_nodes_mean": 1.08
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          40.72744969189617,
+          15.10779536634741,
+          75.6376924027684
+        ],
+        "bottom_max_error_m": [
+          53.55053089327219,
+          19.0091976867277,
+          108.77793377686714
+        ],
+        "all_rmse_m": [
+          28.919980261122657,
+          13.28634388412712,
+          49.326897872678124
+        ],
+        "max_error_m": [
+          55.991469702718945,
+          25.76425486640672,
+          108.77793377686714
+        ],
+        "mean_cov_trace_m2": [
+          1690.7021899779406,
+          1194.5724982878414,
+          2686.6568619969676
+        ],
+        "max_cov_trace_m2": [
+          3157.2301300152944,
+          1803.596962942534,
+          6385.995795190803
+        ],
+        "estimated_nodes": [
+          9.0,
+          9.0,
+          9.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.1339902919717133
+    },
+    {
+      "scenario": {
+        "name": "noisy_drift_dense_3000m",
+        "depth_m": 3000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 6.0,
+        "range_noise_ppm": 800.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 35.0,
+        "extra_packet_loss": 0.05,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        9.0,
+        9.0,
+        9.0
+      ],
+      "delivered_edges": [
+        22.49,
+        20.0,
+        24.0
+      ],
+      "edge_delivery_ratio": [
+        0.9370833333333333,
+        0.8333333333333334,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 0.49,
+        "bottom_rmse_m": [
+          46.34332059445924,
+          12.031231528864176,
+          111.57410015789242
+        ],
+        "bottom_max_error_m": [
+          46.34332059445924,
+          12.031231528864176,
+          111.57410015789242
+        ],
+        "all_rmse_m": [
+          24.719961189926334,
+          9.578922775352167,
+          50.905026450452
+        ],
+        "max_error_m": [
+          49.02443247146134,
+          16.92823299048648,
+          107.51130298131312
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          7.64,
+          5.0,
+          9.0
+        ],
+        "failed_bottom_nodes_mean": 0.51
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          51.846426639462486,
+          11.929334679740236,
+          112.11803805128831
+        ],
+        "bottom_max_error_m": [
+          51.846426639462486,
+          11.929334679740236,
+          112.11803805128831
+        ],
+        "all_rmse_m": [
+          30.110621294288666,
+          14.389338625743552,
+          65.45862024375226
+        ],
+        "max_error_m": [
+          67.21200112799522,
+          25.08605475801413,
+          192.97794258924327
+        ],
+        "mean_cov_trace_m2": [
+          1874.9208257700539,
+          831.3089711034116,
+          5951.891624461085
+        ],
+        "max_cov_trace_m2": [
+          5939.754116726658,
+          1414.3228211177275,
+          25843.111206333826
+        ],
+        "estimated_nodes": [
+          9.0,
+          9.0,
+          9.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.13341720902826637
+    },
+    {
+      "scenario": {
+        "name": "one_failed_relay_triad_3000m",
+        "depth_m": 3000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 3.0,
+        "range_noise_ppm": 500.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 15.0,
+        "extra_packet_loss": 0.02,
+        "failed_relay_count": 1
+      },
+      "n": 100,
+      "n_drones": [
+        8.0,
+        8.0,
+        8.0
+      ],
+      "delivered_edges": [
+        19.28,
+        16.95,
+        22.0
+      ],
+      "edge_delivery_ratio": [
+        0.9454066985645931,
+        0.8625598086124402,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.0,
+        "bottom_rmse_m": [
+          32.55337357825037,
+          13.137363042337268,
+          56.7516531037076
+        ],
+        "bottom_max_error_m": [
+          36.76587493452119,
+          15.894923718759816,
+          62.179210534868304
+        ],
+        "all_rmse_m": [
+          16.427492990286964,
+          5.362392031151717,
+          28.865388274496997
+        ],
+        "max_error_m": [
+          30.334158472845075,
+          9.816677884007964,
+          57.54476905654851
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          5.96,
+          4.0,
+          8.0
+        ],
+        "failed_bottom_nodes_mean": 2.26
+      },
+      "global": {
+        "success_rate": 0.54,
+        "bottom_rmse_m": [
+          31.799823489193496,
+          9.442650616019542,
+          60.96634028153616
+        ],
+        "bottom_max_error_m": [
+          38.88205981683675,
+          10.847952745845168,
+          80.54508862141739
+        ],
+        "all_rmse_m": [
+          21.61062165142128,
+          10.050348212079353,
+          41.424783240410626
+        ],
+        "max_error_m": [
+          41.074453625811536,
+          17.792318548774904,
+          80.54508862141739
+        ],
+        "mean_cov_trace_m2": [
+          1007.9429423319184,
+          389.24884726492496,
+          3254.679681615335
+        ],
+        "max_cov_trace_m2": [
+          1971.8469507486786,
+          623.5354010666906,
+          7103.98280953497
+        ],
+        "estimated_nodes": [
+          8.0,
+          8.0,
+          8.0
+        ],
+        "failed_bottom_nodes_mean": 0.46
+      },
+      "wall_time_s": 0.12571654107887298
+    },
+    {
+      "scenario": {
+        "name": "one_failed_relay_dense_3000m",
+        "depth_m": 3000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 3.0,
+        "range_noise_ppm": 500.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 15.0,
+        "extra_packet_loss": 0.02,
+        "failed_relay_count": 1
+      },
+      "n": 100,
+      "n_drones": [
+        8.0,
+        8.0,
+        8.0
+      ],
+      "delivered_edges": [
+        17.68,
+        15.0,
+        20.049999999999997
+      ],
+      "edge_delivery_ratio": [
+        0.9603462578013661,
+        0.8885620915032679,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 0.0,
+        "bottom_rmse_m": [
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        "bottom_max_error_m": [
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        "all_rmse_m": [
+          13.138396156142985,
+          4.626959019260636,
+          24.427356428852274
+        ],
+        "max_error_m": [
+          25.931774246373976,
+          8.424697328698617,
+          45.885160914495486
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          5.76,
+          4.0,
+          8.0
+        ],
+        "failed_bottom_nodes_mean": 1.0
+      },
+      "global": {
+        "success_rate": 0.86,
+        "bottom_rmse_m": [
+          48.46998992372027,
+          8.563883332464586,
+          124.9335588923986
+        ],
+        "bottom_max_error_m": [
+          48.46998992372027,
+          8.563883332464586,
+          124.9335588923986
+        ],
+        "all_rmse_m": [
+          26.08000369075977,
+          7.547148730720255,
+          59.40314265767661
+        ],
+        "max_error_m": [
+          55.51932011895852,
+          13.20988539193267,
+          126.93188079873734
+        ],
+        "mean_cov_trace_m2": [
+          4390.179693025758,
+          209.1403670220165,
+          11614.733200591168
+        ],
+        "max_cov_trace_m2": [
+          13722.685606786259,
+          378.9656608041348,
+          43781.23386302688
+        ],
+        "estimated_nodes": [
+          8.0,
+          8.0,
+          8.0
+        ],
+        "failed_bottom_nodes_mean": 0.14
+      },
+      "wall_time_s": 0.13243587501347065
+    },
+    {
+      "scenario": {
+        "name": "nominal_triad_6000m",
+        "depth_m": 6000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 2.0,
+        "range_noise_ppm": 300.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 8.0,
+        "extra_packet_loss": 0.0,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        15.0,
+        15.0,
+        15.0
+      ],
+      "delivered_edges": [
+        49.08,
+        46.0,
+        51.0
+      ],
+      "edge_delivery_ratio": [
+        0.9623529411764704,
+        0.9019607843137255,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.48,
+        "bottom_rmse_m": [
+          31.34952311541342,
+          11.142871345738028,
+          57.14741660773785
+        ],
+        "bottom_max_error_m": [
+          38.546633707192434,
+          13.523887308930854,
+          68.10897403118759
+        ],
+        "all_rmse_m": [
+          20.24445146605428,
+          6.856704960459698,
+          32.913800603908584
+        ],
+        "max_error_m": [
+          37.501348881060196,
+          12.089804909966915,
+          65.11257568482355
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          12.02,
+          5.0,
+          15.0
+        ],
+        "failed_bottom_nodes_mean": 1.37
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          24.118985184482977,
+          9.158640423439074,
+          40.778514977098574
+        ],
+        "bottom_max_error_m": [
+          30.17151135460896,
+          12.07441320313777,
+          52.71748918190606
+        ],
+        "all_rmse_m": [
+          17.138926721283976,
+          9.349710355069675,
+          27.3296055629016
+        ],
+        "max_error_m": [
+          32.427359721280844,
+          17.151290949496616,
+          54.174739103808754
+        ],
+        "mean_cov_trace_m2": [
+          317.65002742206303,
+          258.6720537120519,
+          339.9463134554992
+        ],
+        "max_cov_trace_m2": [
+          610.9430758971785,
+          444.7546523215168,
+          723.5935632402726
+        ],
+        "estimated_nodes": [
+          15.0,
+          15.0,
+          15.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.14618566702120006
+    },
+    {
+      "scenario": {
+        "name": "nominal_dense_6000m",
+        "depth_m": 6000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 2.0,
+        "range_noise_ppm": 300.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 8.0,
+        "extra_packet_loss": 0.0,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        15.0,
+        15.0,
+        15.0
+      ],
+      "delivered_edges": [
+        41.2,
+        40.0,
+        42.0
+      ],
+      "edge_delivery_ratio": [
+        0.9809523809523809,
+        0.9523809523809523,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 0.61,
+        "bottom_rmse_m": [
+          22.94506383505913,
+          8.381827134724437,
+          46.01124281026339
+        ],
+        "bottom_max_error_m": [
+          22.94506383505913,
+          8.381827134724437,
+          46.01124281026339
+        ],
+        "all_rmse_m": [
+          14.173257396022052,
+          6.734799628520793,
+          23.893464753339288
+        ],
+        "max_error_m": [
+          27.916925135049297,
+          11.71335931263179,
+          48.89891502436352
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          12.95,
+          6.0,
+          15.0
+        ],
+        "failed_bottom_nodes_mean": 0.39
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          24.91581185692889,
+          7.895106940278317,
+          51.509943845931254
+        ],
+        "bottom_max_error_m": [
+          24.91581185692889,
+          7.895106940278317,
+          51.509943845931254
+        ],
+        "all_rmse_m": [
+          16.641391044666626,
+          8.077786221848553,
+          27.330197729989813
+        ],
+        "max_error_m": [
+          34.35155910870076,
+          15.559141494917636,
+          65.02244048668007
+        ],
+        "mean_cov_trace_m2": [
+          387.8412341761192,
+          214.7076231496523,
+          906.8309733079008
+        ],
+        "max_cov_trace_m2": [
+          1011.2586321220105,
+          404.08879989203336,
+          2777.02162054643
+        ],
+        "estimated_nodes": [
+          15.0,
+          15.0,
+          15.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.14740825002081692
+    },
+    {
+      "scenario": {
+        "name": "noisy_drift_triad_6000m",
+        "depth_m": 6000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 6.0,
+        "range_noise_ppm": 800.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 35.0,
+        "extra_packet_loss": 0.05,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        15.0,
+        15.0,
+        15.0
+      ],
+      "delivered_edges": [
+        45.01,
+        40.0,
+        49.0
+      ],
+      "edge_delivery_ratio": [
+        0.9187686262664176,
+        0.8507328605200946,
+        0.9800196078431372
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.11,
+        "bottom_rmse_m": [
+          97.27421927762579,
+          30.93209050999056,
+          214.21509399834142
+        ],
+        "bottom_max_error_m": [
+          116.13902689818387,
+          43.45134346534409,
+          236.1847951091314
+        ],
+        "all_rmse_m": [
+          52.24916825735755,
+          20.68717885616969,
+          91.92442585920415
+        ],
+        "max_error_m": [
+          103.37330215675165,
+          37.09052066671274,
+          208.46240815473206
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          9.44,
+          5.0,
+          15.0
+        ],
+        "failed_bottom_nodes_mean": 2.46
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          116.92075671707524,
+          37.340812386304435,
+          298.1069106197608
+        ],
+        "bottom_max_error_m": [
+          159.65428750306856,
+          45.3917057889273,
+          411.7082188036802
+        ],
+        "all_rmse_m": [
+          69.21677622722287,
+          26.133149760735034,
+          189.31599057280792
+        ],
+        "max_error_m": [
+          173.5850965579318,
+          51.07207777588102,
+          563.246468879395
+        ],
+        "mean_cov_trace_m2": [
+          4188.280512541812,
+          2251.6720778158783,
+          8249.140915297774
+        ],
+        "max_cov_trace_m2": [
+          17497.05906664342,
+          4180.083047793725,
+          37363.8980657541
+        ],
+        "estimated_nodes": [
+          15.0,
+          15.0,
+          15.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.17554954206570983
+    },
+    {
+      "scenario": {
+        "name": "noisy_drift_dense_6000m",
+        "depth_m": 6000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 6.0,
+        "range_noise_ppm": 800.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 35.0,
+        "extra_packet_loss": 0.05,
+        "failed_relay_count": 0
+      },
+      "n": 100,
+      "n_drones": [
+        15.0,
+        15.0,
+        15.0
+      ],
+      "delivered_edges": [
+        39.19,
+        37.0,
+        42.0
+      ],
+      "edge_delivery_ratio": [
+        0.9339837398373984,
+        0.8809523809523809,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 0.13,
+        "bottom_rmse_m": [
+          64.7360782877171,
+          25.361352469785963,
+          147.07355785308175
+        ],
+        "bottom_max_error_m": [
+          64.7360782877171,
+          25.361352469785963,
+          147.07355785308175
+        ],
+        "all_rmse_m": [
+          29.00898163361116,
+          10.506967826839654,
+          54.95650367785038
+        ],
+        "max_error_m": [
+          59.87149573939343,
+          19.429791668234603,
+          123.25487520817337
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          9.12,
+          5.0,
+          15.0
+        ],
+        "failed_bottom_nodes_mean": 0.87
+      },
+      "global": {
+        "success_rate": 1.0,
+        "bottom_rmse_m": [
+          117.63789071742409,
+          16.308819892395746,
+          360.9954115506957
+        ],
+        "bottom_max_error_m": [
+          117.63789071742409,
+          16.308819892395746,
+          360.9954115506957
+        ],
+        "all_rmse_m": [
+          69.47123439268665,
+          24.75186778209027,
+          174.85800064037815
+        ],
+        "max_error_m": [
+          189.2764075730009,
+          47.871547781230966,
+          554.911622750686
+        ],
+        "mean_cov_trace_m2": [
+          5118.183715274008,
+          2196.36759307736,
+          12542.102655899009
+        ],
+        "max_cov_trace_m2": [
+          23964.774021511494,
+          5500.751102163423,
+          112416.35140762592
+        ],
+        "estimated_nodes": [
+          15.0,
+          15.0,
+          15.0
+        ],
+        "failed_bottom_nodes_mean": 0.0
+      },
+      "wall_time_s": 0.16928154090419412
+    },
+    {
+      "scenario": {
+        "name": "one_failed_relay_triad_6000m",
+        "depth_m": 6000.0,
+        "strategy": "triad_hops",
+        "spacing_m": 1500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 3.0,
+        "range_noise_ppm": 500.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 15.0,
+        "extra_packet_loss": 0.02,
+        "failed_relay_count": 1
+      },
+      "n": 100,
+      "n_drones": [
+        14.0,
+        14.0,
+        14.0
+      ],
+      "delivered_edges": [
+        41.08,
+        37.95,
+        45.0
+      ],
+      "edge_delivery_ratio": [
+        0.9426086635530518,
+        0.8604651162790697,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.9522813438529631,
+        0.9522813438529635,
+        0.9522813438529635
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0501098298891005,
+        1.050109829889101,
+        1.050109829889101
+      ],
+      "sequential": {
+        "success_rate": 0.0,
+        "bottom_rmse_m": [
+          48.76541079852723,
+          28.095053274684606,
+          80.47681627321778
+        ],
+        "bottom_max_error_m": [
+          57.53392210985789,
+          34.21841329695402,
+          92.5199690320891
+        ],
+        "all_rmse_m": [
+          21.688715540162665,
+          5.998868608645806,
+          44.156735210186625
+        ],
+        "max_error_m": [
+          40.544915681957676,
+          10.89788402337734,
+          84.52208809152516
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          7.66,
+          4.0,
+          14.0
+        ],
+        "failed_bottom_nodes_mean": 2.83
+      },
+      "global": {
+        "success_rate": 0.78,
+        "bottom_rmse_m": [
+          40.64094491058459,
+          15.999435007648797,
+          64.01354296839443
+        ],
+        "bottom_max_error_m": [
+          51.385527832126215,
+          20.44064528813819,
+          86.48242360853669
+        ],
+        "all_rmse_m": [
+          28.48819194134291,
+          12.837536178138947,
+          47.30798212671242
+        ],
+        "max_error_m": [
+          56.30004684340297,
+          25.810028907017095,
+          88.92966522254376
+        ],
+        "mean_cov_trace_m2": [
+          1319.8538176520537,
+          629.7902166112426,
+          2578.020689204354
+        ],
+        "max_cov_trace_m2": [
+          4328.342575928315,
+          1228.1962988150333,
+          6845.7118180126645
+        ],
+        "estimated_nodes": [
+          14.0,
+          14.0,
+          14.0
+        ],
+        "failed_bottom_nodes_mean": 0.22
+      },
+      "wall_time_s": 0.1460527500603348
+    },
+    {
+      "scenario": {
+        "name": "one_failed_relay_dense_6000m",
+        "depth_m": 6000.0,
+        "strategy": "dense_chain",
+        "spacing_m": 500.0,
+        "comms_range_m": 1650.0,
+        "lateral_radius_m": 250.0,
+        "n_seeds": 100,
+        "range_noise_m": 3.0,
+        "range_noise_ppm": 500.0,
+        "depth_noise_m": 1.0,
+        "gps_noise_m": 1.5,
+        "drift_xy_m_per_km": 15.0,
+        "extra_packet_loss": 0.02,
+        "failed_relay_count": 1
+      },
+      "n": 100,
+      "n_drones": [
+        14.0,
+        14.0,
+        14.0
+      ],
+      "delivered_edges": [
+        34.92,
+        33.0,
+        38.0
+      ],
+      "edge_delivery_ratio": [
+        0.9631835077175634,
+        0.9110482654600301,
+        1.0
+      ],
+      "nominal_link_pdr_at_spacing": [
+        0.998285507422507,
+        0.9982855074225072,
+        0.9982855074225072
+      ],
+      "nominal_link_retry_at_spacing": [
+        1.0017174371106712,
+        1.0017174371106714,
+        1.0017174371106714
+      ],
+      "sequential": {
+        "success_rate": 0.0,
+        "bottom_rmse_m": [
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        "bottom_max_error_m": [
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        "all_rmse_m": [
+          16.226649581049436,
+          4.599545839799684,
+          31.012527461117145
+        ],
+        "max_error_m": [
+          31.592003806496958,
+          8.190003213879336,
+          59.86892317048385
+        ],
+        "mean_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999995,
+          1999999999.9999998
+        ],
+        "max_cov_trace_m2": [
+          1999999999.9999998,
+          1999999999.9999998,
+          1999999999.9999998
+        ],
+        "estimated_nodes": [
+          7.7,
+          5.0,
+          13.0
+        ],
+        "failed_bottom_nodes_mean": 1.0
+      },
+      "global": {
+        "success_rate": 0.88,
+        "bottom_rmse_m": [
+          78.22478560203659,
+          15.725387317378178,
+          177.18860753455448
+        ],
+        "bottom_max_error_m": [
+          78.22478560203659,
+          15.725387317378178,
+          177.18860753455448
+        ],
+        "all_rmse_m": [
+          46.15418234975683,
+          19.16562792475704,
+          89.28910157776373
+        ],
+        "max_error_m": [
+          99.88492540182897,
+          36.44541218014064,
+          203.9771530103262
+        ],
+        "mean_cov_trace_m2": [
+          6065.84633663825,
+          529.9475333695952,
+          14546.870237047784
+        ],
+        "max_cov_trace_m2": [
+          23742.767420236923,
+          1140.0660762237676,
+          72840.02769143794
+        ],
+        "estimated_nodes": [
+          14.0,
+          14.0,
+          14.0
+        ],
+        "failed_bottom_nodes_mean": 0.12
+      },
+      "wall_time_s": 0.16287591704167426
+    }
+  ],
+  "comparison_summary": [
+    {
+      "regime": "noisy_drift",
+      "depth_m": 1000.0,
+      "global_winner": "triad_hops",
+      "sequential_winner": "dense_chain",
+      "triad_global_success": 1.0,
+      "dense_global_success": 1.0,
+      "triad_global_bottom_rmse_m": 19.829859108361827,
+      "dense_global_bottom_rmse_m": 20.63003109234199,
+      "triad_sequential_success": 0.74,
+      "dense_sequential_success": 0.9,
+      "triad_sequential_bottom_rmse_m": 30.860603679426305,
+      "dense_sequential_bottom_rmse_m": 23.297570920347475,
+      "triad_drones": 6.0,
+      "dense_drones": 5.0
+    },
+    {
+      "regime": "nominal",
+      "depth_m": 1000.0,
+      "global_winner": "triad_hops",
+      "sequential_winner": "dense_chain",
+      "triad_global_success": 1.0,
+      "dense_global_success": 1.0,
+      "triad_global_bottom_rmse_m": 6.991189167090627,
+      "dense_global_bottom_rmse_m": 9.16059365791292,
+      "triad_sequential_success": 0.94,
+      "dense_sequential_success": 1.0,
+      "triad_sequential_bottom_rmse_m": 10.234062965346151,
+      "dense_sequential_bottom_rmse_m": 9.825577242122836,
+      "triad_drones": 6.0,
+      "dense_drones": 5.0
+    },
+    {
+      "regime": "one_failed_relay",
+      "depth_m": 1000.0,
+      "global_winner": "dense_chain",
+      "sequential_winner": "dense_chain",
+      "triad_global_success": 0.0,
+      "dense_global_success": 0.53,
+      "triad_global_bottom_rmse_m": 12.790352520016215,
+      "dense_global_bottom_rmse_m": 18.08044856190452,
+      "triad_sequential_success": 0.0,
+      "dense_sequential_success": 0.46,
+      "triad_sequential_bottom_rmse_m": 13.678916085300264,
+      "dense_sequential_bottom_rmse_m": 14.177413118879295,
+      "triad_drones": 5.0,
+      "dense_drones": 4.0
+    },
+    {
+      "regime": "noisy_drift",
+      "depth_m": 3000.0,
+      "global_winner": "triad_hops",
+      "sequential_winner": "triad_hops",
+      "triad_global_success": 1.0,
+      "dense_global_success": 1.0,
+      "triad_global_bottom_rmse_m": 40.72744969189617,
+      "dense_global_bottom_rmse_m": 51.846426639462486,
+      "triad_sequential_success": 0.5,
+      "dense_sequential_success": 0.49,
+      "triad_sequential_bottom_rmse_m": 67.48268671588433,
+      "dense_sequential_bottom_rmse_m": 46.34332059445924,
+      "triad_drones": 9.0,
+      "dense_drones": 9.0
+    },
+    {
+      "regime": "nominal",
+      "depth_m": 3000.0,
+      "global_winner": "dense_chain",
+      "sequential_winner": "dense_chain",
+      "triad_global_success": 1.0,
+      "dense_global_success": 1.0,
+      "triad_global_bottom_rmse_m": 16.328898920137984,
+      "dense_global_bottom_rmse_m": 14.666628122728413,
+      "triad_sequential_success": 0.76,
+      "dense_sequential_success": 0.81,
+      "triad_sequential_bottom_rmse_m": 24.081439385646554,
+      "dense_sequential_bottom_rmse_m": 14.155724752900634,
+      "triad_drones": 9.0,
+      "dense_drones": 9.0
+    },
+    {
+      "regime": "one_failed_relay",
+      "depth_m": 3000.0,
+      "global_winner": "dense_chain",
+      "sequential_winner": "triad_hops",
+      "triad_global_success": 0.54,
+      "dense_global_success": 0.86,
+      "triad_global_bottom_rmse_m": 31.799823489193496,
+      "dense_global_bottom_rmse_m": 48.46998992372027,
+      "triad_sequential_success": 0.0,
+      "dense_sequential_success": 0.0,
+      "triad_sequential_bottom_rmse_m": 32.55337357825037,
+      "dense_sequential_bottom_rmse_m": Infinity,
+      "triad_drones": 8.0,
+      "dense_drones": 8.0
+    },
+    {
+      "regime": "noisy_drift",
+      "depth_m": 6000.0,
+      "global_winner": "triad_hops",
+      "sequential_winner": "dense_chain",
+      "triad_global_success": 1.0,
+      "dense_global_success": 1.0,
+      "triad_global_bottom_rmse_m": 116.92075671707524,
+      "dense_global_bottom_rmse_m": 117.63789071742409,
+      "triad_sequential_success": 0.11,
+      "dense_sequential_success": 0.13,
+      "triad_sequential_bottom_rmse_m": 97.27421927762579,
+      "dense_sequential_bottom_rmse_m": 64.7360782877171,
+      "triad_drones": 15.0,
+      "dense_drones": 15.0
+    },
+    {
+      "regime": "nominal",
+      "depth_m": 6000.0,
+      "global_winner": "triad_hops",
+      "sequential_winner": "dense_chain",
+      "triad_global_success": 1.0,
+      "dense_global_success": 1.0,
+      "triad_global_bottom_rmse_m": 24.118985184482977,
+      "dense_global_bottom_rmse_m": 24.91581185692889,
+      "triad_sequential_success": 0.48,
+      "dense_sequential_success": 0.61,
+      "triad_sequential_bottom_rmse_m": 31.34952311541342,
+      "dense_sequential_bottom_rmse_m": 22.94506383505913,
+      "triad_drones": 15.0,
+      "dense_drones": 15.0
+    },
+    {
+      "regime": "one_failed_relay",
+      "depth_m": 6000.0,
+      "global_winner": "dense_chain",
+      "sequential_winner": "triad_hops",
+      "triad_global_success": 0.78,
+      "dense_global_success": 0.88,
+      "triad_global_bottom_rmse_m": 40.64094491058459,
+      "dense_global_bottom_rmse_m": 78.22478560203659,
+      "triad_sequential_success": 0.0,
+      "dense_sequential_success": 0.0,
+      "triad_sequential_bottom_rmse_m": 48.76541079852723,
+      "dense_sequential_bottom_rmse_m": Infinity,
+      "triad_drones": 14.0,
+      "dense_drones": 14.0
+    }
+  ],
+  "wall_time_s": 2.4472123339073732
+}
