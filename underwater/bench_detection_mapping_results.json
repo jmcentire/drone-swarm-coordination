@@ -1978,5 +1978,6 @@
       "passed": true
     }
   ],
-  "wall_time_s": 0.5286580841057003
+  "wall_time_s": 451.76,
+  "artifact_regenerated_from_checkpoints_s": 0.5286580841057003
 }
