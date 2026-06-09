@@ -6,10 +6,10 @@ authors:
   - family-names: McEntire
     given-names: Jeremy
     email: jandrewmcentire@gmail.com
-version: "1.3.0"
-date-released: "2026-05-25"
+version: "1.4.0"
+date-released: "2026-06-09"
 license: MIT
-doi: "10.5281/zenodo.20385946"
+doi: "10.5281/zenodo.20615824"
 repository-code: "https://github.com/jmcentire/drone-swarm-coordination"
 keywords:
   - drone swarm
@@ -29,6 +29,9 @@ abstract: >-
   adversarial defense. Includes formal proofs (slot-disjointness lemma,
   three-part composition theorem, rounding O(1/sqrt(N)) bound), bootstrap-CI
   empirical validation across all headline numbers, a CBBA reference
-  implementation showing 14x messaging advantage at N=100, and v1.3
+  implementation showing 14x messaging advantage at N=100, v1.3
   underwater feasibility benches for acoustic detection-map gossip, link
-  budget/capacity accounting, and vertical acoustic relay localization.
+  budget/capacity accounting, and vertical acoustic relay localization,
+  and v1.4 mission-level building exploration/extraction simulations
+  with deterministic drone loss, wall-degraded relay sharing, and
+  threat-responsive manifold disclosure materials.

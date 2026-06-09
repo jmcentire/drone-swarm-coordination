@@ -1,0 +1,1222 @@
+{
+  "domains": [
+    "code",
+    "python"
+  ],
+  "node_count": 110,
+  "nodes": [
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-020be96c9406",
+      "title": "underwater/lattice.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-0840d50d0e14",
+      "title": "bench_assignment.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-0e630d1bc0f4",
+      "title": "bench_patch_optimality.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-0eea47132d5b",
+      "title": "bench_drift.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-0f7280c58db3",
+      "title": "underwater/bench_mission.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-155568d5a4dc",
+      "title": "bench_loss.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-1635879a58a0",
+      "title": "extract_search_results.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-1b99b017505d",
+      "title": "distributed/bench_distributed.py",
+      "type": "artifact",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-1cae3769c298",
+      "title": "underwater/mission.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-1f47e0101426",
+      "title": "distributed/local_comms.py",
+      "type": "artifact",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-250f3e54655c",
+      "title": "bench_adversarial.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-322c0a720670",
+      "title": "bench_comms.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-3c86467b4120",
+      "title": "bench_attrition.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-443d6fc8e771",
+      "title": "bench_determinism.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-468efbcbf8e9",
+      "title": "distributed/building_explore.py",
+      "type": "artifact",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-49a29f3b5b55",
+      "title": "underwater/bench_topology.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-51f60657869b",
+      "title": "distributed/test_gpa_consensus.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-63a9b3c9088a",
+      "title": "patent/make_patent_figures.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-665ac86e38f8",
+      "title": "distributed/bench_sensitivity.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-67ea60b86e43",
+      "title": "bench_localization.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-6a8c292b0fa7",
+      "title": "bench_astar.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-6d0662eeb9a9",
+      "title": "underwater/mapping.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-70a6b77e4db6",
+      "title": "distributed/test_graph_rigidity.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-738cbdb0c788",
+      "title": "bench_search.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-861db18de72d",
+      "title": "distributed/baseline_oracle.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-922732a46df3",
+      "title": "underwater/debug_loss.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-99131f4406a9",
+      "title": "bench_conjecture4.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-9e0c944f3098",
+      "title": "underwater/pbd.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-a10296e9eeaf",
+      "title": "bench_cbba.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-a5fcbb23a404",
+      "title": "underwater/debug_assignment.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-a95c3dbf1236",
+      "title": "bench_witness.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-a979419c3f3a",
+      "title": "make_figures.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-af278f084e16",
+      "title": "distributed/protocol.py",
+      "type": "artifact",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-b13f493583f6",
+      "title": "underwater/debug_baseline.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-c8ec0caeff6c",
+      "title": "distributed/agent.py",
+      "type": "artifact",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-d427ed5e7dd2",
+      "title": "distributed/manifold.py",
+      "type": "artifact",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-da73cc12688f",
+      "title": "distributed/world.py",
+      "type": "artifact",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-dbb417d9861b",
+      "title": "distributed/baseline_drift.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-dfa1815e91a5",
+      "title": "distributed/stats.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-e15a0f51b784",
+      "title": "underwater/bench_losses.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-e5ee57c72961",
+      "title": "simulator.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-e65abbb9d118",
+      "title": "underwater/bench_convergence.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-e8fd8a4b81e6",
+      "title": "bench_streaming.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-eaa462aab102",
+      "title": "bench_layer4.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-drone_swarm-fc6cfe1e511d",
+      "title": "underwater/failures.py",
+      "type": "artifact",
+      "updated_at": "2026-05-24T14:54:39",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-0121ac7db412",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:34",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-04847a793bd3",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:21",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-0ee1c88f8c19",
+      "title": "OhShitKind",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-0f78e52fd833",
+      "title": "ObservationKind",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:03",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-109bedd7be2f",
+      "title": "DisplaceHook",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-13b2ed207ddb",
+      "title": "SmoothFrame",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:03",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-1ba81172f46b",
+      "title": "ScenarioSpec",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-1e6f28d63b10",
+      "title": "SeedRun",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-27e04d56caf5",
+      "title": "MissionConfig",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:33",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-2869cb9e024d",
+      "title": "Broadcast",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:21",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-32c4fddb7578",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-28T17:57:07",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-3617a57cbfba",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:22",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-3d66d0be5940",
+      "title": "WorldMetrics",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-3ecdebb94011",
+      "title": "Phase",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:33",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-3ee324e17ef0",
+      "title": "LocalComms",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-44d341d4e162",
+      "title": "MsgKind",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-473842d007f9",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-28T17:57:07",
+      "weight": 0.01
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-4b1139f25cd7",
+      "title": "Map",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-512c1a253a09",
+      "title": "FailureSchedule",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:31",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-529e37010cd1",
+      "title": "LocalObservation",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:32",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-58724c2e5f37",
+      "title": "MissionStats",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:28",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-5a58f5d34293",
+      "title": "CommsEvent",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-61415b23010c",
+      "title": "Feature",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:02",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-6142eca40d97",
+      "title": "RoundStats",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:26",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-634d3472d243",
+      "title": "SmoothFloorplan",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:03",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-63b77dd6f313",
+      "title": "BuildingPlan",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:02",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-6518fa91d697",
+      "title": "ParticleFilter",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:20",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-66f042d539b0",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-28T17:57:07",
+      "weight": 0.01
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-6ae822e343a3",
+      "title": "MissionRun",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:27",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-6cc585ea77b3",
+      "title": "WorldConfig",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-6dcf5ae3da6a",
+      "title": "SmoothSharedMap",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-73cbe889d93d",
+      "title": "Message",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-8065b036928c",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-28T17:57:07",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-8c06ba32b8fa",
+      "title": "Agent",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:01",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-92cfa5d99d01",
+      "title": "KillHook",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-9921d19e728c",
+      "title": "MissionState",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:33",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-a0dc909ab18e",
+      "title": "ScenarioResult",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:28",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-a390025c5ed8",
+      "title": "Command",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-a6803c18bb0d",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-28T17:57:07",
+      "weight": 0.01
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-a7b1dc9bc85f",
+      "title": "PBDLattice",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:36",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-b5857104e7d7",
+      "title": "IIDChannel",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:30",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-b58aa672a2c2",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:33",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-ba146985eac6",
+      "title": "ScenarioStats",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:27",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-bad80a68124a",
+      "title": "ByzantineHook",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-c20cd7db9e98",
+      "title": "IIDChannel",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:19",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-c444ca118eab",
+      "title": "HiddenBuilding",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:03",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-c649aa98ffaf",
+      "title": "TraceStep",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-c864c2693aa8",
+      "title": "AsymmetricChannel",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:19",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-c8c0d56ebf56",
+      "title": "Phase",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:01",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-cb85304de518",
+      "title": "ProtocolState",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-d2940e3ba0f1",
+      "title": "MissionPhase",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:03",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-d9816132d4ca",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:34",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-da6ed22c9a9f",
+      "title": "Channel",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:19",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-decd56d23c94",
+      "title": "BuildingObservation",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:02",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-e028db7505d0",
+      "title": "GilbertElliott",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:30",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-e6188ecaad64",
+      "title": "OhShit",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-e85b00a70f4d",
+      "title": "DroneAgent",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:21",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-ea9f8c882491",
+      "title": "Vote",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-f37216232adb",
+      "title": "GilbertElliottChannel",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:19",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-f55cac3d3738",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-28T17:57:07",
+      "weight": 0.01
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-f8727d2c24fc",
+      "title": "ManifoldNode",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:16",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-fa66a27e66af",
+      "title": "ScenarioRun",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:27",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-fb9fc61b4035",
+      "title": "World",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:04",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-fd38c91a468c",
+      "title": "ShadowedClusterChannel",
+      "type": "concept",
+      "updated_at": "2026-05-24T14:54:30",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-sym-drone_swarm-ff452f6432af",
+      "title": "AgentStepLog",
+      "type": "concept",
+      "updated_at": "2026-06-09T13:09:01",
+      "weight": 0.5
+    }
+  ],
+  "repo": "drone_swarm",
+  "source_updated_at": "2026-06-09T13:09:04",
+  "version": 1
+}

@@ -54,9 +54,19 @@ stage AND results stage.
 
 ## Code
 
-- `manifold.py` — `ManifoldNode` + `compute_target()` per-drone
-  divide-and-conquer (lifted from the validated above-water
-  `simulator.py`).
+- `manifold.py` — `compute_target()` per-drone formation assignment plus
+  `compute_mission_target()` for deterministic hold-and-advance mission
+  objectives (fixed stations first, remaining drones distributed by rank).
+- `building_explore.py` — terrain-blind building-exploration mission layer:
+  MAP-derived feature observations (entrance/intersection/frontier/target)
+  become deterministic sentinel/worker/extractor roles and Command payloads.
+  Intersections are held only while downstream drones/objectives make them
+  useful. Includes random hidden-building harnesses, a PNG trace renderer,
+  and a smooth floorplan GIF renderer with a shared static obstacle/door
+  map, graph-routed interior movement, deterministic perimeter search,
+  door-constrained entry/egress, collision spacing, rigid three-drone carry
+  formations, lane-separated exterior returns, and extraction gated by a
+  shared `CLEAR` observation rather than hidden target count.
 - `local_comms.py` — range-limited acoustic message passing with
   propagation delay (1500 m/s), receive-time range check, monotonic
   signal-strength degradation, per-message loss, multi-hop relay headers,
@@ -66,8 +76,9 @@ stage AND results stage.
 - `agent.py` — per-drone state + decision step. Audit-tested for oracle
   leaks (step signature has no global-state params; divergent local
   views produce divergent targets). Multi-hop relay with TTL=6 and
-  (kind, origin, epoch) dedup. Byzantine/outlier handling comes from
-  post-fit IRLS residuals, not a per-message filter.
+  (kind, origin, epoch) dedup. After MAP/VOTE, leaders can issue the next
+  explicit mission-objective Command. Byzantine/outlier handling comes
+  from post-fit IRLS residuals, not a per-message filter.
 - `world.py` — simulation harness. Random per-drone step order each
   tick. Failure hooks (kill, byzantine, displacement).
 - `baseline_oracle.py` / `baseline_drift.py` — comparator baselines.

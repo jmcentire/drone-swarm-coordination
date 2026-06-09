@@ -52,7 +52,7 @@ from typing import Any
 
 import numpy as np
 
-from manifold import compute_target
+from manifold import compute_mission_target, compute_target
 from protocol import (
     Command,
     DEFAULT_FRESHNESS_TICKS,
@@ -177,6 +177,7 @@ class Agent:
         self._last_map_call_tick: int = -10_000
         self._last_vote_call_tick: int = -10_000
         self._last_vote_for_map_round: int = -1
+        self._last_command_for_vote_round: int = -1
         self._map_responses_received: dict[int, int] = {}   # round_id -> n responses
         self._vote_responses_received: dict[int, int] = {}
         # Per-round queued response (key: (round_kind, round_id) so each call
@@ -537,6 +538,91 @@ class Agent:
             sig_stub=make_sig(self.drone_id, self.my_vote_epoch, "VC"),
         )
 
+    def _next_mission_payload(
+        self,
+        tick: int,
+        known: list[dict],
+        max_speed: float,
+    ) -> dict[str, Any] | None:
+        payload = self._current_command_payload()
+        objectives = payload.get(
+            "mission_objectives",
+            payload.get("objective_sequence", payload.get("next_objectives")),
+        )
+        if objectives is None:
+            return None
+        objectives = list(objectives)
+        if not objectives:
+            return None
+
+        current_idx = int(payload.get("mission_objective_index", payload.get("leg", 0)))
+        next_idx = current_idx + 1
+        if next_idx >= len(objectives):
+            return None
+
+        next_payload = dict(payload)
+        next_objective = objectives[next_idx]
+        next_payload["mission_objective_index"] = next_idx
+        next_payload["mission_objective"] = next_objective
+        next_payload["objective"] = next_objective
+        next_payload["leg"] = next_idx
+
+        if known:
+            pts = np.array([d["pos"] for d in known], dtype=np.float64)
+            next_payload["rally_point"] = np.mean(pts, axis=0)
+        max_leg_distance = 0.0
+        for drone in known:
+            try:
+                target, _ = compute_mission_target(int(drone["id"]), known, next_payload)
+            except Exception:
+                continue
+            max_leg_distance = max(
+                max_leg_distance,
+                float(np.linalg.norm(target - np.asarray(drone["pos"], dtype=np.float64))),
+            )
+        next_payload["expected_completion_tick"] = (
+            tick
+            + int(np.ceil(max_leg_distance / max(1e-9, max_speed)))
+            + self.expected_completion_margin_ticks
+        )
+        return next_payload
+
+    def _maybe_issue_command(
+        self,
+        tick: int,
+        am_leader: bool,
+        known: list[dict],
+        max_speed: float,
+    ) -> Command | None:
+        """Leader emits the next mission Command after Vote closes.
+
+        This is intentionally limited to explicit mission-objective
+        sequences. Existing formation-manifold commands keep their current
+        behavior until a payload says there is another objective to issue.
+        """
+        if not am_leader or self.vote_round_counter <= 0:
+            return None
+        if self._last_command_for_vote_round == self.vote_round_counter:
+            return None
+        if tick - self._last_vote_call_tick < self.vote_response_window_ticks:
+            return None
+
+        self._last_command_for_vote_round = self.vote_round_counter
+        payload = self._next_mission_payload(tick, known, max_speed)
+        if payload is None:
+            return None
+        self.my_command_epoch += 1
+        command = Command(
+            origin=self.drone_id,
+            leader_priority=self.proto.my_priority,
+            epoch=self.my_command_epoch,
+            payload=payload,
+            sig_stub=make_sig(self.drone_id, self.my_command_epoch, "C"),
+        )
+        self.proto.latest_command = command
+        self.proto.latest_command_tick = tick
+        return command
+
     # ------------------------------------------------------------------
     # Step
     # ------------------------------------------------------------------
@@ -665,6 +751,25 @@ class Agent:
         ]
         known = [my_entry] + peers
 
+        payload = self._current_command_payload()
+        mission_payload = None
+        if any(
+            key in payload
+            for key in (
+                "mission_objective",
+                "next_objective",
+                "objective",
+                "station_targets",
+                "hold_targets",
+                "fixed_targets",
+            )
+        ):
+            mission_payload = dict(payload)
+            if "objective" not in mission_payload:
+                objective = payload.get("mission_objective", payload.get("next_objective"))
+                if objective is not None:
+                    mission_payload["objective"] = objective
+
         manifold_targets = None
         if self.proto.latest_command is not None:
             mt = self.proto.latest_command.payload.get("manifold_targets")
@@ -674,6 +779,8 @@ class Agent:
         if rally_target is not None:
             target = rally_target
             is_primary = True
+        elif mission_payload is not None:
+            target, is_primary = compute_mission_target(self.drone_id, known, mission_payload)
         elif manifold_targets is not None:
             target, is_primary = compute_target(self.drone_id, known, manifold_targets)
         else:
@@ -732,6 +839,9 @@ class Agent:
         vote_call = self._maybe_initiate_vote(current_tick, am_leader)
         if vote_call is not None:
             outgoing.append(vote_call)
+        command = self._maybe_issue_command(current_tick, am_leader, known, max_speed)
+        if command is not None:
+            outgoing.append(command)
 
         # 7c. OhShit (gated to MOVE/SETTLE/REFORM).
         for ev in self._check_oh_shit(current_tick):
@@ -799,6 +909,9 @@ def _tests() -> int:
     v, out, log = a.step(current_tick=1, inbox=[])
     if log.phase != "move":
         print(f"FAIL T2: after Command, expected move, got {log.phase}")
+        failed += 1
+    if float(np.linalg.norm(log.target - manifold[0])) > 1e-9:
+        print(f"FAIL T2b: manifold command should target {manifold[0]}, got {log.target}")
         failed += 1
 
     # T3: leader periodically initiates MAP_CALL (>=1 MAP within map_round_interval_ticks).
@@ -881,6 +994,84 @@ def _tests() -> int:
     if float(np.linalg.norm(log.target - rally)) > 1e-9:
         print(f"FAIL T5b: alert target should be rally point, got {log.target}")
         failed += 1
+
+    # T6: mission-objective Command uses deterministic hold-and-advance
+    # assignment instead of the formation-manifold path.
+    a = Agent(drone_id=2, priority=2, position=np.array([20.0, 5.0, 0.0]))
+    known_positions = {
+        0: np.array([0.2, 0.0, 0.0]),
+        1: np.array([9.8, 0.0, 0.0]),
+        2: np.array([20.0, 5.0, 0.0]),
+        3: np.array([20.0, -5.0, 0.0]),
+    }
+    for did, pos in known_positions.items():
+        a.proto.self_estimates[did] = (pos.copy(), 0, 0)
+        a.proto.known_positions[did] = (pos.copy(), 0, 0)
+        a.proto.dr_sigmas[did] = 1.0
+    mission_payload = {
+        "station_targets": np.array([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0]]),
+        "hold_radius_m": 0.5,
+        "mission_objective": {"kind": "point", "point": np.array([100.0, 0.0, 0.0])},
+        "objective_spacing_m": 6.0,
+    }
+    a.proto.latest_command = Command(
+        origin=9,
+        leader_priority=9,
+        epoch=0,
+        payload=mission_payload,
+        sig_stub=b"",
+    )
+    _, _, log = a.step(current_tick=0, inbox=[])
+    expected = np.array([94.0, 0.0, 0.0])
+    if float(np.linalg.norm(log.target - expected)) > 1e-9:
+        print(f"FAIL T6a: mission mover target should be {expected}, got {log.target}")
+        failed += 1
+    if log.is_primary_at_slot:
+        print("FAIL T6b: mission mover should not be marked as station holder")
+        failed += 1
+
+    # T7: after Vote closes, a leader with an explicit objective sequence
+    # emits and locally adopts the next mission Command.
+    objectives = [
+        {"kind": "point", "point": np.array([50.0, 0.0, 0.0])},
+        {"kind": "point", "point": np.array([100.0, 0.0, 0.0])},
+    ]
+    a = Agent(drone_id=3, priority=3, position=np.array([0.0, 0.0, 0.0]))
+    a.proto.latest_command = Command(
+        origin=-1,
+        leader_priority=3,
+        epoch=0,
+        payload={
+            "mission_objectives": objectives,
+            "mission_objective_index": 0,
+            "mission_objective": objectives[0],
+            "objective_spacing_m": 6.0,
+            "expected_completion_tick": 0,
+        },
+        sig_stub=b"",
+    )
+    a.phase = Phase.READY
+    a.phase_start_tick = 0
+    a.map_round_counter = 1
+    a.vote_round_counter = 1
+    a._last_vote_call_tick = 0
+    _, out, _ = a.step(current_tick=a.vote_response_window_ticks, inbox=[])
+    commands = [o for o in out if isinstance(o, Command)]
+    if len(commands) != 1:
+        print(f"FAIL T7a: expected one next-mission Command, got {len(commands)}")
+        failed += 1
+    else:
+        next_payload = commands[0].payload
+        if next_payload.get("mission_objective_index") != 1:
+            print(f"FAIL T7b: expected objective index 1, got {next_payload.get('mission_objective_index')}")
+            failed += 1
+        point = np.asarray(next_payload["mission_objective"]["point"], dtype=np.float64)
+        if not np.allclose(point, objectives[1]["point"]):
+            print(f"FAIL T7c: expected next objective point {objectives[1]['point']}, got {point}")
+            failed += 1
+        if a.proto.latest_command is not commands[0]:
+            print("FAIL T7d: leader did not locally adopt emitted Command")
+            failed += 1
 
     return failed
 

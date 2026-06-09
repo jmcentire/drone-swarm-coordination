@@ -30,6 +30,8 @@ Two roles emerge from each per-drone call:
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
@@ -134,6 +136,172 @@ def compute_target(
     return _spare_hover_position(my_id, centroid, spacing), False
 
 
+def _as_points(value: Any) -> np.ndarray:
+    if value is None:
+        return np.zeros((0, 3), dtype=np.float64)
+    pts = np.asarray(value, dtype=np.float64)
+    if pts.size == 0:
+        return np.zeros((0, 3), dtype=np.float64)
+    if pts.ndim == 1:
+        if pts.shape[0] != 3:
+            raise ValueError("point must have shape (3,)")
+        return pts.reshape((1, 3))
+    if pts.ndim != 2 or pts.shape[1] != 3:
+        raise ValueError("points must have shape (N, 3)")
+    return pts.copy()
+
+
+def _objective_subgoal(
+    objective: dict[str, Any],
+    mover_rank: int,
+    n_movers: int,
+    spacing: float,
+) -> np.ndarray:
+    """Map a mover rank to a deterministic sub-goal for the objective.
+
+    The objective must encode a distribution rule. A bare point defaults
+    to a ring around the point so a coverage/search mission does not turn
+    into every non-holder clustering at the same coordinate.
+    """
+    kind = str(objective.get("kind", "point")).lower()
+    if n_movers <= 0:
+        n_movers = 1
+
+    if kind in {"points", "subgoals"}:
+        pts = _as_points(objective.get("points", objective.get("subgoals")))
+        if len(pts) == 0:
+            return np.zeros(3, dtype=np.float64)
+        return pts[mover_rank % len(pts)].copy()
+
+    if kind == "line":
+        start = _as_points(objective.get("start"))[0]
+        end = _as_points(objective.get("end"))[0]
+        if n_movers == 1:
+            return ((start + end) * 0.5).copy()
+        frac = mover_rank / max(1, n_movers - 1)
+        return (start * (1.0 - frac) + end * frac).astype(np.float64)
+
+    if kind == "perimeter":
+        center_value = objective.get("center", objective.get("point"))
+        if center_value is None:
+            return np.zeros(3, dtype=np.float64)
+        center = _as_points(center_value)[0]
+        radius = float(objective.get("radius_m", objective.get("radius", spacing)))
+    else:
+        center_value = objective.get("point", objective.get("target", objective.get("center")))
+        if center_value is None:
+            return np.zeros(3, dtype=np.float64)
+        center = _as_points(center_value)[0]
+        explicit_radius = objective.get("standoff_radius_m", objective.get("radius_m"))
+        if explicit_radius is None:
+            radius = max(spacing, spacing * n_movers / (2.0 * np.pi))
+        else:
+            radius = float(explicit_radius)
+        if n_movers == 1 and radius <= 1e-9:
+            return center.copy()
+
+    theta0 = float(objective.get("phase_rad", 0.0))
+    theta = theta0 + 2.0 * np.pi * mover_rank / n_movers
+    return center + np.array(
+        [radius * np.cos(theta), radius * np.sin(theta), 0.0],
+        dtype=np.float64,
+    )
+
+
+def compute_mission_target(
+    my_id: int,
+    drones: list[dict],
+    mission: dict[str, Any],
+) -> tuple[np.ndarray, bool]:
+    """Deterministically assign fixed stations first, then objective slots.
+
+    This is for leader Command payloads that describe a larger mission
+    objective instead of a formation manifold. Each drone can run it from
+    the MAP-derived local position set:
+
+      1. Station goals already satisfied by nearby drones are held.
+      2. Remaining drones are ranked deterministically by priority/id.
+      3. The leader-defined objective maps each rank to a distinct sub-goal.
+
+    No shortest-path or global assignment is solved. Distance is used only
+    as the local satisfaction predicate for station goals.
+    """
+    by_id: dict[int, np.ndarray] = {
+        int(d["id"]): np.asarray(d["pos"], dtype=np.float64)
+        for d in drones
+    }
+    if my_id not in by_id:
+        return np.zeros(3, dtype=np.float64), False
+
+    station_targets = _as_points(
+        mission.get(
+            "station_targets",
+            mission.get("hold_targets", mission.get("fixed_targets")),
+        )
+    )
+    hold_radius = float(mission.get("hold_radius_m", mission.get("station_radius_m", 1.5)))
+
+    holders: dict[int, int] = {}  # drone_id -> station index
+    used_drones: set[int] = set()
+    station_drone_ids = mission.get(
+        "station_drone_ids",
+        mission.get("sentinel_drone_ids", mission.get("station_assignments")),
+    )
+    if station_drone_ids is None:
+        station_drone_ids = []
+    if isinstance(station_drone_ids, dict):
+        explicit_pairs = [
+            (int(station_idx), int(drone_id))
+            for station_idx, drone_id in station_drone_ids.items()
+        ]
+    else:
+        explicit_pairs = [
+            (station_idx, int(drone_id))
+            for station_idx, drone_id in enumerate(station_drone_ids)
+            if drone_id is not None
+        ]
+    for station_idx, drone_id in explicit_pairs:
+        if station_idx < 0 or station_idx >= len(station_targets):
+            continue
+        if drone_id not in by_id or drone_id in used_drones:
+            continue
+        holders[drone_id] = station_idx
+        used_drones.add(drone_id)
+
+    for station_idx, station in enumerate(station_targets):
+        if station_idx in holders.values():
+            continue
+        candidates = []
+        for did, pos in by_id.items():
+            if did in used_drones:
+                continue
+            dist = float(np.linalg.norm(pos - station))
+            if dist <= hold_radius:
+                candidates.append((round(dist, 9), -did, did))
+        if not candidates:
+            continue
+        _, _, holder_id = min(candidates)
+        holders[holder_id] = station_idx
+        used_drones.add(holder_id)
+
+    if my_id in holders:
+        return station_targets[holders[my_id]].copy(), True
+
+    mover_ids = sorted((did for did in by_id if did not in holders), reverse=True)
+    if my_id not in mover_ids:
+        return by_id[my_id].copy(), False
+
+    objective = mission.get("objective", mission.get("mission_objective", mission.get("next_objective")))
+    if objective is None:
+        return by_id[my_id].copy(), False
+    if not isinstance(objective, dict):
+        objective = {"kind": "point", "point": objective}
+
+    spacing = float(mission.get("objective_spacing_m", mission.get("slot_spacing_m", 4.0)))
+    rank = mover_ids.index(my_id)
+    return _objective_subgoal(objective, rank, len(mover_ids), spacing), False
+
+
 # ---------------------------------------------------------------------------
 # Self tests.
 # ---------------------------------------------------------------------------
@@ -231,6 +399,64 @@ def _tests() -> int:
         failed += 1
     if not p_part:
         print("FAIL T5: partial view -- drone 3 should be primary")
+        failed += 1
+
+    # T6: mission assignment -- drones already near station goals hold
+    # those goals; the rest distribute around the leader-defined objective.
+    mission = {
+        "station_targets": np.array([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0]]),
+        "hold_radius_m": 0.5,
+        "objective": {"kind": "point", "point": np.array([100.0, 0.0, 0.0])},
+        "objective_spacing_m": 6.0,
+    }
+    drones = [
+        {"id": 0, "pos": np.array([0.2, 0.0, 0.0])},
+        {"id": 1, "pos": np.array([9.8, 0.0, 0.0])},
+        {"id": 2, "pos": np.array([20.0, 5.0, 0.0])},
+        {"id": 3, "pos": np.array([20.0, -5.0, 0.0])},
+    ]
+    t0, p0 = compute_mission_target(0, drones, mission)
+    t1, p1 = compute_mission_target(1, drones, mission)
+    t2, p2 = compute_mission_target(2, drones, mission)
+    t3, p3 = compute_mission_target(3, drones, mission)
+    if not (p0 and np.allclose(t0, mission["station_targets"][0])):
+        print(f"FAIL T6a: drone 0 should hold station 0, got {t0} primary={p0}")
+        failed += 1
+    if not (p1 and np.allclose(t1, mission["station_targets"][1])):
+        print(f"FAIL T6b: drone 1 should hold station 1, got {t1} primary={p1}")
+        failed += 1
+    if p2 or p3:
+        print("FAIL T6c: movers should not be station holders")
+        failed += 1
+    if np.allclose(t2, t3):
+        print(f"FAIL T6d: movers collapsed to same objective subgoal {t2}")
+        failed += 1
+    t2_rev, _ = compute_mission_target(2, list(reversed(drones)), mission)
+    if not np.allclose(t2, t2_rev):
+        print(f"FAIL T6e: mission target changed with row order: {t2} -> {t2_rev}")
+        failed += 1
+
+    # T7: explicit sentinel assignments override proximity. This is how
+    # MAP-derived discovery order can make "the discoverer holds the
+    # intersection" known to every drone.
+    mission = {
+        "station_targets": np.array([[0.0, 0.0, 0.0]]),
+        "station_drone_ids": [3],
+        "hold_radius_m": 0.5,
+        "objective": {"kind": "point", "point": np.array([100.0, 0.0, 0.0])},
+        "objective_spacing_m": 6.0,
+    }
+    drones = [
+        {"id": 0, "pos": np.array([0.1, 0.0, 0.0])},
+        {"id": 3, "pos": np.array([5.0, 0.0, 0.0])},
+    ]
+    _, p0 = compute_mission_target(0, drones, mission)
+    t3, p3 = compute_mission_target(3, drones, mission)
+    if p0:
+        print("FAIL T7a: unassigned nearby drone should not steal explicit sentinel station")
+        failed += 1
+    if not (p3 and np.allclose(t3, mission["station_targets"][0])):
+        print(f"FAIL T7b: assigned sentinel should target station, got {t3} primary={p3}")
         failed += 1
 
     return failed

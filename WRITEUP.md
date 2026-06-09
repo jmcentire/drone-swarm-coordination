@@ -22,7 +22,7 @@ Companion files:
 
 **Code and data availability.** All source, simulator, benchmark
 scripts, figures, and the rendered four-phase demo are archived at
-Zenodo under DOI [10.5281/zenodo.20385946](https://doi.org/10.5281/zenodo.20385946)
+Zenodo under DOI [10.5281/zenodo.20615824](https://doi.org/10.5281/zenodo.20615824)
 and mirrored at the GitHub repository
 [github.com/jmcentire/drone-swarm-coordination](https://github.com/jmcentire/drone-swarm-coordination).
 The Zenodo deposition is the citable, version-pinned snapshot; the GitHub
@@ -73,6 +73,18 @@ acoustic link-budget and throughput accounting, and vertical acoustic
 relay localization. These results establish physically-grounded
 modeling targets and mechanisms for a future per-drone adaptive
 underwater mission loop.
+
+The v1.4 supplemental adds companion demonstration artifacts for
+mission-level deterministic coordination. `distributed/building_explore.py`
+simulates unknown-building discovery, shared obstacle/door mapping,
+intersection sentinels, room exploration, three-drone target extraction,
+return-to-base, and a deterministic stress mode with drone loss,
+wall-degraded relay links, sentinel-gated MAP sharing, and role
+reassignment under the same MAP/VOTE/Command substrate. The `patent/`
+materials package threat-responsive manifold examples, including a
+drone-swarm shield mesh and other defensive counter-geometries. These
+artifacts are simulation/disclosure supplements, not RF validation,
+hardware validation, or field intercept claims.
 
 ## 1. Introduction
 
@@ -2078,6 +2090,74 @@ relay localization are plausible and bounded. They do not yet prove the
 complete underwater swarm architecture. The next step is to wire
 link-quality edges into the shared map and let each drone plan over both
 mission value and communication/localization viability.
+
+### 9.6 v1.4 supplemental: building exploration and threat-responsive manifolds
+
+The v1.4 supplemental packages two mission-level companion artifacts that
+exercise the same deterministic-substrate idea outside the original
+formation and underwater benches:
+
+1. a smooth unknown-building exploration/extraction simulation in
+   `distributed/building_explore.py`; and
+2. threat-responsive manifold examples in `patent/`, including a
+   drone-swarm shield mesh and other defensive counter-geometries.
+
+The building simulation starts from no prior terrain map. Drones search
+an open field, discover a building, identify doors, enter through known
+door geometry, and construct a shared static obstacle/door graph from
+compact MAP observations. The planner derives sentinels, workers, and
+extractors deterministically from the shared observation log:
+
+- entrance and purpose-bearing intersection sentinels hold relay points
+  only while downstream drones/objectives require them;
+- workers route over discovered graph edges and frontiers rather than
+  through hidden terrain;
+- target discoverers guard until the building is cleared; and
+- extraction begins only after a shared `CLEAR` observation confirms all
+  rooms have been explored.
+- the optional stress mode queues observations per drone and releases
+  them only when a wall-aware relay graph connects the observer back to
+  home through sentinels.
+
+The extraction animation intentionally treats three-drone extraction as a
+physical operation rather than a label. Each target receives a
+deterministic trio: the discoverer plus nearest available workers in the
+shared relative-position map. The target waits until the trio assembles,
+then the target and escorts move as a rigid carry formation with
+free-space-side offsets and lane-separated exterior returns. Frame-level
+tests assert that moving targets keep three close escorts, that drones
+and targets do not cross walls, and that building-boundary transitions
+occur at doors.
+
+Representative reproduction:
+
+```bash
+PYTHONPATH=distributed python3 distributed/building_explore.py
+MPLBACKEND=Agg PYTHONPATH=distributed python3 distributed/building_explore.py \
+  --smooth --seed 4 --frames 900 --stride 3 --fps 14 \
+  --output figures/building_explore_smooth_seed4.gif
+MPLBACKEND=Agg PYTHONPATH=distributed python3 distributed/building_explore.py \
+  --smooth --stress --seed 4 --frames 900 --stride 3 --fps 14 \
+  --output figures/building_explore_stress_seed4.gif
+```
+
+For seed 4, the committed GIF reaches a complete mission with three
+targets, eight rooms seen, visible `x3` extraction groups, and all drones
+returned to base. The stress GIF uses the same seed and additionally
+shows one deterministic sentinel loss, relay sentinels, wall-blocked
+message propagation, and continued extraction with three live escorts per
+target. This is a software simulation of the coordination logic. It is
+not a claim of hardware flight testing, RF validation, target handling,
+or field-validated indoor navigation.
+
+The threat-responsive manifold materials in `patent/` document a related
+use of the same substrate: a threat classification maps to a target
+manifold that every drone can recompute from the same broadcast facts.
+Examples include a dense spherical formation against missile-like
+threats, a two-dimensional mesh against incoming drone-swarm threats, a
+three-dimensional volume against cluster-munition-like threats, and a
+ballistic-trajectory screen. These are disclosure/geometry examples, not
+benchmarked intercept systems.
 
 ## 10. Future work
 

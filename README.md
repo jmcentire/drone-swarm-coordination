@@ -10,8 +10,8 @@ localization — are independently provable, empirically validated across
 N=10 to N=10,000, and compose without interference.
 
 **Citable archives**:
-- Paper: [10.5281/zenodo.20385945](https://doi.org/10.5281/zenodo.20385945)
-- Software (this repository): [10.5281/zenodo.20385946](https://doi.org/10.5281/zenodo.20385946)
+- Paper: [10.5281/zenodo.20615823](https://doi.org/10.5281/zenodo.20615823)
+- Software (this repository): [10.5281/zenodo.20615824](https://doi.org/10.5281/zenodo.20615824)
 
 See `paper.pdf` (compiled from `paper.tex`) for the full writeup, or
 `WRITEUP.md` and `PROOFS.md` for the source.
@@ -139,6 +139,35 @@ Headline bands from the committed artifacts:
 | Vertical relay at 3000m nominal | dense global RMSE 14.7m; triad 16.3m | `underwater/bench_vertical_relay.py` |
 | Vertical relay at 6000m nominal | triad global RMSE 24.1m; dense 24.9m | `underwater/bench_vertical_relay.py` |
 
+## v1.4 supplemental: building exploration and threat-responsive manifolds
+
+WRITEUP §9.6 adds two companion artifacts:
+
+- `distributed/building_explore.py` simulates terrain-blind building search,
+  entrance discovery, shared static map construction, room/intersection
+  exploration, three-drone target extraction, return-to-base, and an optional
+  stress mode with deterministic drone loss, wall-degraded relay links, and
+  sentinel-gated MAP sharing using the same deterministic MAP/VOTE/Command
+  substrate.
+- `patent/` includes threat-classification-to-manifold materials, including a
+  drone-swarm shield mesh, dense missile-threat sphere, cluster-munition
+  volume, and ballistic screen.
+
+```bash
+PYTHONPATH=distributed python3 distributed/building_explore.py
+MPLBACKEND=Agg PYTHONPATH=distributed python3 distributed/building_explore.py \
+  --smooth --seed 4 --frames 900 --stride 3 --fps 14 \
+  --output figures/building_explore_smooth_seed4.gif
+MPLBACKEND=Agg PYTHONPATH=distributed python3 distributed/building_explore.py \
+  --smooth --stress --seed 4 --frames 900 --stride 3 --fps 14 \
+  --output figures/building_explore_stress_seed4.gif
+```
+
+The building animation is a simulation artifact, not hardware validation.
+The stress animation is a deterministic channel/loss simulation, not RF
+validation. The shield material is packaged as threat-responsive manifold
+disclosure and illustration, not as a tested intercept system.
+
 ## File layout
 
 ```
@@ -167,6 +196,9 @@ drone_swarm/
 │   ├── acoustic_channel.py — link-budget model
 │   ├── bench_link_budget.py — throughput sufficiency bands
 │   └── bench_vertical_relay.py — vertical acoustic relay localization
+├── distributed/             — v1.4 distributed MAP/VOTE/Command simulator
+│   └── building_explore.py  — building search, mapping, and extraction demo
+├── patent/                  — threat-responsive manifold disclosure/figures
 ├── make_figures.py          — generates the five paper figures
 ├── paper.tex / paper.pdf    — compiled paper (single document)
 ├── WRITEUP.md               — paper source (markdown)
@@ -183,7 +215,7 @@ drone_swarm/
 │   ├── 05_b1_envelope_ranges.md — benign-loss envelope variable ranges
 │   ├── 06_b2_mission_taxonomy.md — mission-class scope boundaries
 │   └── 07_sarops_class_config.yaml/.md — pinned OPERATIONAL-UNKNOWN config
-├── figures/                 — 5 PNG figures
+├── figures/                 — paper figures and generated GIF demos
 ├── swarm.mp4                — rendered four-phase demo
 └── README.md                — this file
 ```
