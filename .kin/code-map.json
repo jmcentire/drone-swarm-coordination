@@ -2,435 +2,435 @@
   "edges": [
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-0121ac7db412",
-      "target": "code-mod-drone_swarm-250f3e54655c",
+      "source": "code-sym-drone-swarm-coordination-0121ac7db412",
+      "target": "code-mod-drone-swarm-coordination-250f3e54655c",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-0218d2d05858",
-      "target": "code-mod-drone_swarm-dd08325b197f",
+      "source": "code-sym-drone-swarm-coordination-0218d2d05858",
+      "target": "code-mod-drone-swarm-coordination-dd08325b197f",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-04847a793bd3",
-      "target": "code-mod-drone_swarm-e8fd8a4b81e6",
+      "source": "code-sym-drone-swarm-coordination-04847a793bd3",
+      "target": "code-mod-drone-swarm-coordination-e8fd8a4b81e6",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-0ee1c88f8c19",
-      "target": "code-mod-drone_swarm-af278f084e16",
+      "source": "code-sym-drone-swarm-coordination-0ee1c88f8c19",
+      "target": "code-mod-drone-swarm-coordination-af278f084e16",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-109bedd7be2f",
-      "target": "code-mod-drone_swarm-1b99b017505d",
+      "source": "code-sym-drone-swarm-coordination-109bedd7be2f",
+      "target": "code-mod-drone-swarm-coordination-1b99b017505d",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-1ba81172f46b",
-      "target": "code-mod-drone_swarm-1b99b017505d",
+      "source": "code-sym-drone-swarm-coordination-1ba81172f46b",
+      "target": "code-mod-drone-swarm-coordination-1b99b017505d",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-1e6f28d63b10",
-      "target": "code-mod-drone_swarm-1b99b017505d",
+      "source": "code-sym-drone-swarm-coordination-1e6f28d63b10",
+      "target": "code-mod-drone-swarm-coordination-1b99b017505d",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-27e04d56caf5",
-      "target": "code-mod-drone_swarm-1cae3769c298",
+      "source": "code-sym-drone-swarm-coordination-27e04d56caf5",
+      "target": "code-mod-drone-swarm-coordination-1cae3769c298",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-2869cb9e024d",
-      "target": "code-mod-drone_swarm-e5ee57c72961",
+      "source": "code-sym-drone-swarm-coordination-2869cb9e024d",
+      "target": "code-mod-drone-swarm-coordination-e5ee57c72961",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-289abf47f143",
-      "target": "code-mod-drone_swarm-cb2764c8dc08",
+      "source": "code-sym-drone-swarm-coordination-289abf47f143",
+      "target": "code-mod-drone-swarm-coordination-cb2764c8dc08",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-29e7dc6dd615",
-      "target": "code-mod-drone_swarm-dd08325b197f",
+      "source": "code-sym-drone-swarm-coordination-29e7dc6dd615",
+      "target": "code-mod-drone-swarm-coordination-dd08325b197f",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-32c4fddb7578",
-      "target": "code-mod-drone_swarm-67ea60b86e43",
+      "source": "code-sym-drone-swarm-coordination-32c4fddb7578",
+      "target": "code-mod-drone-swarm-coordination-67ea60b86e43",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-3617a57cbfba",
-      "target": "code-mod-drone_swarm-e5ee57c72961",
+      "source": "code-sym-drone-swarm-coordination-3617a57cbfba",
+      "target": "code-mod-drone-swarm-coordination-e5ee57c72961",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-3d66d0be5940",
-      "target": "code-mod-drone_swarm-da73cc12688f",
+      "source": "code-sym-drone-swarm-coordination-3d66d0be5940",
+      "target": "code-mod-drone-swarm-coordination-da73cc12688f",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-3ecdebb94011",
-      "target": "code-mod-drone_swarm-1cae3769c298",
+      "source": "code-sym-drone-swarm-coordination-3ecdebb94011",
+      "target": "code-mod-drone-swarm-coordination-1cae3769c298",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-3ee324e17ef0",
-      "target": "code-mod-drone_swarm-1f47e0101426",
+      "source": "code-sym-drone-swarm-coordination-3ee324e17ef0",
+      "target": "code-mod-drone-swarm-coordination-1f47e0101426",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-44d341d4e162",
-      "target": "code-mod-drone_swarm-af278f084e16",
+      "source": "code-sym-drone-swarm-coordination-44d341d4e162",
+      "target": "code-mod-drone-swarm-coordination-af278f084e16",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-473842d007f9",
-      "target": "code-mod-drone_swarm-155568d5a4dc",
+      "source": "code-sym-drone-swarm-coordination-473842d007f9",
+      "target": "code-mod-drone-swarm-coordination-155568d5a4dc",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-48811f7636f1",
-      "target": "code-mod-drone_swarm-d0fd2957d6f3",
+      "source": "code-sym-drone-swarm-coordination-48811f7636f1",
+      "target": "code-mod-drone-swarm-coordination-d0fd2957d6f3",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-4b1139f25cd7",
-      "target": "code-mod-drone_swarm-af278f084e16",
+      "source": "code-sym-drone-swarm-coordination-4b1139f25cd7",
+      "target": "code-mod-drone-swarm-coordination-af278f084e16",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-512c1a253a09",
-      "target": "code-mod-drone_swarm-fc6cfe1e511d",
+      "source": "code-sym-drone-swarm-coordination-512c1a253a09",
+      "target": "code-mod-drone-swarm-coordination-fc6cfe1e511d",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-529e37010cd1",
-      "target": "code-mod-drone_swarm-6d0662eeb9a9",
+      "source": "code-sym-drone-swarm-coordination-529e37010cd1",
+      "target": "code-mod-drone-swarm-coordination-6d0662eeb9a9",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-58724c2e5f37",
-      "target": "code-mod-drone_swarm-0f7280c58db3",
+      "source": "code-sym-drone-swarm-coordination-58724c2e5f37",
+      "target": "code-mod-drone-swarm-coordination-0f7280c58db3",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-5a58f5d34293",
-      "target": "code-mod-drone_swarm-1f47e0101426",
+      "source": "code-sym-drone-swarm-coordination-5a58f5d34293",
+      "target": "code-mod-drone-swarm-coordination-1f47e0101426",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-6142eca40d97",
-      "target": "code-mod-drone_swarm-e65abbb9d118",
+      "source": "code-sym-drone-swarm-coordination-6142eca40d97",
+      "target": "code-mod-drone-swarm-coordination-e65abbb9d118",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-6518fa91d697",
-      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "source": "code-sym-drone-swarm-coordination-6518fa91d697",
+      "target": "code-mod-drone-swarm-coordination-738cbdb0c788",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-66f042d539b0",
-      "target": "code-mod-drone_swarm-3c86467b4120",
+      "source": "code-sym-drone-swarm-coordination-66f042d539b0",
+      "target": "code-mod-drone-swarm-coordination-3c86467b4120",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-6ae822e343a3",
-      "target": "code-mod-drone_swarm-0f7280c58db3",
+      "source": "code-sym-drone-swarm-coordination-6ae822e343a3",
+      "target": "code-mod-drone-swarm-coordination-0f7280c58db3",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-6cc585ea77b3",
-      "target": "code-mod-drone_swarm-da73cc12688f",
+      "source": "code-sym-drone-swarm-coordination-6cc585ea77b3",
+      "target": "code-mod-drone-swarm-coordination-da73cc12688f",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-73cbe889d93d",
-      "target": "code-mod-drone_swarm-1f47e0101426",
+      "source": "code-sym-drone-swarm-coordination-73cbe889d93d",
+      "target": "code-mod-drone-swarm-coordination-1f47e0101426",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-75378b0f06b7",
-      "target": "code-mod-drone_swarm-dd08325b197f",
+      "source": "code-sym-drone-swarm-coordination-75378b0f06b7",
+      "target": "code-mod-drone-swarm-coordination-dd08325b197f",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-8065b036928c",
-      "target": "code-mod-drone_swarm-a95c3dbf1236",
+      "source": "code-sym-drone-swarm-coordination-8065b036928c",
+      "target": "code-mod-drone-swarm-coordination-a95c3dbf1236",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-8c06ba32b8fa",
-      "target": "code-mod-drone_swarm-c8ec0caeff6c",
+      "source": "code-sym-drone-swarm-coordination-8c06ba32b8fa",
+      "target": "code-mod-drone-swarm-coordination-c8ec0caeff6c",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-92cfa5d99d01",
-      "target": "code-mod-drone_swarm-1b99b017505d",
+      "source": "code-sym-drone-swarm-coordination-92cfa5d99d01",
+      "target": "code-mod-drone-swarm-coordination-1b99b017505d",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-9921d19e728c",
-      "target": "code-mod-drone_swarm-1cae3769c298",
+      "source": "code-sym-drone-swarm-coordination-9921d19e728c",
+      "target": "code-mod-drone-swarm-coordination-1cae3769c298",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-9a61fec29775",
-      "target": "code-mod-drone_swarm-d0fd2957d6f3",
+      "source": "code-sym-drone-swarm-coordination-9a61fec29775",
+      "target": "code-mod-drone-swarm-coordination-d0fd2957d6f3",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-a0dc909ab18e",
-      "target": "code-mod-drone_swarm-49a29f3b5b55",
+      "source": "code-sym-drone-swarm-coordination-a0dc909ab18e",
+      "target": "code-mod-drone-swarm-coordination-49a29f3b5b55",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-a390025c5ed8",
-      "target": "code-mod-drone_swarm-af278f084e16",
+      "source": "code-sym-drone-swarm-coordination-a390025c5ed8",
+      "target": "code-mod-drone-swarm-coordination-af278f084e16",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-a6803c18bb0d",
-      "target": "code-mod-drone_swarm-322c0a720670",
+      "source": "code-sym-drone-swarm-coordination-a6803c18bb0d",
+      "target": "code-mod-drone-swarm-coordination-322c0a720670",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-a7b1dc9bc85f",
-      "target": "code-mod-drone_swarm-9e0c944f3098",
+      "source": "code-sym-drone-swarm-coordination-a7b1dc9bc85f",
+      "target": "code-mod-drone-swarm-coordination-9e0c944f3098",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-b5857104e7d7",
-      "target": "code-mod-drone_swarm-322c0a720670",
+      "source": "code-sym-drone-swarm-coordination-b5857104e7d7",
+      "target": "code-mod-drone-swarm-coordination-322c0a720670",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-b58aa672a2c2",
-      "target": "code-mod-drone_swarm-1cae3769c298",
+      "source": "code-sym-drone-swarm-coordination-b58aa672a2c2",
+      "target": "code-mod-drone-swarm-coordination-1cae3769c298",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-ba146985eac6",
-      "target": "code-mod-drone_swarm-e15a0f51b784",
+      "source": "code-sym-drone-swarm-coordination-ba146985eac6",
+      "target": "code-mod-drone-swarm-coordination-e15a0f51b784",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-bad80a68124a",
-      "target": "code-mod-drone_swarm-1b99b017505d",
+      "source": "code-sym-drone-swarm-coordination-bad80a68124a",
+      "target": "code-mod-drone-swarm-coordination-1b99b017505d",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-c20cd7db9e98",
-      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "source": "code-sym-drone-swarm-coordination-c20cd7db9e98",
+      "target": "code-mod-drone-swarm-coordination-738cbdb0c788",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-c2c099b2c4a2",
-      "target": "code-mod-drone_swarm-cb2764c8dc08",
+      "source": "code-sym-drone-swarm-coordination-c2c099b2c4a2",
+      "target": "code-mod-drone-swarm-coordination-cb2764c8dc08",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-c864c2693aa8",
-      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "source": "code-sym-drone-swarm-coordination-c864c2693aa8",
+      "target": "code-mod-drone-swarm-coordination-738cbdb0c788",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-c8c0d56ebf56",
-      "target": "code-mod-drone_swarm-c8ec0caeff6c",
+      "source": "code-sym-drone-swarm-coordination-c8c0d56ebf56",
+      "target": "code-mod-drone-swarm-coordination-c8ec0caeff6c",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-cb85304de518",
-      "target": "code-mod-drone_swarm-af278f084e16",
+      "source": "code-sym-drone-swarm-coordination-cb85304de518",
+      "target": "code-mod-drone-swarm-coordination-af278f084e16",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-d9816132d4ca",
-      "target": "code-mod-drone_swarm-0840d50d0e14",
+      "source": "code-sym-drone-swarm-coordination-d9816132d4ca",
+      "target": "code-mod-drone-swarm-coordination-0840d50d0e14",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-da6ed22c9a9f",
-      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "source": "code-sym-drone-swarm-coordination-da6ed22c9a9f",
+      "target": "code-mod-drone-swarm-coordination-738cbdb0c788",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-e028db7505d0",
-      "target": "code-mod-drone_swarm-322c0a720670",
+      "source": "code-sym-drone-swarm-coordination-e028db7505d0",
+      "target": "code-mod-drone-swarm-coordination-322c0a720670",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-e6188ecaad64",
-      "target": "code-mod-drone_swarm-af278f084e16",
+      "source": "code-sym-drone-swarm-coordination-e6188ecaad64",
+      "target": "code-mod-drone-swarm-coordination-af278f084e16",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-e85b00a70f4d",
-      "target": "code-mod-drone_swarm-e5ee57c72961",
+      "source": "code-sym-drone-swarm-coordination-e85b00a70f4d",
+      "target": "code-mod-drone-swarm-coordination-e5ee57c72961",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-ea9f8c882491",
-      "target": "code-mod-drone_swarm-af278f084e16",
+      "source": "code-sym-drone-swarm-coordination-ea9f8c882491",
+      "target": "code-mod-drone-swarm-coordination-af278f084e16",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-f37216232adb",
-      "target": "code-mod-drone_swarm-738cbdb0c788",
+      "source": "code-sym-drone-swarm-coordination-f37216232adb",
+      "target": "code-mod-drone-swarm-coordination-738cbdb0c788",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-f55cac3d3738",
-      "target": "code-mod-drone_swarm-443d6fc8e771",
+      "source": "code-sym-drone-swarm-coordination-f55cac3d3738",
+      "target": "code-mod-drone-swarm-coordination-443d6fc8e771",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-f8727d2c24fc",
-      "target": "code-mod-drone_swarm-eaa462aab102",
+      "source": "code-sym-drone-swarm-coordination-f8727d2c24fc",
+      "target": "code-mod-drone-swarm-coordination-eaa462aab102",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-fa66a27e66af",
-      "target": "code-mod-drone_swarm-e15a0f51b784",
+      "source": "code-sym-drone-swarm-coordination-fa66a27e66af",
+      "target": "code-mod-drone-swarm-coordination-e15a0f51b784",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-fb9fc61b4035",
-      "target": "code-mod-drone_swarm-da73cc12688f",
+      "source": "code-sym-drone-swarm-coordination-fb9fc61b4035",
+      "target": "code-mod-drone-swarm-coordination-da73cc12688f",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-fd38c91a468c",
-      "target": "code-mod-drone_swarm-322c0a720670",
+      "source": "code-sym-drone-swarm-coordination-fd38c91a468c",
+      "target": "code-mod-drone-swarm-coordination-322c0a720670",
       "type": "contains",
       "weight": 0.6
     },
     {
       "direction": "outbound",
-      "source": "code-sym-drone_swarm-ff452f6432af",
-      "target": "code-mod-drone_swarm-c8ec0caeff6c",
+      "source": "code-sym-drone-swarm-coordination-ff452f6432af",
+      "target": "code-mod-drone-swarm-coordination-c8ec0caeff6c",
       "type": "contains",
       "weight": 0.6
     }
@@ -441,52 +441,52 @@
       "id": "core",
       "name": "Core",
       "nodeIds": [
-        "code-mod-drone_swarm-020be96c9406",
-        "code-mod-drone_swarm-0840d50d0e14",
-        "code-mod-drone_swarm-0e630d1bc0f4",
-        "code-mod-drone_swarm-0eea47132d5b",
-        "code-mod-drone_swarm-0f7280c58db3",
-        "code-mod-drone_swarm-155568d5a4dc",
-        "code-mod-drone_swarm-1635879a58a0",
-        "code-mod-drone_swarm-1b99b017505d",
-        "code-mod-drone_swarm-1cae3769c298",
-        "code-mod-drone_swarm-1f47e0101426",
-        "code-mod-drone_swarm-250f3e54655c",
-        "code-mod-drone_swarm-322c0a720670",
-        "code-mod-drone_swarm-3c86467b4120",
-        "code-mod-drone_swarm-443d6fc8e771",
-        "code-mod-drone_swarm-49a29f3b5b55",
-        "code-mod-drone_swarm-63a9b3c9088a",
-        "code-mod-drone_swarm-665ac86e38f8",
-        "code-mod-drone_swarm-67ea60b86e43",
-        "code-mod-drone_swarm-6a8c292b0fa7",
-        "code-mod-drone_swarm-6d0662eeb9a9",
-        "code-mod-drone_swarm-738cbdb0c788",
-        "code-mod-drone_swarm-861db18de72d",
-        "code-mod-drone_swarm-922732a46df3",
-        "code-mod-drone_swarm-99131f4406a9",
-        "code-mod-drone_swarm-9e0c944f3098",
-        "code-mod-drone_swarm-a10296e9eeaf",
-        "code-mod-drone_swarm-a5fcbb23a404",
-        "code-mod-drone_swarm-a95c3dbf1236",
-        "code-mod-drone_swarm-a979419c3f3a",
-        "code-mod-drone_swarm-af278f084e16",
-        "code-mod-drone_swarm-b13f493583f6",
-        "code-mod-drone_swarm-c8ec0caeff6c",
-        "code-mod-drone_swarm-cb2764c8dc08",
-        "code-mod-drone_swarm-d0fd2957d6f3",
-        "code-mod-drone_swarm-d269a2434861",
-        "code-mod-drone_swarm-d427ed5e7dd2",
-        "code-mod-drone_swarm-da73cc12688f",
-        "code-mod-drone_swarm-dbb417d9861b",
-        "code-mod-drone_swarm-dd08325b197f",
-        "code-mod-drone_swarm-dfa1815e91a5",
-        "code-mod-drone_swarm-e15a0f51b784",
-        "code-mod-drone_swarm-e5ee57c72961",
-        "code-mod-drone_swarm-e65abbb9d118",
-        "code-mod-drone_swarm-e8fd8a4b81e6",
-        "code-mod-drone_swarm-eaa462aab102",
-        "code-mod-drone_swarm-fc6cfe1e511d"
+        "code-mod-drone-swarm-coordination-020be96c9406",
+        "code-mod-drone-swarm-coordination-0840d50d0e14",
+        "code-mod-drone-swarm-coordination-0e630d1bc0f4",
+        "code-mod-drone-swarm-coordination-0eea47132d5b",
+        "code-mod-drone-swarm-coordination-0f7280c58db3",
+        "code-mod-drone-swarm-coordination-155568d5a4dc",
+        "code-mod-drone-swarm-coordination-1635879a58a0",
+        "code-mod-drone-swarm-coordination-1b99b017505d",
+        "code-mod-drone-swarm-coordination-1cae3769c298",
+        "code-mod-drone-swarm-coordination-1f47e0101426",
+        "code-mod-drone-swarm-coordination-250f3e54655c",
+        "code-mod-drone-swarm-coordination-322c0a720670",
+        "code-mod-drone-swarm-coordination-3c86467b4120",
+        "code-mod-drone-swarm-coordination-443d6fc8e771",
+        "code-mod-drone-swarm-coordination-49a29f3b5b55",
+        "code-mod-drone-swarm-coordination-63a9b3c9088a",
+        "code-mod-drone-swarm-coordination-665ac86e38f8",
+        "code-mod-drone-swarm-coordination-67ea60b86e43",
+        "code-mod-drone-swarm-coordination-6a8c292b0fa7",
+        "code-mod-drone-swarm-coordination-6d0662eeb9a9",
+        "code-mod-drone-swarm-coordination-738cbdb0c788",
+        "code-mod-drone-swarm-coordination-861db18de72d",
+        "code-mod-drone-swarm-coordination-922732a46df3",
+        "code-mod-drone-swarm-coordination-99131f4406a9",
+        "code-mod-drone-swarm-coordination-9e0c944f3098",
+        "code-mod-drone-swarm-coordination-a10296e9eeaf",
+        "code-mod-drone-swarm-coordination-a5fcbb23a404",
+        "code-mod-drone-swarm-coordination-a95c3dbf1236",
+        "code-mod-drone-swarm-coordination-a979419c3f3a",
+        "code-mod-drone-swarm-coordination-af278f084e16",
+        "code-mod-drone-swarm-coordination-b13f493583f6",
+        "code-mod-drone-swarm-coordination-c8ec0caeff6c",
+        "code-mod-drone-swarm-coordination-cb2764c8dc08",
+        "code-mod-drone-swarm-coordination-d0fd2957d6f3",
+        "code-mod-drone-swarm-coordination-d269a2434861",
+        "code-mod-drone-swarm-coordination-d427ed5e7dd2",
+        "code-mod-drone-swarm-coordination-da73cc12688f",
+        "code-mod-drone-swarm-coordination-dbb417d9861b",
+        "code-mod-drone-swarm-coordination-dd08325b197f",
+        "code-mod-drone-swarm-coordination-dfa1815e91a5",
+        "code-mod-drone-swarm-coordination-e15a0f51b784",
+        "code-mod-drone-swarm-coordination-e5ee57c72961",
+        "code-mod-drone-swarm-coordination-e65abbb9d118",
+        "code-mod-drone-swarm-coordination-e8fd8a4b81e6",
+        "code-mod-drone-swarm-coordination-eaa462aab102",
+        "code-mod-drone-swarm-coordination-fc6cfe1e511d"
       ]
     },
     {
@@ -494,68 +494,68 @@
       "id": "domain",
       "name": "Domain",
       "nodeIds": [
-        "code-sym-drone_swarm-0121ac7db412",
-        "code-sym-drone_swarm-0218d2d05858",
-        "code-sym-drone_swarm-04847a793bd3",
-        "code-sym-drone_swarm-0ee1c88f8c19",
-        "code-sym-drone_swarm-109bedd7be2f",
-        "code-sym-drone_swarm-1ba81172f46b",
-        "code-sym-drone_swarm-1e6f28d63b10",
-        "code-sym-drone_swarm-27e04d56caf5",
-        "code-sym-drone_swarm-2869cb9e024d",
-        "code-sym-drone_swarm-289abf47f143",
-        "code-sym-drone_swarm-29e7dc6dd615",
-        "code-sym-drone_swarm-32c4fddb7578",
-        "code-sym-drone_swarm-3617a57cbfba",
-        "code-sym-drone_swarm-3d66d0be5940",
-        "code-sym-drone_swarm-3ecdebb94011",
-        "code-sym-drone_swarm-3ee324e17ef0",
-        "code-sym-drone_swarm-44d341d4e162",
-        "code-sym-drone_swarm-473842d007f9",
-        "code-sym-drone_swarm-48811f7636f1",
-        "code-sym-drone_swarm-4b1139f25cd7",
-        "code-sym-drone_swarm-512c1a253a09",
-        "code-sym-drone_swarm-529e37010cd1",
-        "code-sym-drone_swarm-58724c2e5f37",
-        "code-sym-drone_swarm-5a58f5d34293",
-        "code-sym-drone_swarm-6142eca40d97",
-        "code-sym-drone_swarm-6518fa91d697",
-        "code-sym-drone_swarm-66f042d539b0",
-        "code-sym-drone_swarm-6ae822e343a3",
-        "code-sym-drone_swarm-6cc585ea77b3",
-        "code-sym-drone_swarm-73cbe889d93d",
-        "code-sym-drone_swarm-75378b0f06b7",
-        "code-sym-drone_swarm-8065b036928c",
-        "code-sym-drone_swarm-8c06ba32b8fa",
-        "code-sym-drone_swarm-92cfa5d99d01",
-        "code-sym-drone_swarm-9921d19e728c",
-        "code-sym-drone_swarm-9a61fec29775",
-        "code-sym-drone_swarm-a0dc909ab18e",
-        "code-sym-drone_swarm-a390025c5ed8",
-        "code-sym-drone_swarm-a6803c18bb0d",
-        "code-sym-drone_swarm-a7b1dc9bc85f",
-        "code-sym-drone_swarm-b5857104e7d7",
-        "code-sym-drone_swarm-b58aa672a2c2",
-        "code-sym-drone_swarm-ba146985eac6",
-        "code-sym-drone_swarm-bad80a68124a",
-        "code-sym-drone_swarm-c20cd7db9e98",
-        "code-sym-drone_swarm-c2c099b2c4a2",
-        "code-sym-drone_swarm-c864c2693aa8",
-        "code-sym-drone_swarm-c8c0d56ebf56",
-        "code-sym-drone_swarm-cb85304de518",
-        "code-sym-drone_swarm-d9816132d4ca",
-        "code-sym-drone_swarm-da6ed22c9a9f",
-        "code-sym-drone_swarm-e028db7505d0",
-        "code-sym-drone_swarm-e6188ecaad64",
-        "code-sym-drone_swarm-e85b00a70f4d",
-        "code-sym-drone_swarm-ea9f8c882491",
-        "code-sym-drone_swarm-f37216232adb",
-        "code-sym-drone_swarm-f55cac3d3738",
-        "code-sym-drone_swarm-f8727d2c24fc",
-        "code-sym-drone_swarm-fa66a27e66af",
-        "code-sym-drone_swarm-fb9fc61b4035",
-        "code-sym-drone_swarm-fd38c91a468c",
-        "code-sym-drone_swarm-ff452f6432af"
+        "code-sym-drone-swarm-coordination-0121ac7db412",
+        "code-sym-drone-swarm-coordination-0218d2d05858",
+        "code-sym-drone-swarm-coordination-04847a793bd3",
+        "code-sym-drone-swarm-coordination-0ee1c88f8c19",
+        "code-sym-drone-swarm-coordination-109bedd7be2f",
+        "code-sym-drone-swarm-coordination-1ba81172f46b",
+        "code-sym-drone-swarm-coordination-1e6f28d63b10",
+        "code-sym-drone-swarm-coordination-27e04d56caf5",
+        "code-sym-drone-swarm-coordination-2869cb9e024d",
+        "code-sym-drone-swarm-coordination-289abf47f143",
+        "code-sym-drone-swarm-coordination-29e7dc6dd615",
+        "code-sym-drone-swarm-coordination-32c4fddb7578",
+        "code-sym-drone-swarm-coordination-3617a57cbfba",
+        "code-sym-drone-swarm-coordination-3d66d0be5940",
+        "code-sym-drone-swarm-coordination-3ecdebb94011",
+        "code-sym-drone-swarm-coordination-3ee324e17ef0",
+        "code-sym-drone-swarm-coordination-44d341d4e162",
+        "code-sym-drone-swarm-coordination-473842d007f9",
+        "code-sym-drone-swarm-coordination-48811f7636f1",
+        "code-sym-drone-swarm-coordination-4b1139f25cd7",
+        "code-sym-drone-swarm-coordination-512c1a253a09",
+        "code-sym-drone-swarm-coordination-529e37010cd1",
+        "code-sym-drone-swarm-coordination-58724c2e5f37",
+        "code-sym-drone-swarm-coordination-5a58f5d34293",
+        "code-sym-drone-swarm-coordination-6142eca40d97",
+        "code-sym-drone-swarm-coordination-6518fa91d697",
+        "code-sym-drone-swarm-coordination-66f042d539b0",
+        "code-sym-drone-swarm-coordination-6ae822e343a3",
+        "code-sym-drone-swarm-coordination-6cc585ea77b3",
+        "code-sym-drone-swarm-coordination-73cbe889d93d",
+        "code-sym-drone-swarm-coordination-75378b0f06b7",
+        "code-sym-drone-swarm-coordination-8065b036928c",
+        "code-sym-drone-swarm-coordination-8c06ba32b8fa",
+        "code-sym-drone-swarm-coordination-92cfa5d99d01",
+        "code-sym-drone-swarm-coordination-9921d19e728c",
+        "code-sym-drone-swarm-coordination-9a61fec29775",
+        "code-sym-drone-swarm-coordination-a0dc909ab18e",
+        "code-sym-drone-swarm-coordination-a390025c5ed8",
+        "code-sym-drone-swarm-coordination-a6803c18bb0d",
+        "code-sym-drone-swarm-coordination-a7b1dc9bc85f",
+        "code-sym-drone-swarm-coordination-b5857104e7d7",
+        "code-sym-drone-swarm-coordination-b58aa672a2c2",
+        "code-sym-drone-swarm-coordination-ba146985eac6",
+        "code-sym-drone-swarm-coordination-bad80a68124a",
+        "code-sym-drone-swarm-coordination-c20cd7db9e98",
+        "code-sym-drone-swarm-coordination-c2c099b2c4a2",
+        "code-sym-drone-swarm-coordination-c864c2693aa8",
+        "code-sym-drone-swarm-coordination-c8c0d56ebf56",
+        "code-sym-drone-swarm-coordination-cb85304de518",
+        "code-sym-drone-swarm-coordination-d9816132d4ca",
+        "code-sym-drone-swarm-coordination-da6ed22c9a9f",
+        "code-sym-drone-swarm-coordination-e028db7505d0",
+        "code-sym-drone-swarm-coordination-e6188ecaad64",
+        "code-sym-drone-swarm-coordination-e85b00a70f4d",
+        "code-sym-drone-swarm-coordination-ea9f8c882491",
+        "code-sym-drone-swarm-coordination-f37216232adb",
+        "code-sym-drone-swarm-coordination-f55cac3d3738",
+        "code-sym-drone-swarm-coordination-f8727d2c24fc",
+        "code-sym-drone-swarm-coordination-fa66a27e66af",
+        "code-sym-drone-swarm-coordination-fb9fc61b4035",
+        "code-sym-drone-swarm-coordination-fd38c91a468c",
+        "code-sym-drone-swarm-coordination-ff452f6432af"
       ]
     },
     {
@@ -563,9 +563,9 @@
       "id": "test",
       "name": "Test",
       "nodeIds": [
-        "code-mod-drone_swarm-51f60657869b",
-        "code-mod-drone_swarm-70a6b77e4db6",
-        "code-mod-drone_swarm-8e91efb9419a"
+        "code-mod-drone-swarm-coordination-51f60657869b",
+        "code-mod-drone-swarm-coordination-70a6b77e4db6",
+        "code-mod-drone-swarm-coordination-8e91efb9419a"
       ]
     }
   ],
@@ -573,7 +573,7 @@
     {
       "complexity": 1,
       "filePath": "bench_adversarial.py",
-      "id": "code-sym-drone_swarm-0121ac7db412",
+      "id": "code-sym-drone-swarm-coordination-0121ac7db412",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -590,7 +590,7 @@
     {
       "complexity": 9,
       "filePath": "bench_adversarial.py",
-      "id": "code-mod-drone_swarm-250f3e54655c",
+      "id": "code-mod-drone-swarm-coordination-250f3e54655c",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -607,7 +607,7 @@
     {
       "complexity": 1,
       "filePath": "bench_assignment.py",
-      "id": "code-sym-drone_swarm-d9816132d4ca",
+      "id": "code-sym-drone-swarm-coordination-d9816132d4ca",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -624,7 +624,7 @@
     {
       "complexity": 17,
       "filePath": "bench_assignment.py",
-      "id": "code-mod-drone_swarm-0840d50d0e14",
+      "id": "code-mod-drone-swarm-coordination-0840d50d0e14",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -641,7 +641,7 @@
     {
       "complexity": 15,
       "filePath": "bench_astar.py",
-      "id": "code-mod-drone_swarm-6a8c292b0fa7",
+      "id": "code-mod-drone-swarm-coordination-6a8c292b0fa7",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -658,7 +658,7 @@
     {
       "complexity": 1,
       "filePath": "bench_attrition.py",
-      "id": "code-sym-drone_swarm-66f042d539b0",
+      "id": "code-sym-drone-swarm-coordination-66f042d539b0",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -675,7 +675,7 @@
     {
       "complexity": 11,
       "filePath": "bench_attrition.py",
-      "id": "code-mod-drone_swarm-3c86467b4120",
+      "id": "code-mod-drone-swarm-coordination-3c86467b4120",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -692,7 +692,7 @@
     {
       "complexity": 5,
       "filePath": "bench_cbba.py",
-      "id": "code-mod-drone_swarm-a10296e9eeaf",
+      "id": "code-mod-drone-swarm-coordination-a10296e9eeaf",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -709,7 +709,7 @@
     {
       "complexity": 1,
       "filePath": "bench_comms.py",
-      "id": "code-sym-drone_swarm-a6803c18bb0d",
+      "id": "code-sym-drone-swarm-coordination-a6803c18bb0d",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -726,7 +726,7 @@
     {
       "complexity": 1,
       "filePath": "bench_comms.py",
-      "id": "code-sym-drone_swarm-b5857104e7d7",
+      "id": "code-sym-drone-swarm-coordination-b5857104e7d7",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -743,7 +743,7 @@
     {
       "complexity": 2,
       "filePath": "bench_comms.py",
-      "id": "code-sym-drone_swarm-e028db7505d0",
+      "id": "code-sym-drone-swarm-coordination-e028db7505d0",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -760,7 +760,7 @@
     {
       "complexity": 1,
       "filePath": "bench_comms.py",
-      "id": "code-sym-drone_swarm-fd38c91a468c",
+      "id": "code-sym-drone-swarm-coordination-fd38c91a468c",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -777,7 +777,7 @@
     {
       "complexity": 19,
       "filePath": "bench_comms.py",
-      "id": "code-mod-drone_swarm-322c0a720670",
+      "id": "code-mod-drone-swarm-coordination-322c0a720670",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -794,7 +794,7 @@
     {
       "complexity": 7,
       "filePath": "bench_conjecture4.py",
-      "id": "code-mod-drone_swarm-99131f4406a9",
+      "id": "code-mod-drone-swarm-coordination-99131f4406a9",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -811,7 +811,7 @@
     {
       "complexity": 1,
       "filePath": "bench_determinism.py",
-      "id": "code-sym-drone_swarm-f55cac3d3738",
+      "id": "code-sym-drone-swarm-coordination-f55cac3d3738",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -828,7 +828,7 @@
     {
       "complexity": 5,
       "filePath": "bench_determinism.py",
-      "id": "code-mod-drone_swarm-443d6fc8e771",
+      "id": "code-mod-drone-swarm-coordination-443d6fc8e771",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -845,7 +845,7 @@
     {
       "complexity": 12,
       "filePath": "bench_drift.py",
-      "id": "code-mod-drone_swarm-0eea47132d5b",
+      "id": "code-mod-drone-swarm-coordination-0eea47132d5b",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -862,7 +862,7 @@
     {
       "complexity": 1,
       "filePath": "bench_layer4.py",
-      "id": "code-sym-drone_swarm-f8727d2c24fc",
+      "id": "code-sym-drone-swarm-coordination-f8727d2c24fc",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -879,7 +879,7 @@
     {
       "complexity": 11,
       "filePath": "bench_layer4.py",
-      "id": "code-mod-drone_swarm-eaa462aab102",
+      "id": "code-mod-drone-swarm-coordination-eaa462aab102",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -896,7 +896,7 @@
     {
       "complexity": 1,
       "filePath": "bench_localization.py",
-      "id": "code-sym-drone_swarm-32c4fddb7578",
+      "id": "code-sym-drone-swarm-coordination-32c4fddb7578",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -913,7 +913,7 @@
     {
       "complexity": 9,
       "filePath": "bench_localization.py",
-      "id": "code-mod-drone_swarm-67ea60b86e43",
+      "id": "code-mod-drone-swarm-coordination-67ea60b86e43",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -930,7 +930,7 @@
     {
       "complexity": 1,
       "filePath": "bench_loss.py",
-      "id": "code-sym-drone_swarm-473842d007f9",
+      "id": "code-sym-drone-swarm-coordination-473842d007f9",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -947,7 +947,7 @@
     {
       "complexity": 11,
       "filePath": "bench_loss.py",
-      "id": "code-mod-drone_swarm-155568d5a4dc",
+      "id": "code-mod-drone-swarm-coordination-155568d5a4dc",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -964,7 +964,7 @@
     {
       "complexity": 7,
       "filePath": "bench_patch_optimality.py",
-      "id": "code-mod-drone_swarm-0e630d1bc0f4",
+      "id": "code-mod-drone-swarm-coordination-0e630d1bc0f4",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -981,7 +981,7 @@
     {
       "complexity": 4,
       "filePath": "bench_search.py",
-      "id": "code-sym-drone_swarm-6518fa91d697",
+      "id": "code-sym-drone-swarm-coordination-6518fa91d697",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -998,7 +998,7 @@
     {
       "complexity": 2,
       "filePath": "bench_search.py",
-      "id": "code-sym-drone_swarm-c20cd7db9e98",
+      "id": "code-sym-drone-swarm-coordination-c20cd7db9e98",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1015,7 +1015,7 @@
     {
       "complexity": 2,
       "filePath": "bench_search.py",
-      "id": "code-sym-drone_swarm-c864c2693aa8",
+      "id": "code-sym-drone-swarm-coordination-c864c2693aa8",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1032,7 +1032,7 @@
     {
       "complexity": 2,
       "filePath": "bench_search.py",
-      "id": "code-sym-drone_swarm-da6ed22c9a9f",
+      "id": "code-sym-drone-swarm-coordination-da6ed22c9a9f",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1049,7 +1049,7 @@
     {
       "complexity": 2,
       "filePath": "bench_search.py",
-      "id": "code-sym-drone_swarm-f37216232adb",
+      "id": "code-sym-drone-swarm-coordination-f37216232adb",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1066,7 +1066,7 @@
     {
       "complexity": 41,
       "filePath": "bench_search.py",
-      "id": "code-mod-drone_swarm-738cbdb0c788",
+      "id": "code-mod-drone-swarm-coordination-738cbdb0c788",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1083,7 +1083,7 @@
     {
       "complexity": 1,
       "filePath": "bench_streaming.py",
-      "id": "code-sym-drone_swarm-04847a793bd3",
+      "id": "code-sym-drone-swarm-coordination-04847a793bd3",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1100,7 +1100,7 @@
     {
       "complexity": 11,
       "filePath": "bench_streaming.py",
-      "id": "code-mod-drone_swarm-e8fd8a4b81e6",
+      "id": "code-mod-drone-swarm-coordination-e8fd8a4b81e6",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1117,7 +1117,7 @@
     {
       "complexity": 1,
       "filePath": "bench_witness.py",
-      "id": "code-sym-drone_swarm-8065b036928c",
+      "id": "code-sym-drone-swarm-coordination-8065b036928c",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1134,7 +1134,7 @@
     {
       "complexity": 11,
       "filePath": "bench_witness.py",
-      "id": "code-mod-drone_swarm-a95c3dbf1236",
+      "id": "code-mod-drone-swarm-coordination-a95c3dbf1236",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1151,7 +1151,7 @@
     {
       "complexity": 2,
       "filePath": "distributed/agent.py",
-      "id": "code-sym-drone_swarm-8c06ba32b8fa",
+      "id": "code-sym-drone-swarm-coordination-8c06ba32b8fa",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1168,7 +1168,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/agent.py",
-      "id": "code-sym-drone_swarm-c8c0d56ebf56",
+      "id": "code-sym-drone-swarm-coordination-c8c0d56ebf56",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1185,7 +1185,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/agent.py",
-      "id": "code-sym-drone_swarm-ff452f6432af",
+      "id": "code-sym-drone-swarm-coordination-ff452f6432af",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1202,7 +1202,7 @@
     {
       "complexity": 6,
       "filePath": "distributed/agent.py",
-      "id": "code-mod-drone_swarm-c8ec0caeff6c",
+      "id": "code-mod-drone-swarm-coordination-c8ec0caeff6c",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1219,7 +1219,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/baseline_drift.py",
-      "id": "code-mod-drone_swarm-dbb417d9861b",
+      "id": "code-mod-drone-swarm-coordination-dbb417d9861b",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1236,7 +1236,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/baseline_oracle.py",
-      "id": "code-mod-drone_swarm-861db18de72d",
+      "id": "code-mod-drone-swarm-coordination-861db18de72d",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1253,7 +1253,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/bench_distributed.py",
-      "id": "code-sym-drone_swarm-109bedd7be2f",
+      "id": "code-sym-drone-swarm-coordination-109bedd7be2f",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1270,7 +1270,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/bench_distributed.py",
-      "id": "code-sym-drone_swarm-1ba81172f46b",
+      "id": "code-sym-drone-swarm-coordination-1ba81172f46b",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1287,7 +1287,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/bench_distributed.py",
-      "id": "code-sym-drone_swarm-1e6f28d63b10",
+      "id": "code-sym-drone-swarm-coordination-1e6f28d63b10",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1304,7 +1304,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/bench_distributed.py",
-      "id": "code-sym-drone_swarm-92cfa5d99d01",
+      "id": "code-sym-drone-swarm-coordination-92cfa5d99d01",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1321,7 +1321,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/bench_distributed.py",
-      "id": "code-sym-drone_swarm-bad80a68124a",
+      "id": "code-sym-drone-swarm-coordination-bad80a68124a",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1338,7 +1338,7 @@
     {
       "complexity": 27,
       "filePath": "distributed/bench_distributed.py",
-      "id": "code-mod-drone_swarm-1b99b017505d",
+      "id": "code-mod-drone-swarm-coordination-1b99b017505d",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1355,7 +1355,7 @@
     {
       "complexity": 3,
       "filePath": "distributed/bench_sensitivity.py",
-      "id": "code-mod-drone_swarm-665ac86e38f8",
+      "id": "code-mod-drone-swarm-coordination-665ac86e38f8",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1372,7 +1372,7 @@
     {
       "complexity": 5,
       "filePath": "distributed/local_comms.py",
-      "id": "code-sym-drone_swarm-3ee324e17ef0",
+      "id": "code-sym-drone-swarm-coordination-3ee324e17ef0",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1389,7 +1389,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/local_comms.py",
-      "id": "code-sym-drone_swarm-5a58f5d34293",
+      "id": "code-sym-drone-swarm-coordination-5a58f5d34293",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1406,7 +1406,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/local_comms.py",
-      "id": "code-sym-drone_swarm-73cbe889d93d",
+      "id": "code-sym-drone-swarm-coordination-73cbe889d93d",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1423,7 +1423,7 @@
     {
       "complexity": 4,
       "filePath": "distributed/local_comms.py",
-      "id": "code-mod-drone_swarm-1f47e0101426",
+      "id": "code-mod-drone-swarm-coordination-1f47e0101426",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1440,7 +1440,7 @@
     {
       "complexity": 4,
       "filePath": "distributed/manifold.py",
-      "id": "code-mod-drone_swarm-d427ed5e7dd2",
+      "id": "code-mod-drone-swarm-coordination-d427ed5e7dd2",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1457,7 +1457,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/protocol.py",
-      "id": "code-sym-drone_swarm-0ee1c88f8c19",
+      "id": "code-sym-drone-swarm-coordination-0ee1c88f8c19",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1474,7 +1474,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/protocol.py",
-      "id": "code-sym-drone_swarm-44d341d4e162",
+      "id": "code-sym-drone-swarm-coordination-44d341d4e162",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1491,7 +1491,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/protocol.py",
-      "id": "code-sym-drone_swarm-4b1139f25cd7",
+      "id": "code-sym-drone-swarm-coordination-4b1139f25cd7",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1508,7 +1508,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/protocol.py",
-      "id": "code-sym-drone_swarm-a390025c5ed8",
+      "id": "code-sym-drone-swarm-coordination-a390025c5ed8",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1525,7 +1525,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/protocol.py",
-      "id": "code-sym-drone_swarm-cb85304de518",
+      "id": "code-sym-drone-swarm-coordination-cb85304de518",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1542,7 +1542,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/protocol.py",
-      "id": "code-sym-drone_swarm-e6188ecaad64",
+      "id": "code-sym-drone-swarm-coordination-e6188ecaad64",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1559,7 +1559,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/protocol.py",
-      "id": "code-sym-drone_swarm-ea9f8c882491",
+      "id": "code-sym-drone-swarm-coordination-ea9f8c882491",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1576,7 +1576,7 @@
     {
       "complexity": 28,
       "filePath": "distributed/protocol.py",
-      "id": "code-mod-drone_swarm-af278f084e16",
+      "id": "code-mod-drone-swarm-coordination-af278f084e16",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1593,7 +1593,7 @@
     {
       "complexity": 4,
       "filePath": "distributed/stats.py",
-      "id": "code-mod-drone_swarm-dfa1815e91a5",
+      "id": "code-mod-drone-swarm-coordination-dfa1815e91a5",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1610,7 +1610,7 @@
     {
       "complexity": 20,
       "filePath": "distributed/test_gpa_consensus.py",
-      "id": "code-mod-drone_swarm-51f60657869b",
+      "id": "code-mod-drone-swarm-coordination-51f60657869b",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1627,7 +1627,7 @@
     {
       "complexity": 13,
       "filePath": "distributed/test_graph_rigidity.py",
-      "id": "code-mod-drone_swarm-70a6b77e4db6",
+      "id": "code-mod-drone-swarm-coordination-70a6b77e4db6",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1644,7 +1644,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/world.py",
-      "id": "code-sym-drone_swarm-3d66d0be5940",
+      "id": "code-sym-drone-swarm-coordination-3d66d0be5940",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1661,7 +1661,7 @@
     {
       "complexity": 1,
       "filePath": "distributed/world.py",
-      "id": "code-sym-drone_swarm-6cc585ea77b3",
+      "id": "code-sym-drone-swarm-coordination-6cc585ea77b3",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1678,7 +1678,7 @@
     {
       "complexity": 5,
       "filePath": "distributed/world.py",
-      "id": "code-sym-drone_swarm-fb9fc61b4035",
+      "id": "code-sym-drone-swarm-coordination-fb9fc61b4035",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1695,7 +1695,7 @@
     {
       "complexity": 4,
       "filePath": "distributed/world.py",
-      "id": "code-mod-drone_swarm-da73cc12688f",
+      "id": "code-mod-drone-swarm-coordination-da73cc12688f",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1712,7 +1712,7 @@
     {
       "complexity": 2,
       "filePath": "extract_search_results.py",
-      "id": "code-mod-drone_swarm-1635879a58a0",
+      "id": "code-mod-drone-swarm-coordination-1635879a58a0",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1729,7 +1729,7 @@
     {
       "complexity": 5,
       "filePath": "make_figures.py",
-      "id": "code-mod-drone_swarm-a979419c3f3a",
+      "id": "code-mod-drone-swarm-coordination-a979419c3f3a",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1746,7 +1746,7 @@
     {
       "complexity": 13,
       "filePath": "patent/make_patent_figures.py",
-      "id": "code-mod-drone_swarm-63a9b3c9088a",
+      "id": "code-mod-drone-swarm-coordination-63a9b3c9088a",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1763,7 +1763,7 @@
     {
       "complexity": 2,
       "filePath": "simulator.py",
-      "id": "code-sym-drone_swarm-2869cb9e024d",
+      "id": "code-sym-drone-swarm-coordination-2869cb9e024d",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1780,7 +1780,7 @@
     {
       "complexity": 1,
       "filePath": "simulator.py",
-      "id": "code-sym-drone_swarm-3617a57cbfba",
+      "id": "code-sym-drone-swarm-coordination-3617a57cbfba",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1797,7 +1797,7 @@
     {
       "complexity": 2,
       "filePath": "simulator.py",
-      "id": "code-sym-drone_swarm-e85b00a70f4d",
+      "id": "code-sym-drone-swarm-coordination-e85b00a70f4d",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1814,7 +1814,7 @@
     {
       "complexity": 12,
       "filePath": "simulator.py",
-      "id": "code-mod-drone_swarm-e5ee57c72961",
+      "id": "code-mod-drone-swarm-coordination-e5ee57c72961",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1831,7 +1831,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/acoustic_channel.py",
-      "id": "code-sym-drone_swarm-0218d2d05858",
+      "id": "code-sym-drone-swarm-coordination-0218d2d05858",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1848,7 +1848,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/acoustic_channel.py",
-      "id": "code-sym-drone_swarm-29e7dc6dd615",
+      "id": "code-sym-drone-swarm-coordination-29e7dc6dd615",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1865,7 +1865,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/acoustic_channel.py",
-      "id": "code-sym-drone_swarm-75378b0f06b7",
+      "id": "code-sym-drone-swarm-coordination-75378b0f06b7",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1882,7 +1882,7 @@
     {
       "complexity": 13,
       "filePath": "underwater/acoustic_channel.py",
-      "id": "code-mod-drone_swarm-dd08325b197f",
+      "id": "code-mod-drone-swarm-coordination-dd08325b197f",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1899,7 +1899,7 @@
     {
       "complexity": 11,
       "filePath": "underwater/bench_comms_spectrum.py",
-      "id": "code-mod-drone_swarm-8e91efb9419a",
+      "id": "code-mod-drone-swarm-coordination-8e91efb9419a",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1916,7 +1916,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_convergence.py",
-      "id": "code-sym-drone_swarm-6142eca40d97",
+      "id": "code-sym-drone-swarm-coordination-6142eca40d97",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1933,7 +1933,7 @@
     {
       "complexity": 3,
       "filePath": "underwater/bench_convergence.py",
-      "id": "code-mod-drone_swarm-e65abbb9d118",
+      "id": "code-mod-drone-swarm-coordination-e65abbb9d118",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -1950,7 +1950,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_detection_mapping.py",
-      "id": "code-sym-drone_swarm-289abf47f143",
+      "id": "code-sym-drone-swarm-coordination-289abf47f143",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1967,7 +1967,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_detection_mapping.py",
-      "id": "code-sym-drone_swarm-c2c099b2c4a2",
+      "id": "code-sym-drone-swarm-coordination-c2c099b2c4a2",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -1984,7 +1984,7 @@
     {
       "complexity": 25,
       "filePath": "underwater/bench_detection_mapping.py",
-      "id": "code-mod-drone_swarm-cb2764c8dc08",
+      "id": "code-mod-drone-swarm-coordination-cb2764c8dc08",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2001,7 +2001,7 @@
     {
       "complexity": 5,
       "filePath": "underwater/bench_link_budget.py",
-      "id": "code-mod-drone_swarm-d269a2434861",
+      "id": "code-mod-drone-swarm-coordination-d269a2434861",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2018,7 +2018,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_losses.py",
-      "id": "code-sym-drone_swarm-ba146985eac6",
+      "id": "code-sym-drone-swarm-coordination-ba146985eac6",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2035,7 +2035,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_losses.py",
-      "id": "code-sym-drone_swarm-fa66a27e66af",
+      "id": "code-sym-drone-swarm-coordination-fa66a27e66af",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2052,7 +2052,7 @@
     {
       "complexity": 6,
       "filePath": "underwater/bench_losses.py",
-      "id": "code-mod-drone_swarm-e15a0f51b784",
+      "id": "code-mod-drone-swarm-coordination-e15a0f51b784",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2069,7 +2069,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_mission.py",
-      "id": "code-sym-drone_swarm-58724c2e5f37",
+      "id": "code-sym-drone-swarm-coordination-58724c2e5f37",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2086,7 +2086,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_mission.py",
-      "id": "code-sym-drone_swarm-6ae822e343a3",
+      "id": "code-sym-drone-swarm-coordination-6ae822e343a3",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2103,7 +2103,7 @@
     {
       "complexity": 7,
       "filePath": "underwater/bench_mission.py",
-      "id": "code-mod-drone_swarm-0f7280c58db3",
+      "id": "code-mod-drone-swarm-coordination-0f7280c58db3",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2120,7 +2120,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_topology.py",
-      "id": "code-sym-drone_swarm-a0dc909ab18e",
+      "id": "code-sym-drone-swarm-coordination-a0dc909ab18e",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2137,7 +2137,7 @@
     {
       "complexity": 3,
       "filePath": "underwater/bench_topology.py",
-      "id": "code-mod-drone_swarm-49a29f3b5b55",
+      "id": "code-mod-drone-swarm-coordination-49a29f3b5b55",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2154,7 +2154,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_vertical_relay.py",
-      "id": "code-sym-drone_swarm-48811f7636f1",
+      "id": "code-sym-drone-swarm-coordination-48811f7636f1",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2171,7 +2171,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/bench_vertical_relay.py",
-      "id": "code-sym-drone_swarm-9a61fec29775",
+      "id": "code-sym-drone-swarm-coordination-9a61fec29775",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2188,7 +2188,7 @@
     {
       "complexity": 21,
       "filePath": "underwater/bench_vertical_relay.py",
-      "id": "code-mod-drone_swarm-d0fd2957d6f3",
+      "id": "code-mod-drone-swarm-coordination-d0fd2957d6f3",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2205,7 +2205,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/debug_assignment.py",
-      "id": "code-mod-drone_swarm-a5fcbb23a404",
+      "id": "code-mod-drone-swarm-coordination-a5fcbb23a404",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2222,7 +2222,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/debug_baseline.py",
-      "id": "code-mod-drone_swarm-b13f493583f6",
+      "id": "code-mod-drone-swarm-coordination-b13f493583f6",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2239,7 +2239,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/debug_loss.py",
-      "id": "code-mod-drone_swarm-922732a46df3",
+      "id": "code-mod-drone-swarm-coordination-922732a46df3",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2256,7 +2256,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/failures.py",
-      "id": "code-sym-drone_swarm-512c1a253a09",
+      "id": "code-sym-drone-swarm-coordination-512c1a253a09",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2273,7 +2273,7 @@
     {
       "complexity": 12,
       "filePath": "underwater/failures.py",
-      "id": "code-mod-drone_swarm-fc6cfe1e511d",
+      "id": "code-mod-drone-swarm-coordination-fc6cfe1e511d",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2290,7 +2290,7 @@
     {
       "complexity": 4,
       "filePath": "underwater/lattice.py",
-      "id": "code-mod-drone_swarm-020be96c9406",
+      "id": "code-mod-drone-swarm-coordination-020be96c9406",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2307,7 +2307,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/mapping.py",
-      "id": "code-sym-drone_swarm-529e37010cd1",
+      "id": "code-sym-drone-swarm-coordination-529e37010cd1",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2324,7 +2324,7 @@
     {
       "complexity": 11,
       "filePath": "underwater/mapping.py",
-      "id": "code-mod-drone_swarm-6d0662eeb9a9",
+      "id": "code-mod-drone-swarm-coordination-6d0662eeb9a9",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2341,7 +2341,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/mission.py",
-      "id": "code-sym-drone_swarm-27e04d56caf5",
+      "id": "code-sym-drone-swarm-coordination-27e04d56caf5",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2358,7 +2358,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/mission.py",
-      "id": "code-sym-drone_swarm-3ecdebb94011",
+      "id": "code-sym-drone-swarm-coordination-3ecdebb94011",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2375,7 +2375,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/mission.py",
-      "id": "code-sym-drone_swarm-9921d19e728c",
+      "id": "code-sym-drone-swarm-coordination-9921d19e728c",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2392,7 +2392,7 @@
     {
       "complexity": 1,
       "filePath": "underwater/mission.py",
-      "id": "code-sym-drone_swarm-b58aa672a2c2",
+      "id": "code-sym-drone-swarm-coordination-b58aa672a2c2",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2409,7 +2409,7 @@
     {
       "complexity": 9,
       "filePath": "underwater/mission.py",
-      "id": "code-mod-drone_swarm-1cae3769c298",
+      "id": "code-mod-drone-swarm-coordination-1cae3769c298",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2426,7 +2426,7 @@
     {
       "complexity": 3,
       "filePath": "underwater/pbd.py",
-      "id": "code-sym-drone_swarm-a7b1dc9bc85f",
+      "id": "code-sym-drone-swarm-coordination-a7b1dc9bc85f",
       "languageNotes": {
         "kindexType": "concept",
         "language": "Python",
@@ -2443,7 +2443,7 @@
     {
       "complexity": 3,
       "filePath": "underwater/pbd.py",
-      "id": "code-mod-drone_swarm-9e0c944f3098",
+      "id": "code-mod-drone-swarm-coordination-9e0c944f3098",
       "languageNotes": {
         "kindexType": "artifact",
         "language": "Python",
@@ -2460,43 +2460,43 @@
   ],
   "project": {
     "analyzedAt": "2026-05-25T15:37:45-05:00",
-    "description": "Code map exported from Kindex for drone_swarm.",
+    "description": "Code map exported from Kindex for drone-swarm-coordination.",
     "frameworks": [],
     "gitCommitHash": "adfc6f4331730fa674ab2845ea8fde33094f0032",
     "languages": [
       "Python"
     ],
-    "name": "drone_swarm"
+    "name": "drone-swarm-coordination"
   },
   "tour": [
     {
       "description": "Review 46 node(s) in the Core layer.",
       "nodeIds": [
-        "code-mod-drone_swarm-020be96c9406",
-        "code-mod-drone_swarm-0840d50d0e14",
-        "code-mod-drone_swarm-0e630d1bc0f4",
-        "code-mod-drone_swarm-0eea47132d5b",
-        "code-mod-drone_swarm-0f7280c58db3",
-        "code-mod-drone_swarm-155568d5a4dc",
-        "code-mod-drone_swarm-1635879a58a0",
-        "code-mod-drone_swarm-1b99b017505d",
-        "code-mod-drone_swarm-1cae3769c298",
-        "code-mod-drone_swarm-1f47e0101426",
-        "code-mod-drone_swarm-250f3e54655c",
-        "code-mod-drone_swarm-322c0a720670",
-        "code-mod-drone_swarm-3c86467b4120",
-        "code-mod-drone_swarm-443d6fc8e771",
-        "code-mod-drone_swarm-49a29f3b5b55",
-        "code-mod-drone_swarm-63a9b3c9088a",
-        "code-mod-drone_swarm-665ac86e38f8",
-        "code-mod-drone_swarm-67ea60b86e43",
-        "code-mod-drone_swarm-6a8c292b0fa7",
-        "code-mod-drone_swarm-6d0662eeb9a9",
-        "code-mod-drone_swarm-738cbdb0c788",
-        "code-mod-drone_swarm-861db18de72d",
-        "code-mod-drone_swarm-922732a46df3",
-        "code-mod-drone_swarm-99131f4406a9",
-        "code-mod-drone_swarm-9e0c944f3098"
+        "code-mod-drone-swarm-coordination-020be96c9406",
+        "code-mod-drone-swarm-coordination-0840d50d0e14",
+        "code-mod-drone-swarm-coordination-0e630d1bc0f4",
+        "code-mod-drone-swarm-coordination-0eea47132d5b",
+        "code-mod-drone-swarm-coordination-0f7280c58db3",
+        "code-mod-drone-swarm-coordination-155568d5a4dc",
+        "code-mod-drone-swarm-coordination-1635879a58a0",
+        "code-mod-drone-swarm-coordination-1b99b017505d",
+        "code-mod-drone-swarm-coordination-1cae3769c298",
+        "code-mod-drone-swarm-coordination-1f47e0101426",
+        "code-mod-drone-swarm-coordination-250f3e54655c",
+        "code-mod-drone-swarm-coordination-322c0a720670",
+        "code-mod-drone-swarm-coordination-3c86467b4120",
+        "code-mod-drone-swarm-coordination-443d6fc8e771",
+        "code-mod-drone-swarm-coordination-49a29f3b5b55",
+        "code-mod-drone-swarm-coordination-63a9b3c9088a",
+        "code-mod-drone-swarm-coordination-665ac86e38f8",
+        "code-mod-drone-swarm-coordination-67ea60b86e43",
+        "code-mod-drone-swarm-coordination-6a8c292b0fa7",
+        "code-mod-drone-swarm-coordination-6d0662eeb9a9",
+        "code-mod-drone-swarm-coordination-738cbdb0c788",
+        "code-mod-drone-swarm-coordination-861db18de72d",
+        "code-mod-drone-swarm-coordination-922732a46df3",
+        "code-mod-drone-swarm-coordination-99131f4406a9",
+        "code-mod-drone-swarm-coordination-9e0c944f3098"
       ],
       "order": 1,
       "title": "Core"
@@ -2504,31 +2504,31 @@
     {
       "description": "Review 62 node(s) in the Domain layer.",
       "nodeIds": [
-        "code-sym-drone_swarm-0121ac7db412",
-        "code-sym-drone_swarm-0218d2d05858",
-        "code-sym-drone_swarm-04847a793bd3",
-        "code-sym-drone_swarm-0ee1c88f8c19",
-        "code-sym-drone_swarm-109bedd7be2f",
-        "code-sym-drone_swarm-1ba81172f46b",
-        "code-sym-drone_swarm-1e6f28d63b10",
-        "code-sym-drone_swarm-27e04d56caf5",
-        "code-sym-drone_swarm-2869cb9e024d",
-        "code-sym-drone_swarm-289abf47f143",
-        "code-sym-drone_swarm-29e7dc6dd615",
-        "code-sym-drone_swarm-32c4fddb7578",
-        "code-sym-drone_swarm-3617a57cbfba",
-        "code-sym-drone_swarm-3d66d0be5940",
-        "code-sym-drone_swarm-3ecdebb94011",
-        "code-sym-drone_swarm-3ee324e17ef0",
-        "code-sym-drone_swarm-44d341d4e162",
-        "code-sym-drone_swarm-473842d007f9",
-        "code-sym-drone_swarm-48811f7636f1",
-        "code-sym-drone_swarm-4b1139f25cd7",
-        "code-sym-drone_swarm-512c1a253a09",
-        "code-sym-drone_swarm-529e37010cd1",
-        "code-sym-drone_swarm-58724c2e5f37",
-        "code-sym-drone_swarm-5a58f5d34293",
-        "code-sym-drone_swarm-6142eca40d97"
+        "code-sym-drone-swarm-coordination-0121ac7db412",
+        "code-sym-drone-swarm-coordination-0218d2d05858",
+        "code-sym-drone-swarm-coordination-04847a793bd3",
+        "code-sym-drone-swarm-coordination-0ee1c88f8c19",
+        "code-sym-drone-swarm-coordination-109bedd7be2f",
+        "code-sym-drone-swarm-coordination-1ba81172f46b",
+        "code-sym-drone-swarm-coordination-1e6f28d63b10",
+        "code-sym-drone-swarm-coordination-27e04d56caf5",
+        "code-sym-drone-swarm-coordination-2869cb9e024d",
+        "code-sym-drone-swarm-coordination-289abf47f143",
+        "code-sym-drone-swarm-coordination-29e7dc6dd615",
+        "code-sym-drone-swarm-coordination-32c4fddb7578",
+        "code-sym-drone-swarm-coordination-3617a57cbfba",
+        "code-sym-drone-swarm-coordination-3d66d0be5940",
+        "code-sym-drone-swarm-coordination-3ecdebb94011",
+        "code-sym-drone-swarm-coordination-3ee324e17ef0",
+        "code-sym-drone-swarm-coordination-44d341d4e162",
+        "code-sym-drone-swarm-coordination-473842d007f9",
+        "code-sym-drone-swarm-coordination-48811f7636f1",
+        "code-sym-drone-swarm-coordination-4b1139f25cd7",
+        "code-sym-drone-swarm-coordination-512c1a253a09",
+        "code-sym-drone-swarm-coordination-529e37010cd1",
+        "code-sym-drone-swarm-coordination-58724c2e5f37",
+        "code-sym-drone-swarm-coordination-5a58f5d34293",
+        "code-sym-drone-swarm-coordination-6142eca40d97"
       ],
       "order": 2,
       "title": "Domain"
@@ -2536,9 +2536,9 @@
     {
       "description": "Review 3 node(s) in the Test layer.",
       "nodeIds": [
-        "code-mod-drone_swarm-51f60657869b",
-        "code-mod-drone_swarm-70a6b77e4db6",
-        "code-mod-drone_swarm-8e91efb9419a"
+        "code-mod-drone-swarm-coordination-51f60657869b",
+        "code-mod-drone-swarm-coordination-70a6b77e4db6",
+        "code-mod-drone-swarm-coordination-8e91efb9419a"
       ],
       "order": 3,
       "title": "Test"
