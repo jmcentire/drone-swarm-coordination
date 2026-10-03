@@ -3,9 +3,9 @@
 # ///
 """Per-drone Hungarian assignment + spare-hover for the target manifold.
 
-Ported from the validated underwater work (~/Code/drone_swarm/underwater/
-mission.py compute_manifold_targets) after a side trip through recursive
-PCA bisection was found to under-perform on the surplus-fills-gaps
+Ported from the validated underwater work (underwater/mission.py
+compute_manifold_targets) after a side trip through recursive PCA
+bisection was found to under-perform on the surplus-fills-gaps
 scenarios. The underwater design decision was explicit:
 
   "kept Hungarian over recursive bisection (bisection didn't fit HCP

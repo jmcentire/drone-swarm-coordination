@@ -30,7 +30,7 @@ gcloud compute instances get-serial-port-output drone-swarm-bench-1 --zone=us-ce
 ## Pull results to laptop
 ```bash
 RUN=$(gcloud storage ls gs://baton-dev-jmc-drone-bench/ | grep run- | sort | tail -1)
-gcloud storage cp -r "${RUN}*" ~/Code/drone_swarm/distributed/gcp_results/
+gcloud storage cp -r "${RUN}*" distributed/gcp_results/   # run from the repo root
 ```
 
 ## Teardown if anything is hung (manual safety)

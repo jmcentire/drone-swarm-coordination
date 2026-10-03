@@ -27,6 +27,7 @@ The output is compatible with manifold.compute_mission_target():
 from __future__ import annotations
 
 import argparse
+import os
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -2737,7 +2738,7 @@ def main() -> None:
     ap.add_argument("--smooth", action="store_true", help="Render a smooth random building mission GIF.")
     ap.add_argument("--stress", action="store_true", help="Add deterministic drone loss and relay-gated MAP sharing.")
     ap.add_argument("--seed", type=int, default=7)
-    ap.add_argument("--output", default="/Users/jmcentire/Code/drone_swarm/figures/building_explore_demo.png")
+    ap.add_argument("--output", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "figures", "building_explore_demo.png"))
     ap.add_argument("--fps", type=float, default=1.5)
     ap.add_argument("--frames", type=int, default=220)
     ap.add_argument("--stride", type=int, default=2)

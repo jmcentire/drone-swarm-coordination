@@ -36,7 +36,7 @@ The answers, in plain English, are mixed and reported honestly below.
 
 ## What this is, and what came before
 
-A prior iteration in `~/Code/drone_swarm/underwater/` built a
+A prior iteration in `underwater/` built a
 centralized oracle simulator (single shared MissionState, global
 Hungarian assignment, oracle-decided phase transitions) and reported its
 results as evidence about the distributed protocol. A rigor audit
@@ -44,7 +44,7 @@ results as evidence about the distributed protocol. A rigor audit
 was a puppet, the results were structurally guaranteed by its design,
 and no claim from it should be cited as evidence about the protocol.
 
-This rebuild at `~/Code/drone_swarm/distributed/` replaces the oracle
+This rebuild at `distributed/` replaces the oracle
 with a real distributed substrate. The methodology innovation
 (kindex `86c98ddcec5a`) is the **falsifiability gate**: every scenario
 in `bench_distributed.py` states, in its docstring, Claim / Falsifying
@@ -307,7 +307,7 @@ denser comms range for the larger swarm.
 
 ## What to NOT cite
 
-- Any result from `~/Code/drone_swarm/underwater/bench_losses.py` or
+- Any result from `underwater/bench_losses.py` or
   `bench_mission.py`. They tested a centralized oracle.
 
 ## Follow-up work (consistently flagged by Sim + Advocate)
@@ -332,7 +332,7 @@ denser comms range for the larger swarm.
 
 ## Reproducibility
 
-- Code: `~/Code/drone_swarm/distributed/`
+- Code: `distributed/`
 - Python 3.14, numpy 2.4, scipy 1.17, macOS 15.4
 - Substrate unit tests: each module runs them when invoked directly.
 - Full bench: `python3 bench_distributed.py --seeds 20` (~5400 s

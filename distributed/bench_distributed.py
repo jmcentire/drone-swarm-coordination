@@ -1046,7 +1046,7 @@ def main():
     ap.add_argument("--seeds", type=int, default=20)
     ap.add_argument("--scenarios", nargs="*", default=None,
                     help="Names of scenarios to run; default all.")
-    ap.add_argument("--output", default="/Users/jmcentire/Code/drone_swarm/distributed/bench_results.json")
+    ap.add_argument("--output", default=str(Path(__file__).resolve().parent / "bench_results.json"))
     ap.add_argument("--checkpoint-dir", default=None,
                     help="If set, per-seed JSONs are cached here; resumes skip already-completed seeds.")
     ap.add_argument("--jobs", type=int, default=1,
