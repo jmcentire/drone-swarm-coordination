@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 from dataclasses import asdict
 
@@ -82,7 +83,7 @@ def sweep(name: str, axis: str, values: list, n_seeds: int = 10,
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", type=int, default=10)
-    ap.add_argument("--output", default="/Users/jmcentire/Code/drone_swarm/distributed/bench_sensitivity_results.json")
+    ap.add_argument("--output", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "bench_sensitivity_results.json"))
     args = ap.parse_args()
 
     t0 = time.perf_counter()
