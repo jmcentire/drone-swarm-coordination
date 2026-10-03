@@ -6,3 +6,7 @@ __pycache__/
 *.out
 *.toc
 .DS_Store
+
+# Large external empirical captures are acquired reproducibly, never committed.
+data/
+datasets/
